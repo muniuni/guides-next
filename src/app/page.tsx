@@ -328,7 +328,7 @@ export default function HomePage() {
                 <TableCell align="right">
                   <Typography
                     component={MUILink}
-                    href={`/projects/${project.id}`}
+                    href={`/projects/${project.id}/evaluate`}
                     underline="hover"
                     variant="body2"
                     sx={{
