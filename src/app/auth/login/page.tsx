@@ -20,7 +20,7 @@ export default function LoginPage() {
     if (res?.error) {
       setError("認証に失敗しました");
     } else {
-      router.push("/");
+      router.push("/?login=true");
     }
   };
 

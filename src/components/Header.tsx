@@ -8,17 +8,18 @@ import {
   Box,
   Typography,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   IconButton,
+  Menu,
+  MenuItem,
+  Divider,
+  ListItemIcon,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { useSession } from "next-auth/react";
+import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useSession, signOut } from "next-auth/react";
 import { mutate } from "swr";
-import CreateProjectForm from "@/components/CreateProjectForm";
+import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 export default function Header() {
   const router = useRouter();
@@ -26,6 +27,11 @@ export default function Header() {
   const isLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
   const [open, setOpen] = useState(false);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const openMenu = (e: React.MouseEvent<HTMLElement>) =>
+    setAnchorEl(e.currentTarget);
+  const closeMenu = () => setAnchorEl(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -106,19 +112,49 @@ export default function Header() {
           {!isLoading &&
             (isLoggedIn ? (
               <>
-                <Button
-                  component={Link}
-                  href="/auth/account"
-                  variant="outlined"
-                  startIcon={<AccountCircleIcon />}
-                  sx={{
-                    borderColor: "#000",
-                    color: "#000",
-                    backgroundColor: "#fff",
-                  }}
+                <IconButton
+                  edge="end"
+                  onClick={openMenu}
+                  sx={{ color: "#000" }}
                 >
-                  Account
-                </Button>
+                  <MenuIcon />
+                </IconButton>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={closeMenu}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                >
+                  <MenuItem
+                    component={Link}
+                    href="/auth/account"
+                    onClick={closeMenu}
+                  >
+                    <PermIdentityOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
+                    Account settings
+                  </MenuItem>
+                  <MenuItem component={Link} href="/about" onClick={closeMenu}>
+                    <InfoOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
+                    About GUIDES NEXT
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem
+                    onClick={() => {
+                      closeMenu();
+                      signOut({ callbackUrl: "/" });
+                    }}
+                  >
+                    <ListItemIcon>
+                      <LogoutIcon
+                        fontSize="small"
+                        sx={{ mr: 1, verticalAlign: "middle" }}
+                      />
+                      Log out
+                    </ListItemIcon>
+                  </MenuItem>
+                </Menu>
               </>
             ) : (
               <>

@@ -5,7 +5,13 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const projects = await prisma.project.findMany({
-    include: { images: true, questions: true },
+    include: {
+      user: {
+        select: { username: true, id: true },
+      },
+      images: true,
+      questions: true,
+    },
   });
   return NextResponse.json(projects);
 }

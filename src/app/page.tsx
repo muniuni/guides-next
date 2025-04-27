@@ -71,10 +71,25 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (searchParams.get("updated")) {
+    const p = searchParams;
+    if (p.get("updated")) {
       setSnackbar({
         open: true,
         message: "Project updated!",
+        severity: "success",
+      });
+      router.replace("/", { scroll: false });
+    } else if (p.get("login")) {
+      setSnackbar({
+        open: true,
+        message: "Logged in successfully",
+        severity: "success",
+      });
+      router.replace("/", { scroll: false });
+    } else if (p.get("signup")) {
+      setSnackbar({
+        open: true,
+        message: "Account created!",
         severity: "success",
       });
       router.replace("/", { scroll: false });
@@ -249,14 +264,21 @@ export default function HomePage() {
               />
               Description
             </TableCell>
-            <TableCell sx={{ width: "15%" }}>
+            <TableCell sx={{ width: "10%" }}>
+              <CalendarTodayIcon
+                fontSize="small"
+                sx={{ mr: 0.5, verticalAlign: "middle" }}
+              />
+              By
+            </TableCell>
+            <TableCell sx={{ width: "10%" }}>
               <CalendarTodayIcon
                 fontSize="small"
                 sx={{ mr: 0.5, verticalAlign: "middle" }}
               />
               Created
             </TableCell>
-            <TableCell sx={{ width: "15%" }}>
+            <TableCell sx={{ width: "10%" }}>
               <UpdateOutlinedIcon
                 fontSize="small"
                 sx={{ mr: 0.5, verticalAlign: "middle" }}
@@ -280,13 +302,14 @@ export default function HomePage() {
               <TableRow key={project.id}>
                 <TableCell>{project.name}</TableCell>
                 <TableCell>{project.description}</TableCell>
+                <TableCell>{project.user.username}</TableCell>
                 <TableCell>{formatDate(project.createdAt)}</TableCell>
                 <TableCell>{daysAgo(project.updatedAt)}</TableCell>
                 <TableCell>
                   <IconButton
                     component={NextLink}
                     href={`/projects/${project.id}/edit`}
-                    sx={{ visibility: isOwner ? "visible" : "hidden" }}
+                    disabled={!isOwner}
                   >
                     <CreateOutlinedIcon />
                   </IconButton>

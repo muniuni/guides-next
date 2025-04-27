@@ -2,67 +2,145 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { TextField, Button, Container, Typography, Stack } from "@mui/material";
-import bcrypt from "bcryptjs";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 
-export default function SignupPage() {
+const USERNAME_REGEX = /^[a-z0-9_-]+$/;
+
+export default function SignUpPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({ username: "", email: "", password: "" });
+  const [errors, setErrors] = useState<{ username?: string }>({});
+  const [globalError, setGlobalError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const validateUsername = (username: string) => {
+    if (!username) return "Username is required";
+    if (!USERNAME_REGEX.test(username)) {
+      return "Lowercase letters, numbers, hyphens and underscores only";
+    }
+    return "";
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+
+    if (name === "username") {
+      const msg = validateUsername(value);
+      setErrors((prev) => ({ ...prev, username: msg }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setGlobalError("");
 
-    const hashed = await bcrypt.hash(password, 10);
-
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password: hashed }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.message || "登録に失敗しました");
+    const usernameErr = validateUsername(form.username);
+    if (usernameErr) {
+      setErrors({ username: usernameErr });
       return;
     }
 
-    const result = await signIn("credentials", {
-      redirect: true,
-      email,
-      password,
-      callbackUrl: "/",
+    setLoading(true);
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
     });
+    const data = await res.json();
+    setLoading(false);
+
+    if (!res.ok) {
+      setGlobalError(data.message || "An unexpected error occurred.");
+      return;
+    }
+
+    const loginResult = await signIn("credentials", {
+      redirect: false,
+      email: form.email,
+      password: form.password,
+    });
+    if (!loginResult || loginResult.error) {
+      setGlobalError("Auto-login failed. Please log in manually.");
+      return;
+    }
+
+    router.push("/?signup=true");
   };
 
   return (
-    <Container maxWidth="xs" sx={{ py: 4 }}>
-      <Typography variant="h5" mb={2}>
-        Create Account
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ maxWidth: 400, mx: "auto", mt: 8, p: 3 }}
+    >
+      <Typography variant="h4" mb={2}>
+        Sign Up
       </Typography>
-      <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            required
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            required
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {error && <Typography color="error">{error}</Typography>}
-          <Button type="submit" variant="contained">
-            Create Account
-          </Button>
-        </Stack>
-      </form>
-    </Container>
+
+      {globalError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {globalError}
+        </Alert>
+      )}
+
+      <TextField
+        label="Username"
+        name="username"
+        value={form.username}
+        onChange={handleChange}
+        required
+        fullWidth
+        margin="normal"
+        error={Boolean(errors.username)}
+        helperText={errors.username}
+        inputProps={{ pattern: USERNAME_REGEX.source }}
+      />
+
+      <TextField
+        label="Email"
+        name="email"
+        type="email"
+        value={form.email}
+        onChange={handleChange}
+        required
+        fullWidth
+        margin="normal"
+      />
+
+      <TextField
+        label="Password"
+        name="password"
+        type="password"
+        value={form.password}
+        onChange={handleChange}
+        required
+        fullWidth
+        margin="normal"
+      />
+
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        disabled={
+          loading ||
+          Boolean(errors.username) ||
+          !form.username ||
+          !form.email ||
+          !form.password
+        }
+        sx={{ mt: 2 }}
+      >
+        {loading ? <CircularProgress size={24} /> : "Sign Up"}
+      </Button>
+    </Box>
   );
 }
