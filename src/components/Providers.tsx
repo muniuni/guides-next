@@ -29,6 +29,7 @@ const theme = createTheme({
             backgroundColor: "#FFFFFF",
             borderColor: "#000000",
             color: "#000000",
+            textTransform: "none",
             "&:hover": {
               backgroundColor: "#f5f5f5",
             },
@@ -36,6 +37,7 @@ const theme = createTheme({
           ...(ownerState.variant === "contained" && {
             backgroundColor: "#000000",
             color: "#FFFFFF",
+            textTransform: "none",
             "&:hover": {
               backgroundColor: "#222222",
             },

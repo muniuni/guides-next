@@ -38,8 +38,14 @@ export default function Header() {
   return (
     <>
       <AppBar
-        position="static"
-        sx={{ bgcolor: "#fff", color: "#000", boxShadow: 1 }}
+        position="sticky"
+        sx={{
+          bgcolor: "#fff",
+          color: "#000",
+          boxShadow: 1,
+          top: 0,
+          zIndex: 1100,
+        }}
       >
         <Toolbar>
           <Box

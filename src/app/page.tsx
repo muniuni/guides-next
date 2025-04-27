@@ -22,18 +22,25 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import SearchIcon from "@mui/icons-material/Search";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import NotesIcon from "@mui/icons-material/Notes";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import LaunchIcon from "@mui/icons-material/Launch";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import EditIcon from "@mui/icons-material/Edit";
-import AssessmentIcon from "@mui/icons-material/Assessment";
-import InfoIcon from "@mui/icons-material/Info";
+import UpdateOutlinedIcon from "@mui/icons-material/UpdateOutlined";
+import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
+import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import AddIcon from "@mui/icons-material/Add";
+import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import CreateProjectForm from "@/components/CreateProjectForm";
 
@@ -46,12 +53,26 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { data: projects, error, isLoading } = useSWR("/api/projects", fetcher);
   const [open, setOpen] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [menuProjectId, setMenuProjectId] = useState<string | null>(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleSuccess = async () => {
     setOpen(false);
     await mutate("/api/projects");
+  };
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    projectId: string,
+  ) => {
+    setMenuAnchor(event.currentTarget);
+    setMenuProjectId(projectId);
+  };
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    setMenuProjectId(null);
   };
 
   if (error) {
@@ -124,14 +145,16 @@ export default function HomePage() {
           }}
         />
         <Box sx={{ flexGrow: 1 }} />
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpen}
-          sx={{ bgcolor: "#000", color: "#fff" }}
-        >
-          Create Project
-        </Button>
+        {session?.user && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpen}
+            sx={{ bgcolor: "#000", color: "#fff" }}
+          >
+            New Project
+          </Button>
+        )}
       </Box>
 
       <Table>
@@ -156,13 +179,23 @@ export default function HomePage() {
                 fontSize="small"
                 sx={{ mr: 0.5, verticalAlign: "middle" }}
               />
-              Created At
+              Created
             </TableCell>
-            <TableCell sx={{ width: "15%" }}>Updated</TableCell>
-            <TableCell sx={{ width: "20%" }}>Actions</TableCell>
-            <TableCell align="right" sx={{ width: "15%" }}>
-              <LaunchIcon fontSize="small" sx={{ verticalAlign: "middle" }} />
+            <TableCell sx={{ width: "15%" }}>
+              <UpdateOutlinedIcon
+                fontSize="small"
+                sx={{ mr: 0.5, verticalAlign: "middle" }}
+              />
+              Updated
             </TableCell>
+            <TableCell sx={{ width: "20%" }}>
+              <AutoAwesomeOutlinedIcon
+                fontSize="small"
+                sx={{ mr: 0.5, verticalAlign: "middle" }}
+              />
+              Actions
+            </TableCell>
+            <TableCell align="right" sx={{ width: "15%" }} />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -170,16 +203,7 @@ export default function HomePage() {
             const isOwner = project.userId === userId;
             return (
               <TableRow key={project.id}>
-                <TableCell sx={{ width: "15%" }}>
-                  <MUILink
-                    component={NextLink}
-                    href={`/projects/${project.id}/edit`}
-                    underline="hover"
-                    sx={{ color: "inherit", cursor: "pointer" }}
-                  >
-                    {project.name}
-                  </MUILink>
-                </TableCell>
+                <TableCell sx={{ width: "15%" }}>{project.name}</TableCell>
                 <TableCell sx={{ width: "20%" }}>
                   {project.description}
                 </TableCell>
@@ -195,19 +219,16 @@ export default function HomePage() {
                     href={`/projects/${project.id}/edit`}
                     disabled={!isOwner}
                   >
-                    <EditIcon />
+                    <CreateOutlinedIcon />
                   </IconButton>
                   <IconButton
                     component={NextLink}
                     href={`/projects/${project.id}/metrics`}
                   >
-                    <AssessmentIcon />
+                    <AssessmentOutlinedIcon />
                   </IconButton>
-                  <IconButton
-                    component={NextLink}
-                    href={`/projects/${project.id}/info`}
-                  >
-                    <InfoIcon />
+                  <IconButton onClick={(e) => handleMenuOpen(e, project.id)}>
+                    <MoreHorizOutlinedIcon />
                   </IconButton>
                 </TableCell>
                 <TableCell align="right" sx={{ width: "15%" }}>
@@ -222,8 +243,11 @@ export default function HomePage() {
                       fontSize: 14,
                     }}
                   >
-                    Start Evaluation{" "}
-                    <OpenInNewIcon fontSize="small" sx={{ ml: 0.5 }} />
+                    Start Evaluation
+                    <ArrowOutwardOutlinedIcon
+                      fontSize="small"
+                      sx={{ ml: 0.5 }}
+                    />
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -231,6 +255,39 @@ export default function HomePage() {
           })}
         </TableBody>
       </Table>
+
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleMenuClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <MenuItem
+          component={NextLink}
+          href={`/projects/${menuProjectId}/info`}
+          onClick={handleMenuClose}
+        >
+          <ListItemIcon>
+            <InfoOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Detail</ListItemText>
+        </MenuItem>
+        <MenuItem
+          sx={{ color: "error.main" }}
+          onClick={() => {
+            handleMenuClose();
+          }}
+        >
+          <ListItemIcon>
+            <DeleteOutlineOutlinedIcon
+              fontSize="small"
+              sx={{ color: "error.main" }}
+            />
+          </ListItemIcon>
+          <ListItemText>Delete</ListItemText>
+        </MenuItem>
+      </Menu>
 
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
         <DialogTitle sx={{ m: 0, p: 2 }}>
