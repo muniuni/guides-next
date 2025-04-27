@@ -28,7 +28,7 @@ export const authOptions = {
         );
         if (!isValid) return null;
 
-        return { id: user.id, email: user.email };
+        return { id: user.id, email: user.email, username: user.username };
       },
     }),
   ],
@@ -38,11 +38,17 @@ export const authOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        token.username = (user as any).username;
+      }
       return token;
     },
     async session({ session, token }) {
       if (token.id) session.user.id = token.id as string;
+      if ((token as any).username) {
+        session.user.username = (token as any).username as string;
+      }
       return session;
     },
   },

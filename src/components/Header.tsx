@@ -105,7 +105,7 @@ export default function Header() {
               component="span"
               sx={{ color: "#000", fontWeight: "bold" }}
             >
-              GUIDES NEXT
+              GUIDES-NEXT
             </Typography>
           </Box>
 
@@ -137,7 +137,7 @@ export default function Header() {
                   </MenuItem>
                   <MenuItem component={Link} href="/about" onClick={closeMenu}>
                     <InfoOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
-                    About GUIDES NEXT
+                    About GUIDES-NEXT
                   </MenuItem>
                   <Divider />
                   <MenuItem

@@ -34,8 +34,8 @@ import { useSession } from "next-auth/react";
 import SearchIcon from "@mui/icons-material/Search";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import NotesIcon from "@mui/icons-material/Notes";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import UpdateOutlinedIcon from "@mui/icons-material/UpdateOutlined";
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
@@ -46,6 +46,7 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import CreateProjectForm from "@/components/CreateProjectForm";
+import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -90,6 +91,13 @@ export default function HomePage() {
       setSnackbar({
         open: true,
         message: "Account created!",
+        severity: "success",
+      });
+      router.replace("/", { scroll: false });
+    } else if (p.get("accountUpdated")) {
+      setSnackbar({
+        open: true,
+        message: "Account information updated",
         severity: "success",
       });
       router.replace("/", { scroll: false });
@@ -265,34 +273,28 @@ export default function HomePage() {
               Description
             </TableCell>
             <TableCell sx={{ width: "10%" }}>
-              <CalendarTodayIcon
+              <PermIdentityOutlinedIcon
                 fontSize="small"
                 sx={{ mr: 0.5, verticalAlign: "middle" }}
               />
               By
             </TableCell>
             <TableCell sx={{ width: "10%" }}>
-              <CalendarTodayIcon
+              <CalendarTodayOutlinedIcon
                 fontSize="small"
                 sx={{ mr: 0.5, verticalAlign: "middle" }}
               />
               Created
             </TableCell>
             <TableCell sx={{ width: "10%" }}>
-              <UpdateOutlinedIcon
+              <ScheduleOutlinedIcon
                 fontSize="small"
                 sx={{ mr: 0.5, verticalAlign: "middle" }}
               />
               Updated
             </TableCell>
-            <TableCell sx={{ width: "20%" }}>
-              <AutoAwesomeOutlinedIcon
-                fontSize="small"
-                sx={{ mr: 0.5, verticalAlign: "middle" }}
-              />
-              Actions
-            </TableCell>
-            <TableCell align="right" sx={{ width: "15%" }} />
+            <TableCell sx={{ width: "15%" }}></TableCell>
+            <TableCell align="right" sx={{ width: "10%" }} />
           </TableRow>
         </TableHead>
         <TableBody>
