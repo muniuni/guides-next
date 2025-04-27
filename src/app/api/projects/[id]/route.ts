@@ -1,4 +1,3 @@
-// src/app/api/projects/[id]/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
@@ -6,7 +5,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import fs from "fs";
 import path from "path";
 
-// Ensure the uploads directory exists
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -16,7 +14,6 @@ export async function PUT(
   req: Request,
   { params }: { params: { id: string } },
 ) {
-  // Authentication check
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -25,7 +22,6 @@ export async function PUT(
   const projectId = params.id;
   const formData = await req.formData();
 
-  // Parse fields
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const consentInfo = formData.get("consentInfo") as string;
@@ -36,7 +32,6 @@ export async function PUT(
     JSON.parse(questionsJson);
   const existingImageIds: string[] = JSON.parse(existingIdsJson);
 
-  // Prepare upsert operations for questions
   const questionUpserts = questionList.map((q) =>
     q.id
       ? {
@@ -51,7 +46,6 @@ export async function PUT(
         },
   );
 
-  // Update project basic info and questions
   await prisma.project.update({
     where: { id: projectId },
     data: {
@@ -62,7 +56,6 @@ export async function PUT(
     },
   });
 
-  // Handle image deletions
   const currentImages = await prisma.image.findMany({ where: { projectId } });
   for (const img of currentImages) {
     if (!existingImageIds.includes(img.id)) {
@@ -76,7 +69,6 @@ export async function PUT(
     }
   }
 
-  // Handle new image uploads
   const newFiles = formData.getAll("newImages") as File[];
   for (const file of newFiles) {
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -91,11 +83,44 @@ export async function PUT(
     });
   }
 
-  // Return updated project with related data
   const updated = await prisma.project.findUnique({
     where: { id: projectId },
     include: { questions: true, images: true },
   });
 
   return NextResponse.json(updated);
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } },
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const projectId = params.id;
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!project || project.userId !== session.user.id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const images = await prisma.image.findMany({ where: { projectId } });
+  for (const img of images) {
+    const filePath = path.join(
+      process.cwd(),
+      "public",
+      img.url.replace(/^\//, ""),
+    );
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
+
+  await prisma.image.deleteMany({ where: { projectId } });
+  await prisma.question.deleteMany({ where: { projectId } });
+  await prisma.project.delete({ where: { id: projectId } });
+
+  return NextResponse.json({ success: true });
 }

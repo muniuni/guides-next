@@ -1,6 +1,6 @@
-// src/app/page.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import NextLink from "next/link";
 import useSWR, { mutate } from "swr";
 import {
@@ -26,6 +26,9 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Snackbar,
+  Alert,
+  DialogActions,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import SearchIcon from "@mui/icons-material/Search";
@@ -55,12 +58,39 @@ export default function HomePage() {
   const [open, setOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuProjectId, setMenuProjectId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [undoProject, setUndoProject] = useState<any>(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "info" | "error",
+  });
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (searchParams.get("updated")) {
+      setSnackbar({
+        open: true,
+        message: "Project updated!",
+        severity: "success",
+      });
+      router.replace("/", { scroll: false });
+    }
+  }, [searchParams, router]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleSuccess = async () => {
     setOpen(false);
     await mutate("/api/projects");
+    setSnackbar({
+      open: true,
+      message: "Project added!",
+      severity: "success",
+    });
   };
 
   const handleMenuOpen = (
@@ -73,6 +103,47 @@ export default function HomePage() {
   const handleMenuClose = () => {
     setMenuAnchor(null);
     setMenuProjectId(null);
+  };
+
+  const handleDeleteClick = () => {
+    setPendingDeleteId(menuProjectId);
+    setDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const confirmDelete = async () => {
+    const deletedProject = projects.find((p) => p.id === pendingDeleteId);
+    const res = await fetch(`/api/projects/${pendingDeleteId}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      await mutate("/api/projects");
+      setUndoProject(deletedProject);
+      setSnackbar({
+        open: true,
+        message: "Project deleted",
+        severity: "info",
+      });
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  const handleUndo = async () => {
+    if (!undoProject) return;
+
+    const res = await fetch("/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(undoProject),
+    });
+    if (res.ok) {
+      await mutate("/api/projects");
+      setSnackbar({
+        open: true,
+        message: "Deletion undone",
+        severity: "success",
+      });
+    }
   };
 
   if (error) {
@@ -117,6 +188,10 @@ export default function HomePage() {
     const diff = Date.now() - new Date(dateStr).getTime();
     const day = Math.floor(diff / (1000 * 60 * 60 * 24));
     return `${day} days ago`;
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar((s) => ({ ...s, open: false }));
   };
 
   return (
@@ -203,17 +278,11 @@ export default function HomePage() {
             const isOwner = project.userId === userId;
             return (
               <TableRow key={project.id}>
-                <TableCell sx={{ width: "15%" }}>{project.name}</TableCell>
-                <TableCell sx={{ width: "20%" }}>
-                  {project.description}
-                </TableCell>
-                <TableCell sx={{ width: "15%" }}>
-                  {formatDate(project.createdAt)}
-                </TableCell>
-                <TableCell sx={{ width: "15%" }}>
-                  {daysAgo(project.updatedAt)}
-                </TableCell>
-                <TableCell sx={{ width: "20%" }}>
+                <TableCell>{project.name}</TableCell>
+                <TableCell>{project.description}</TableCell>
+                <TableCell>{formatDate(project.createdAt)}</TableCell>
+                <TableCell>{daysAgo(project.updatedAt)}</TableCell>
+                <TableCell>
                   <IconButton
                     component={NextLink}
                     href={`/projects/${project.id}/edit`}
@@ -231,7 +300,7 @@ export default function HomePage() {
                     <MoreHorizOutlinedIcon />
                   </IconButton>
                 </TableCell>
-                <TableCell align="right" sx={{ width: "15%" }}>
+                <TableCell align="right">
                   <Typography
                     component={MUILink}
                     href={`/projects/${project.id}`}
@@ -275,9 +344,10 @@ export default function HomePage() {
         </MenuItem>
         <MenuItem
           sx={{ color: "error.main" }}
-          onClick={() => {
-            handleMenuClose();
-          }}
+          onClick={handleDeleteClick}
+          disabled={
+            projects.find((p: any) => p.id === menuProjectId)?.userId !== userId
+          }
         >
           <ListItemIcon>
             <DeleteOutlineOutlinedIcon
@@ -288,6 +358,22 @@ export default function HomePage() {
           <ListItemText>Delete</ListItemText>
         </MenuItem>
       </Menu>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this project?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={confirmDelete} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
         <DialogTitle sx={{ m: 0, p: 2 }}>
@@ -304,6 +390,27 @@ export default function HomePage() {
           <CreateProjectForm onSuccess={handleSuccess} onCancel={handleClose} />
         </DialogContent>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+          action={
+            snackbar.severity === "info" ? (
+              <Button color="inherit" size="small" onClick={handleUndo}>
+                Undo
+              </Button>
+            ) : null
+          }
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

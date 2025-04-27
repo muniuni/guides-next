@@ -30,7 +30,6 @@ export default function EditProjectForm({ initialProject }) {
   const [existingImages, setExistingImages] = useState(images);
   const [newFiles, setNewFiles] = useState([]);
 
-  // Ref and visibility for footer
   const footerRef = useRef(null);
   const [footerVisible, setFooterVisible] = useState(true);
 
@@ -82,7 +81,7 @@ export default function EditProjectForm({ initialProject }) {
       method: "PUT",
       body: formData,
     });
-    router.push("/");
+    router.push("/?updated=true");
   };
 
   const handleDiscard = () => {
