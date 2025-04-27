@@ -286,7 +286,7 @@ export default function HomePage() {
                   <IconButton
                     component={NextLink}
                     href={`/projects/${project.id}/edit`}
-                    disabled={!isOwner}
+                    sx={{ visibility: isOwner ? "visible" : "hidden" }}
                   >
                     <CreateOutlinedIcon />
                   </IconButton>
