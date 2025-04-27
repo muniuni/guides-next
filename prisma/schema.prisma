@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(cuid())
+  email      String     @unique
+  password   String
+  projects   Project[]  @relation("UserProjects")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Project {
+  id                String      @id @default(cuid())
+  name              String
+  description       String
+  consentInfo       String
+  imageCount        Int
+  imageDuration     Int
+  user              User        @relation("UserProjects", fields: [userId], references: [id])
+  userId            String
+  questions         Question[]  @relation("ProjectQuestions")
+  images            Image[]     @relation("ProjectImages")
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model Question {
+  id         String     @id @default(cuid())
+  text       String
+  project    Project    @relation("ProjectQuestions", fields: [projectId], references: [id])
+  projectId  String
+  evaluations Evaluation[]
+}
+
+model Image {
+  id         String     @id @default(cuid())
+  url        String
+  project    Project    @relation("ProjectImages", fields: [projectId], references: [id])
+  projectId  String
+  evaluations Evaluation[]
+}
+
+model Score {
+  id          String    @id @default(cuid())
+  value       Float
+  sessionId   String
+  question    Question  @relation(fields: [questionId], references: [id])
+  questionId  String
+  image       Image     @relation(fields: [imageId], references: [id])
+  imageId     String
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+  createdAt   DateTime  @default(now())
+}
