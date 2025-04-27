@@ -14,13 +14,23 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function EditProjectForm({ initialProject }) {
   const router = useRouter();
-  const { id, name, description, consentInfo, imageCount, questions, images } =
-    initialProject;
+  const {
+    id,
+    name,
+    description,
+    consentInfo,
+    imageCount,
+    imageDuration,
+    questions,
+    images,
+  } = initialProject;
 
   const [projectName, setProjectName] = useState(name);
   const [projectDesc, setProjectDesc] = useState(description);
   const [consentText, setConsentText] = useState(consentInfo);
   const [projectImageCount, setProjectImageCount] = useState(imageCount);
+  const [projectImageDuration, setProjectImageDuration] =
+    useState(imageDuration);
   const [questionList, setQuestionList] = useState(
     questions.length
       ? questions.map((q) => ({ id: q.id, text: q.text }))
@@ -70,6 +80,7 @@ export default function EditProjectForm({ initialProject }) {
     formData.append("description", projectDesc);
     formData.append("consentInfo", consentText);
     formData.append("imageCount", String(projectImageCount));
+    formData.append("imageDuration", String(projectImageDuration));
     formData.append("questions", JSON.stringify(questionList));
     formData.append(
       "existingImageIds",
@@ -133,6 +144,15 @@ export default function EditProjectForm({ initialProject }) {
             value={projectImageCount}
             onChange={(e) =>
               setProjectImageCount(parseInt(e.target.value, 10) || 0)
+            }
+            fullWidth
+          />
+          <TextField
+            label="Image Display Duration (s)"
+            type="number"
+            value={projectImageDuration}
+            onChange={(e) =>
+              setProjectImageDuration(parseInt(e.target.value, 10) || 0)
             }
             fullWidth
           />
