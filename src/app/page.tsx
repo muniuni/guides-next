@@ -43,12 +43,15 @@ import AddIcon from "@mui/icons-material/Add";
 import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import CreateProjectForm from "@/components/CreateProjectForm";
 import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+const MAX_DESCRIPTION_LENGTH = 45;
+const truncate = (text: string, max: number) =>
+  text.length > max ? text.slice(0, max) + "..." : text;
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -303,7 +306,9 @@ export default function HomePage() {
             return (
               <TableRow key={project.id}>
                 <TableCell>{project.name}</TableCell>
-                <TableCell>{project.description}</TableCell>
+                <TableCell>
+                  {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
+                </TableCell>
                 <TableCell>{project.user.username}</TableCell>
                 <TableCell>{formatDate(project.createdAt)}</TableCell>
                 <TableCell>{daysAgo(project.updatedAt)}</TableCell>

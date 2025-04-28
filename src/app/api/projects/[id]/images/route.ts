@@ -2,23 +2,36 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
-import formidable from "formidable";
+import formidable, { IncomingForm, Files } from "formidable";
 import fs from "fs";
 
 export const config = { api: { bodyParser: false } };
 
-export async function POST(req: Request, { params }) {
+interface Params {
+  id: string;
+}
+
+export async function POST(req: Request, { params }: { params: Params }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const form = new formidable.IncomingForm({ multiples: true });
-  const parsed = await new Promise<{ files: formidable.File[] }>((res, rej) =>
-    form.parse(req, (err, fields, files) =>
-      err
-        ? rej(err)
-        : res({ files: Array.isArray(files.file) ? files.file : [files.file] }),
-    ),
+  const form = new IncomingForm({ multiples: true });
+  const parsed = await new Promise<{ files: formidable.File[] }>(
+    (resolve, reject) =>
+      form.parse(
+        req as unknown as formidable.Request,
+        (err: Error | null, fields: formidable.Fields, files: Files) => {
+          if (err) {
+            reject(err);
+          } else {
+            const fileArray = Array.isArray(files.file)
+              ? files.file
+              : [files.file];
+            resolve({ files: fileArray as formidable.File[] });
+          }
+        },
+      ),
   );
 
   const created = [];
