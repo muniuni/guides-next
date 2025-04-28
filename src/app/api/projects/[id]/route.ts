@@ -8,11 +8,9 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
-import formidable from "formidable";
 
 export const config = { api: { bodyParser: false } };
 
-// S3 client setup
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -20,6 +18,7 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
 });
+
 const BUCKET = process.env.S3_BUCKET_NAME!;
 
 interface Params {
@@ -33,52 +32,37 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   }
 
   const projectId = params.id;
-  // Use Formidable to parse formdata including files
-  const form = new formidable.IncomingForm({ multiples: true });
-  const parsed = await new Promise<{
-    fields: formidable.Fields;
-    files: formidable.File[];
-  }>((resolve, reject) => {
-    form.parse(request as any, (err, fields, files) => {
-      if (err) return reject(err);
-      const raw = files.newImages;
-      const filesArray = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
-      resolve({ fields, files: filesArray });
-    });
-  });
 
-  // Extract fields
-  const {
-    name,
-    description,
-    consentInfo,
-    questions,
-    existingImageIds,
-    imageCount,
-    imageDuration,
-  } = parsed.fields;
-  const questionList = questions ? JSON.parse(questions as string) : [];
-  const existingIds: string[] = existingImageIds
-    ? JSON.parse(existingImageIds as string)
-    : [];
-  const imgCount = parseInt(imageCount as string, 10) || 0;
-  const imgDuration = parseInt(imageDuration as string, 10) || 0;
+  const formData = await request.formData();
 
-  // Update project basic info
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const consentInfo = formData.get("consentInfo") as string;
+  const questions = JSON.parse((formData.get("questions") as string) || "[]");
+  const existingImageIds = JSON.parse(
+    (formData.get("existingImageIds") as string) || "[]",
+  );
+  const imageCount = parseInt(formData.get("imageCount") as string, 10) || 0;
+  const imageDuration =
+    parseInt(formData.get("imageDuration") as string, 10) || 0;
+
+  const files = formData.getAll("newImages") as File[];
+
+  // 基本情報を更新
   await prisma.project.update({
     where: { id: projectId },
     data: {
       name,
       description,
       consentInfo,
-      imageCount: imgCount,
-      imageDuration: imgDuration,
+      imageCount,
+      imageDuration,
     },
   });
 
-  // Upsert questions
+  // Questionsのアップデート処理
   const keepQ: string[] = [];
-  for (const q of questionList) {
+  for (const q of questions) {
     if (q.id) {
       const updated = await prisma.question.update({
         where: { id: q.id },
@@ -96,71 +80,36 @@ export async function PUT(request: Request, { params }: { params: Params }) {
     where: { projectId, id: { notIn: keepQ.length ? keepQ : ["_"] } },
   });
 
-  // Remove images not in existingIds
+  // 画像の処理 (S3アップロード)
   const current = await prisma.image.findMany({ where: { projectId } });
   for (const img of current) {
-    if (!existingIds.includes(img.id)) {
-      // Delete from S3
+    if (!existingImageIds.includes(img.id)) {
       const key = img.url.split(`/${BUCKET}/`)[1] || img.url.replace(/^\//, "");
       await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
-      // Delete from DB
       await prisma.image.delete({ where: { id: img.id } });
     }
   }
 
-  // Upload new images to S3
-  for (const file of parsed.files) {
-    const buffer = file.filepath
-      ? fs.readFileSync(file.filepath)
-      : Buffer.from("");
-    const key = `uploads/${Date.now()}-${file.newFilename}`;
+  for (const file of files) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const key = `uploads/${Date.now()}-${file.name}`;
     await s3.send(
       new PutObjectCommand({
         Bucket: BUCKET,
         Key: key,
         Body: buffer,
         ACL: "public-read",
-        ContentType: file.mimetype,
+        ContentType: file.type,
       }),
     );
     const url = `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     await prisma.image.create({ data: { url, projectId } });
   }
 
-  // Return updated project
   const updated = await prisma.project.findUnique({
     where: { id: projectId },
     include: { questions: true, images: true },
   });
+
   return NextResponse.json(updated);
-}
-
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const projectId = params.id;
-  const project = await prisma.project.findUnique({ where: { id: projectId } });
-  if (!project || project.userId !== session.user.id) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  // Delete all images from S3 and DB
-  const images = await prisma.image.findMany({ where: { projectId } });
-  for (const img of images) {
-    const key = img.url.split(`/${BUCKET}/`)[1] || img.url.replace(/^\//, "");
-    await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
-  }
-  await prisma.image.deleteMany({ where: { projectId } });
-
-  // Delete questions and project
-  await prisma.question.deleteMany({ where: { projectId } });
-  await prisma.project.delete({ where: { id: projectId } });
-
-  return NextResponse.json({ success: true });
 }
