@@ -50,8 +50,8 @@ export default function Header() {
           color: "#000",
           boxShadow: 0.5,
           top: 0,
-          pt: 1,
-          pb: 1,
+          pt: 0.5,
+          pb: 0.5,
           zIndex: 1100,
         }}
       >
@@ -72,8 +72,8 @@ export default function Header() {
             <Box
               className="dot1"
               sx={{
-                width: 9,
-                height: 9,
+                width: 8,
+                height: 8,
                 bgcolor: "primary.main",
                 borderRadius: "50%",
                 mr: 0.5,
@@ -83,8 +83,8 @@ export default function Header() {
             <Box
               className="dot2"
               sx={{
-                width: 9,
-                height: 9,
+                width: 8,
+                height: 8,
                 bgcolor: "secondary.main",
                 borderRadius: "50%",
                 mr: 0.5,
@@ -94,8 +94,8 @@ export default function Header() {
             <Box
               className="dot3"
               sx={{
-                width: 9,
-                height: 9,
+                width: 8,
+                height: 8,
                 bgcolor: "error.main",
                 borderRadius: "50%",
                 mr: 1,
@@ -103,7 +103,7 @@ export default function Header() {
               }}
             />
             <Typography
-              variant="h5"
+              variant="h4"
               component="span"
               sx={{ color: "#000", fontWeight: "bold", ml: 0.2 }}
             >
