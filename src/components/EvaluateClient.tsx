@@ -141,13 +141,13 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         elevation={4}
         sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 2 }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom align="center">
           Evaluation ({currentIndex + 1}/{imagesToShow.length})
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
         {phase === "showImage" ? (
-          <Stack alignItems="center" spacing={2}>
+          <Stack alignItems="center" spacing={4}>
             <Box
               component="img"
               src={imagesToShow[currentIndex].url}
@@ -157,7 +157,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
             <LinearProgress
               variant="determinate"
               value={(timeLeft / project.imageDuration) * 100}
-              sx={{ width: "100%", height: 8, borderRadius: 4 }}
+              sx={{ width: "80%", height: 4, borderRadius: 4 }}
             />
           </Stack>
         ) : (
@@ -179,7 +179,6 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   );
 }
 
-// src/components/EvaluateClient.tsx continued - SliderForm
 function SliderForm({
   questions,
   onSubmit,
@@ -210,6 +209,11 @@ function SliderForm({
               {q.text}
             </Typography>
             <Slider
+              marks={[
+                { value: -1, label: "-1" },
+                { value: 1, label: "1" },
+              ]}
+              track={false}
               value={values[i].value}
               onChange={(_, v) => handleChange(i, v as number)}
               min={-1}

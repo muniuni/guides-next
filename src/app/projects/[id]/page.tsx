@@ -50,7 +50,7 @@ export default async function ProjectPage({ params }: Params) {
         elevation={4}
         sx={{ width: "100%", maxWidth: 800, p: 4, borderRadius: 2 }}
       >
-        <Typography variant="h3" component="h1" gutterBottom>
+        <Typography variant="h4" component="h1" gutterBottom>
           {project.name}
         </Typography>
         <Divider sx={{ mb: 3 }} />
