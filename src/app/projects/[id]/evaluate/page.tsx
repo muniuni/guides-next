@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { Metadata } from "next";
 import React from "react";
 import EvaluateClient from "@/components/EvaluateClient";

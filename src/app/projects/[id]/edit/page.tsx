@@ -1,5 +1,5 @@
 import EditProjectForm from "@/components/EditProjectForm";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 interface Params {
   id: string;
