@@ -2,21 +2,32 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { TextField, Button, Container, Typography, Stack } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
     const res = await signIn("credentials", {
       redirect: false,
       email,
       password,
     });
+    setLoading(false);
     if (res?.error) {
       setError("認証に失敗しました");
     } else {
@@ -24,33 +35,55 @@ export default function LoginPage() {
     }
   };
 
+  const isDisabled = loading || !email.trim() || !password.trim();
+
   return (
-    <Container maxWidth="xs" sx={{ py: 4 }}>
-      <Typography variant="h5" mb={2}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ maxWidth: 400, mx: "auto", mt: 8, p: 3 }}
+    >
+      <Typography variant="h4" mb={2}>
         Login
       </Typography>
-      <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            required
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            required
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {error && <Typography color="error">{error}</Typography>}
-          <Button type="submit" variant="contained">
-            Login
-          </Button>
-        </Stack>
-      </form>
-    </Container>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      <TextField
+        label="Email"
+        name="email"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        fullWidth
+        margin="normal"
+      />
+
+      <TextField
+        label="Password"
+        name="password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        fullWidth
+        margin="normal"
+      />
+
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        disabled={isDisabled}
+        sx={{ mt: 2 }}
+      >
+        {loading ? <CircularProgress size={24} /> : "Login"}
+      </Button>
+    </Box>
   );
 }
