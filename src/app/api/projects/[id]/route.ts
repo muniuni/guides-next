@@ -1,111 +1,133 @@
 // src/app/api/projects/[id]/route.ts
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import fs from "fs";
-import path from "path";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
+import formidable from "formidable";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+export const config = { api: { bodyParser: false } };
+
+// S3 client setup
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
+const BUCKET = process.env.S3_BUCKET_NAME!;
+
+interface Params {
+  id: string;
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PUT(request: Request, { params }: { params: Params }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const projectId = params.id;
-  const formData = await request.formData();
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-  const consentInfo = formData.get("consentInfo") as string;
-  const imageCountRaw = formData.get("imageCount") as string;
-  const imageDurationRaw = formData.get("imageDuration") as string;
-  const questionsJson = formData.get("questions") as string;
-  const existingImageIdsJson = formData.get("existingImageIds") as string;
+  // Use Formidable to parse formdata including files
+  const form = new formidable.IncomingForm({ multiples: true });
+  const parsed = await new Promise<{
+    fields: formidable.Fields;
+    files: formidable.File[];
+  }>((resolve, reject) => {
+    form.parse(request as any, (err, fields, files) => {
+      if (err) return reject(err);
+      const raw = files.newImages;
+      const filesArray = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
+      resolve({ fields, files: filesArray });
+    });
+  });
 
-  const imageCount = parseInt(imageCountRaw, 10) || 0;
-  const imageDuration = parseInt(imageDurationRaw, 10) || 0;
-  const questionList: Array<{ id?: string | null; text: string }> =
-    questionsJson ? JSON.parse(questionsJson) : [];
+  // Extract fields
+  const {
+    name,
+    description,
+    consentInfo,
+    questions,
+    existingImageIds,
+    imageCount,
+    imageDuration,
+  } = parsed.fields;
+  const questionList = questions ? JSON.parse(questions as string) : [];
+  const existingIds: string[] = existingImageIds
+    ? JSON.parse(existingImageIds as string)
+    : [];
+  const imgCount = parseInt(imageCount as string, 10) || 0;
+  const imgDuration = parseInt(imageDuration as string, 10) || 0;
 
-  // プロジェクトの基本情報を更新
+  // Update project basic info
   await prisma.project.update({
     where: { id: projectId },
     data: {
       name,
       description,
       consentInfo,
-      imageCount,
-      imageDuration,
+      imageCount: imgCount,
+      imageDuration: imgDuration,
     },
   });
 
-  // 質問の更新・作成
-  const idsToKeep: string[] = [];
+  // Upsert questions
+  const keepQ: string[] = [];
   for (const q of questionList) {
     if (q.id) {
-      const updatedQ = await prisma.question.update({
+      const updated = await prisma.question.update({
         where: { id: q.id },
         data: { text: q.text },
       });
-      idsToKeep.push(updatedQ.id);
+      keepQ.push(updated.id);
     } else {
-      const createdQ = await prisma.question.create({
+      const created = await prisma.question.create({
         data: { text: q.text, projectId },
       });
-      idsToKeep.push(createdQ.id);
+      keepQ.push(created.id);
     }
   }
-
-  // リクエストに含まれない質問を削除
   await prisma.question.deleteMany({
-    where: {
-      projectId,
-      id: {
-        notIn: idsToKeep.length > 0 ? idsToKeep : [""],
-      },
-    },
+    where: { projectId, id: { notIn: keepQ.length ? keepQ : ["_"] } },
   });
 
-  // 既存画像の削除
-  const existingImageIds: string[] = existingImageIdsJson
-    ? JSON.parse(existingImageIdsJson)
-    : [];
-  const currentImages = await prisma.image.findMany({ where: { projectId } });
-  for (const img of currentImages) {
-    if (!existingImageIds.includes(img.id)) {
-      const filePath = path.join(
-        process.cwd(),
-        "public",
-        img.url.replace(/^\//, ""),
-      );
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+  // Remove images not in existingIds
+  const current = await prisma.image.findMany({ where: { projectId } });
+  for (const img of current) {
+    if (!existingIds.includes(img.id)) {
+      // Delete from S3
+      const key = img.url.split(`/${BUCKET}/`)[1] || img.url.replace(/^\//, "");
+      await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+      // Delete from DB
       await prisma.image.delete({ where: { id: img.id } });
     }
   }
 
-  // 新規画像の追加
-  const newFiles = formData.getAll("newImages") as File[];
-  for (const file of newFiles) {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name}`;
-    const filePath = path.join(UPLOAD_DIR, fileName);
-    await fs.promises.writeFile(filePath, buffer);
-    await prisma.image.create({
-      data: { url: `/uploads/${fileName}`, projectId },
-    });
+  // Upload new images to S3
+  for (const file of parsed.files) {
+    const buffer = file.filepath
+      ? fs.readFileSync(file.filepath)
+      : Buffer.from("");
+    const key = `uploads/${Date.now()}-${file.newFilename}`;
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: BUCKET,
+        Key: key,
+        Body: buffer,
+        ACL: "public-read",
+        ContentType: file.mimetype,
+      }),
+    );
+    const url = `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    await prisma.image.create({ data: { url, projectId } });
   }
 
-  // 更新後のプロジェクトを返却
+  // Return updated project
   const updated = await prisma.project.findUnique({
     where: { id: projectId },
     include: { questions: true, images: true },
@@ -128,19 +150,15 @@ export async function DELETE(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // Delete all images from S3 and DB
   const images = await prisma.image.findMany({ where: { projectId } });
   for (const img of images) {
-    const filePath = path.join(
-      process.cwd(),
-      "public",
-      img.url.replace(/^\//, ""),
-    );
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    const key = img.url.split(`/${BUCKET}/`)[1] || img.url.replace(/^\//, "");
+    await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
   }
-
   await prisma.image.deleteMany({ where: { projectId } });
+
+  // Delete questions and project
   await prisma.question.deleteMany({ where: { projectId } });
   await prisma.project.delete({ where: { id: projectId } });
 

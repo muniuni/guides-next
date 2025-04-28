@@ -78,29 +78,32 @@ export default function EditProjectForm({
     };
   }, []);
 
-  const addQuestion = () => {
+  const addQuestion = () =>
     setQuestionList((prev) => [...prev, { id: null, text: "" }]);
-  };
-  const removeQuestion = (index: number) => {
+  const removeQuestion = (index: number) =>
     setQuestionList((prev) => prev.filter((_, i) => i !== index));
-  };
-  const updateQuestion = (index: number, text: string) => {
+  const updateQuestion = (index: number, text: string) =>
     setQuestionList((prev) =>
       prev.map((q, i) => (i === index ? { ...q, text } : q)),
     );
-  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      setNewFiles((prev) => [...prev, ...Array.from(files)]);
+    if (files) setNewFiles((prev) => [...prev, ...Array.from(files)]);
+  };
+
+  const removeExistingImage = async (idx: number) => {
+    const img = existingImages[idx];
+    try {
+      await fetch(`/api/projects/${id}/images/${img.id}`, { method: "DELETE" });
+      setExistingImages((prev) => prev.filter((_, i) => i !== idx));
+    } catch (error) {
+      console.error("Failed to delete image", error);
     }
   };
-  const removeExistingImage = (idx: number) => {
-    setExistingImages((prev) => prev.filter((_, i) => i !== idx));
-  };
-  const removeNewFile = (idx: number) => {
+
+  const removeNewFile = (idx: number) =>
     setNewFiles((prev) => prev.filter((_, i) => i !== idx));
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,12 +120,10 @@ export default function EditProjectForm({
     );
     newFiles.forEach((file) => formData.append("newImages", file));
 
-    await fetch(`/api/projects/${id}`, {
-      method: "PUT",
-      body: formData,
-    });
+    await fetch(`/api/projects/${id}`, { method: "PUT", body: formData });
     router.push("/?updated=true");
   };
+
   const handleDiscard = () => router.back();
 
   return (
@@ -142,7 +143,6 @@ export default function EditProjectForm({
           General
         </Typography>
         <Stack spacing={2}>
-          {/* General Fields */}
           <TextField
             label="Project Name"
             value={projectName}
@@ -182,7 +182,6 @@ export default function EditProjectForm({
             fullWidth
           />
 
-          {/* Questions Section */}
           <Box>
             <Typography variant="h6" mb={2}>
               Questions
@@ -215,7 +214,6 @@ export default function EditProjectForm({
             </Button>
           </Box>
 
-          {/* Images Section */}
           <Box>
             <Typography variant="h6" mb={2}>
               Images
@@ -276,7 +274,6 @@ export default function EditProjectForm({
             </Button>
           </Box>
 
-          {/* Form Actions */}
           <Stack
             direction="row"
             spacing={2}
