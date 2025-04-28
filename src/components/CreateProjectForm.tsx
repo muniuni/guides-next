@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Button, TextField, Stack } from "@mui/material";
+import { Button, TextField, Stack, CircularProgress } from "@mui/material";
 
 interface CreateProjectFormProps {
   onSuccess: () => void;
@@ -13,14 +13,19 @@ export default function CreateProjectForm({
 }: CreateProjectFormProps) {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const res = await fetch("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, description }),
     });
+
+    setLoading(false);
+
     if (res.ok) {
       onSuccess();
     } else {
@@ -59,8 +64,8 @@ export default function CreateProjectForm({
           <Button variant="outlined" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained">
-            Create
+          <Button type="submit" variant="contained" disabled={loading}>
+            {loading ? <CircularProgress size={24} /> : "Create"}
           </Button>
         </Stack>
       </Stack>

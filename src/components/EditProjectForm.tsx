@@ -8,6 +8,7 @@ import {
   IconButton,
   Typography,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -66,6 +67,7 @@ export default function EditProjectForm({
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const [footerVisible, setFooterVisible] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -107,6 +109,7 @@ export default function EditProjectForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData();
     formData.append("name", projectName);
     formData.append("description", projectDesc);
@@ -122,6 +125,7 @@ export default function EditProjectForm({
 
     await fetch(`/api/projects/${id}`, { method: "PUT", body: formData });
     router.push("/?updated=true");
+    setLoading(false);
   };
 
   const handleDiscard = () => router.back();
@@ -288,8 +292,13 @@ export default function EditProjectForm({
             >
               Cancel
             </Button>
-            <Button type="submit" variant="contained" sx={{ flex: "8 1 10%" }}>
-              Save Changes
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ flex: "8 1 10%" }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : "Save Changes"}
             </Button>
           </Stack>
         </Stack>
@@ -326,8 +335,9 @@ export default function EditProjectForm({
               form="edit-project-form"
               variant="contained"
               sx={{ flex: "8 1 10%" }}
+              disabled={loading}
             >
-              Save Changes
+              {loading ? <CircularProgress size={24} /> : "Save Changes"}
             </Button>
           </Stack>
         </Box>

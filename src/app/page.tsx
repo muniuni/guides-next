@@ -505,7 +505,7 @@ export default function HomePage() {
       </Dialog>
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        autoHideDuration={8000}
         onClose={handleSnackbarClose}
       >
         <Alert
