@@ -36,22 +36,19 @@ export default function EditProjectForm({ initialProject }) {
       ? questions.map((q) => ({ id: q.id, text: q.text }))
       : [{ id: null, text: "" }],
   );
-
   const [existingImages, setExistingImages] = useState(images);
   const [newFiles, setNewFiles] = useState([]);
-
   const footerRef = useRef(null);
   const [footerVisible, setFooterVisible] = useState(true);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setFooterVisible(entry.isIntersecting),
-      { root: null, threshold: 0 },
+      { threshold: 0 },
     );
-    const el = footerRef.current;
-    if (el) observer.observe(el);
+    if (footerRef.current) observer.observe(footerRef.current);
     return () => {
-      if (el) observer.unobserve(el);
+      if (footerRef.current) observer.unobserve(footerRef.current);
     };
   }, []);
 
@@ -63,10 +60,10 @@ export default function EditProjectForm({ initialProject }) {
     setQuestionList((prev) =>
       prev.map((q, i) => (i === index ? { ...q, text } : q)),
     );
-
   const handleFileChange = (e) => {
-    if (!e.target.files) return;
-    setNewFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+    if (e.target.files) {
+      setNewFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+    }
   };
   const removeExistingImage = (idx) =>
     setExistingImages((prev) => prev.filter((_, i) => i !== idx));
@@ -79,15 +76,14 @@ export default function EditProjectForm({ initialProject }) {
     formData.append("name", projectName);
     formData.append("description", projectDesc);
     formData.append("consentInfo", consentText);
-    formData.append("imageCount", String(projectImageCount));
-    formData.append("imageDuration", String(projectImageDuration));
+    formData.append("imageCount", projectImageCount.toString());
+    formData.append("imageDuration", projectImageDuration.toString());
     formData.append("questions", JSON.stringify(questionList));
     formData.append(
       "existingImageIds",
       JSON.stringify(existingImages.map((img) => img.id)),
     );
     newFiles.forEach((file) => formData.append("newImages", file));
-
     await fetch(`/api/projects/${id}`, {
       method: "PUT",
       body: formData,
@@ -111,8 +107,7 @@ export default function EditProjectForm({ initialProject }) {
         <Typography variant="h4" mb={2}>
           Edit Project
         </Typography>
-
-        <Typography variant="h6" sx={{ mb: 2 }}>
+        <Typography variant="h6" mb={2}>
           General
         </Typography>
         <Stack spacing={2}>
@@ -156,9 +151,8 @@ export default function EditProjectForm({ initialProject }) {
             }
             fullWidth
           />
-
           <Box>
-            <Typography variant="h6" sx={{ mb: 2 }}>
+            <Typography variant="h6" mb={2}>
               Questions
             </Typography>
             {questionList.map((q, i) => (
@@ -167,7 +161,7 @@ export default function EditProjectForm({ initialProject }) {
                 direction="row"
                 spacing={1}
                 alignItems="center"
-                sx={{ mt: 1 }}
+                mt={1}
               >
                 <TextField
                   label={`Question ${i + 1}`}
@@ -180,63 +174,73 @@ export default function EditProjectForm({ initialProject }) {
                 </IconButton>
               </Stack>
             ))}
-            <Button
-              startIcon={<AddIcon />}
-              onClick={addQuestion}
-              sx={{ mt: 1 }}
-            >
+            <Button startIcon={<AddIcon />} onClick={addQuestion} mt={1}>
               Add Question
             </Button>
           </Box>
-
           <Box>
-            <Typography variant="h6" sx={{ mb: 2 }}>
+            <Typography variant="h6" mb={2}>
               Images
             </Typography>
             <Stack
               direction="row"
               spacing={1}
               alignItems="center"
-              sx={{ flexWrap: "wrap", mt: 1 }}
+              flexWrap="wrap"
+              mt={1}
             >
               {existingImages.map((img, i) => (
-                <Box key={img.id} sx={{ position: "relative" }}>
+                <Box key={img.id} position="relative">
                   <img
                     src={img.url}
                     alt="Existing"
                     width={80}
                     height={80}
-                    style={{ objectFit: "cover", borderRadius: 4 }}
+                    style={{
+                      objectFit: "cover",
+                      borderRadius: 4,
+                    }}
                   />
                   <IconButton
                     size="small"
                     onClick={() => removeExistingImage(i)}
-                    sx={{ position: "absolute", top: 0, right: 0 }}
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                    }}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
               ))}
               {newFiles.map((file, i) => (
-                <Box key={i} sx={{ position: "relative" }}>
+                <Box key={i} position="relative">
                   <img
                     src={URL.createObjectURL(file)}
                     alt="New"
                     width={80}
                     height={80}
-                    style={{ objectFit: "cover", borderRadius: 4 }}
+                    style={{
+                      objectFit: "cover",
+                      borderRadius: 4,
+                    }}
                   />
                   <IconButton
                     size="small"
                     onClick={() => removeNewFile(i)}
-                    sx={{ position: "absolute", top: 0, right: 0 }}
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                    }}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
               ))}
             </Stack>
-            <Button startIcon={<AddIcon />} component="label" sx={{ mt: 1 }}>
+            <Button startIcon={<AddIcon />} component="label" mt={1}>
               Upload Images
               <input
                 type="file"
@@ -247,11 +251,11 @@ export default function EditProjectForm({ initialProject }) {
               />
             </Button>
           </Box>
-
           <Stack
             direction="row"
             spacing={2}
-            sx={{ mt: 1, width: "100%" }}
+            mt={1}
+            width="100%"
             ref={footerRef}
           >
             <Button
@@ -267,30 +271,25 @@ export default function EditProjectForm({ initialProject }) {
           </Stack>
         </Stack>
       </Box>
-
       {!footerVisible && (
         <Box
-          sx={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "center",
-            zIndex: 1300,
-          }}
+          position="fixed"
+          bottom={0}
+          left={0}
+          right={0}
+          display="flex"
+          justifyContent="center"
+          zIndex={1300}
         >
           <Stack
             direction="row"
             spacing={2}
-            sx={{
-              width: "100%",
-              maxWidth: 600,
-              px: 3,
-              pt: 2,
-              pb: 2,
-              bgcolor: "rgba(255,255,255,0.8)",
-            }}
+            width="100%"
+            maxWidth={600}
+            px={3}
+            pt={2}
+            pb={2}
+            bgcolor="rgba(255,255,255,0.8)"
           >
             <Button
               variant="outlined"
@@ -300,8 +299,8 @@ export default function EditProjectForm({ initialProject }) {
               Cancel
             </Button>
             <Button
+              onClick={handleSubmit}
               variant="contained"
-              onClick={() => handleSubmit({ preventDefault: () => {} })}
               sx={{ flex: "8 1 10%" }}
             >
               Save Changes

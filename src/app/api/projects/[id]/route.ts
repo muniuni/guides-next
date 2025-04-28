@@ -11,52 +11,59 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 }
 
 export async function PUT(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } },
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
   const projectId = params.id;
-  const formData = await req.formData();
-
+  const formData = await request.formData();
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const consentInfo = formData.get("consentInfo") as string;
+  const imageCountRaw = formData.get("imageCount") as string;
+  const imageDurationRaw = formData.get("imageDuration") as string;
   const questionsJson = formData.get("questions") as string;
-  const existingIdsJson = formData.get("existingImageIds") as string;
+  const existingImageIdsJson = formData.get("existingImageIds") as string;
+  const imageCount = parseInt(imageCountRaw, 10) || 0;
+  const imageDuration = parseInt(imageDurationRaw, 10) || 0;
+  const questionList: Array<{ id?: string | null; text: string }> =
+    questionsJson ? JSON.parse(questionsJson) : [];
+  const existingQuestionIds = questionList
+    .filter((q) => q.id)
+    .map((q) => q.id as string);
 
-  const questionList: Array<{ id?: string; text: string }> =
-    JSON.parse(questionsJson);
-  const existingImageIds: string[] = JSON.parse(existingIdsJson);
+  for (const q of questionList) {
+    if (q.id) {
+      await prisma.question.update({
+        where: { id: q.id },
+        data: { text: q.text },
+      });
+    } else {
+      await prisma.question.create({
+        data: { text: q.text, projectId },
+      });
+    }
+  }
 
-  const questionUpserts = questionList.map((q) =>
-    q.id
-      ? {
-          where: { id: q.id },
-          update: { text: q.text },
-          create: { text: q.text },
-        }
-      : {
-          where: { id: "" },
-          update: { text: q.text },
-          create: { text: q.text },
-        },
-  );
-
-  await prisma.project.update({
-    where: { id: projectId },
-    data: {
-      name,
-      description,
-      consentInfo,
-      questions: { upsert: questionUpserts },
+  await prisma.question.deleteMany({
+    where: {
+      projectId,
+      id: {
+        notIn: existingQuestionIds.length > 0 ? existingQuestionIds : [""],
+      },
     },
   });
 
-  const currentImages = await prisma.image.findMany({ where: { projectId } });
+  const existingImageIds: string[] = existingImageIdsJson
+    ? JSON.parse(existingImageIdsJson)
+    : [];
+  const currentImages = await prisma.image.findMany({
+    where: { projectId },
+  });
+
   for (const img of currentImages) {
     if (!existingImageIds.includes(img.id)) {
       const filePath = path.join(
@@ -64,7 +71,9 @@ export async function PUT(
         "public",
         img.url.replace(/^\//, ""),
       );
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
       await prisma.image.delete({ where: { id: img.id } });
     }
   }
@@ -78,7 +87,7 @@ export async function PUT(
     await prisma.image.create({
       data: {
         url: `/uploads/${fileName}`,
-        project: { connect: { id: projectId } },
+        projectId,
       },
     });
   }
@@ -92,21 +101,23 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } },
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
   const projectId = params.id;
-  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+  });
   if (!project || project.userId !== session.user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-
-  const images = await prisma.image.findMany({ where: { projectId } });
+  const images = await prisma.image.findMany({
+    where: { projectId },
+  });
   for (const img of images) {
     const filePath = path.join(
       process.cwd(),
@@ -117,10 +128,8 @@ export async function DELETE(
       fs.unlinkSync(filePath);
     }
   }
-
   await prisma.image.deleteMany({ where: { projectId } });
   await prisma.question.deleteMany({ where: { projectId } });
   await prisma.project.delete({ where: { id: projectId } });
-
   return NextResponse.json({ success: true });
 }

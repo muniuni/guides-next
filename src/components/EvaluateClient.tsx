@@ -6,7 +6,7 @@ import {
   Typography,
   Slider,
   Button,
-  CircularProgress,
+  LinearProgress,
   Alert,
 } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
@@ -54,10 +54,40 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<"showImage" | "showSliders">("showImage");
-  const [count, setCount] = useState(imageDuration);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [now, setNow] = useState<number>(Date.now());
+
+  useEffect(() => {
+    if (phase === "showImage") {
+      const t0 = Date.now();
+      setStartTime(t0);
+      setNow(t0);
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "showImage" || startTime === null) return;
+    let rafId: number;
+    const tick = () => {
+      setNow(Date.now());
+      rafId = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(rafId);
+  }, [phase, startTime]);
+
+  const elapsed = startTime !== null ? (now - startTime) / 1000 : 0;
+  const timeLeft = Math.max(imageDuration - elapsed, 0);
+
+  useEffect(() => {
+    if (phase === "showImage" && timeLeft <= 0) {
+      setPhase("showSliders");
+    }
+  }, [phase, timeLeft]);
 
   if (imagesToShow.length === 0) {
     return (
@@ -66,16 +96,6 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       </Alert>
     );
   }
-
-  useEffect(() => {
-    if (phase !== "showImage") return;
-    if (count <= 0) {
-      setPhase("showSliders");
-      return;
-    }
-    const timer = setTimeout(() => setCount((c) => c - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [count, phase]);
 
   const handleAnswerSubmit = (
     vals: { questionId: string; value: number }[],
@@ -89,7 +109,9 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
 
     if (currentIndex + 1 < imageCount) {
       setCurrentIndex((i) => i + 1);
-      setCount(imageDuration);
+      const nowTs = Date.now();
+      setStartTime(nowTs);
+      setNow(nowTs);
       setPhase("showImage");
     } else {
       submitAllScores([...answers, ...batch]);
@@ -102,11 +124,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       const res = await fetch("/api/scores", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          answers: all,
-          projectId: project.id,
-        }),
+        body: JSON.stringify({ sessionId, answers: all }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       router.push(`/projects/${project.id}/thanks`);
@@ -133,11 +151,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
               marginBottom: "1rem",
             }}
           />
-          <Typography variant="h6">残り {count} 秒</Typography>
-          <CircularProgress
+          <LinearProgress
             variant="determinate"
-            value={((imageDuration - count) / imageDuration) * 100}
-            sx={{ mt: 2 }}
+            value={(timeLeft / imageDuration) * 100}
+            sx={{ mt: 2, height: 8, borderRadius: 4, transition: "none" }}
           />
         </Box>
       )}
@@ -152,8 +169,8 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
 
       {submitting && (
         <Box textAlign="center" mt={2}>
-          <CircularProgress />
-          <Typography>送信中…</Typography>
+          <LinearProgress sx={{ height: 4 }} />
+          <Typography>Submitting...</Typography>
         </Box>
       )}
     </Box>
@@ -189,10 +206,12 @@ function SliderForm({
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} mt={2}>
+    <Box component="form" onSubmit={handleSubmit} mt={10}>
       {questions.map((q, i) => (
         <Box key={q.id} mb={3}>
-          <Typography gutterBottom>{q.text}</Typography>
+          <Typography gutterBottom align="center" variant="h6">
+            {q.text}
+          </Typography>
           <Slider
             value={values[i].value}
             onChange={(_, v) => handleChange(i, v as number)}
@@ -201,11 +220,23 @@ function SliderForm({
             step={0.01}
             valueLabelDisplay="auto"
             disabled={disabled}
+            track={false}
+            marks={[
+              { value: 0, label: "0" },
+              { value: -1, label: "-1" },
+              { value: 1, label: "1" },
+            ]}
           />
         </Box>
       ))}
-      <Button type="submit" variant="contained" fullWidth disabled={disabled}>
-        {disabled ? "送信中…" : "次へ"}
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        disabled={disabled}
+        sx={{ mt: 3 }}
+      >
+        {disabled ? "Submitting…" : "Next"}
       </Button>
     </Box>
   );
