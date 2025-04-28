@@ -1,12 +1,20 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button, TextField, Stack } from "@mui/material";
 
-export default function CreateProjectForm({ onSuccess, onCancel }) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+interface CreateProjectFormProps {
+  onSuccess: () => void;
+  onCancel: () => void;
+}
 
-  const handleSubmit = async (e) => {
+export default function CreateProjectForm({
+  onSuccess,
+  onCancel,
+}: CreateProjectFormProps) {
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const res = await fetch("/api/projects", {
       method: "POST",
@@ -21,13 +29,15 @@ export default function CreateProjectForm({ onSuccess, onCancel }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
         <TextField
           label="Project Name"
           value={name}
           required
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setName(e.target.value)
+          }
           fullWidth
         />
         <TextField
@@ -35,7 +45,9 @@ export default function CreateProjectForm({ onSuccess, onCancel }) {
           value={description}
           multiline
           rows={3}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setDescription(e.target.value)
+          }
           fullWidth
         />
         <Stack

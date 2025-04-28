@@ -4,13 +4,25 @@ import fs from "fs";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function DELETE(req: Request, { params }) {
+interface RouteContext {
+  params: {
+    imageId: string;
+  };
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: RouteContext,
+): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id)
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const img = await prisma.image.findUnique({ where: { id: params.imageId } });
-  if (!img) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!img) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
 
   fs.unlinkSync(`.${img.url}`);
 

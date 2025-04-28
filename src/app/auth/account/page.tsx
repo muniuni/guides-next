@@ -136,7 +136,7 @@ export default function AccountSettingsPage() {
         margin="normal"
       />
 
-      <Stack direction="row" spacing={2} sx={{ mt: 1, width: "100%" }}>
+      <Stack direction="row" spacing={2} sx={{ mt: 2, width: "100%" }}>
         <Button
           variant="outlined"
           onClick={handleCancel}

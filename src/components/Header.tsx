@@ -46,10 +46,12 @@ export default function Header() {
       <AppBar
         position="sticky"
         sx={{
-          bgcolor: "#fff",
+          bgcolor: "#ffffff",
           color: "#000",
-          boxShadow: 1,
+          boxShadow: 0.5,
           top: 0,
+          pt: 1,
+          pb: 1,
           zIndex: 1100,
         }}
       >
@@ -70,8 +72,8 @@ export default function Header() {
             <Box
               className="dot1"
               sx={{
-                width: 8,
-                height: 8,
+                width: 9,
+                height: 9,
                 bgcolor: "primary.main",
                 borderRadius: "50%",
                 mr: 0.5,
@@ -81,8 +83,8 @@ export default function Header() {
             <Box
               className="dot2"
               sx={{
-                width: 8,
-                height: 8,
+                width: 9,
+                height: 9,
                 bgcolor: "secondary.main",
                 borderRadius: "50%",
                 mr: 0.5,
@@ -92,8 +94,8 @@ export default function Header() {
             <Box
               className="dot3"
               sx={{
-                width: 8,
-                height: 8,
+                width: 9,
+                height: 9,
                 bgcolor: "error.main",
                 borderRadius: "50%",
                 mr: 1,
@@ -101,9 +103,9 @@ export default function Header() {
               }}
             />
             <Typography
-              variant="h6"
+              variant="h5"
               component="span"
-              sx={{ color: "#000", fontWeight: "bold" }}
+              sx={{ color: "#000", fontWeight: "bold", ml: 0.2 }}
             >
               GUIDES-NEXT
             </Typography>
@@ -114,8 +116,9 @@ export default function Header() {
               <>
                 <IconButton
                   edge="end"
+                  size="small"
                   onClick={openMenu}
-                  sx={{ color: "#000" }}
+                  sx={{ color: "#000", mr: 0.1 }}
                 >
                   <MenuIcon />
                 </IconButton>

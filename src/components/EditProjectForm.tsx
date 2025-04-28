@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Box,
@@ -12,7 +12,32 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-export default function EditProjectForm({ initialProject }) {
+// 型定義
+interface Question {
+  id: string | null;
+  text: string;
+}
+interface ImageRecord {
+  id: string;
+  url: string;
+}
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  consentInfo: string;
+  imageCount: number;
+  imageDuration: number;
+  questions: Question[];
+  images: ImageRecord[];
+}
+interface EditProjectFormProps {
+  initialProject: Project;
+}
+
+export default function EditProjectForm({
+  initialProject,
+}: EditProjectFormProps) {
   const router = useRouter();
   const {
     id,
@@ -25,21 +50,22 @@ export default function EditProjectForm({ initialProject }) {
     images,
   } = initialProject;
 
-  const [projectName, setProjectName] = useState(name);
-  const [projectDesc, setProjectDesc] = useState(description);
-  const [consentText, setConsentText] = useState(consentInfo);
-  const [projectImageCount, setProjectImageCount] = useState(imageCount);
+  const [projectName, setProjectName] = useState<string>(name);
+  const [projectDesc, setProjectDesc] = useState<string>(description);
+  const [consentText, setConsentText] = useState<string>(consentInfo);
+  const [projectImageCount, setProjectImageCount] =
+    useState<number>(imageCount);
   const [projectImageDuration, setProjectImageDuration] =
-    useState(imageDuration);
-  const [questionList, setQuestionList] = useState(
-    questions.length
+    useState<number>(imageDuration);
+  const [questionList, setQuestionList] = useState<Question[]>(
+    questions.length > 0
       ? questions.map((q) => ({ id: q.id, text: q.text }))
       : [{ id: null, text: "" }],
   );
-  const [existingImages, setExistingImages] = useState(images);
-  const [newFiles, setNewFiles] = useState([]);
-  const footerRef = useRef(null);
-  const [footerVisible, setFooterVisible] = useState(true);
+  const [existingImages, setExistingImages] = useState<ImageRecord[]>(images);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const footerRef = useRef<HTMLDivElement | null>(null);
+  const [footerVisible, setFooterVisible] = useState<boolean>(true);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -52,25 +78,31 @@ export default function EditProjectForm({ initialProject }) {
     };
   }, []);
 
-  const addQuestion = () =>
+  const addQuestion = () => {
     setQuestionList((prev) => [...prev, { id: null, text: "" }]);
-  const removeQuestion = (index) =>
+  };
+  const removeQuestion = (index: number) => {
     setQuestionList((prev) => prev.filter((_, i) => i !== index));
-  const updateQuestion = (index, text) =>
+  };
+  const updateQuestion = (index: number, text: string) => {
     setQuestionList((prev) =>
       prev.map((q, i) => (i === index ? { ...q, text } : q)),
     );
-  const handleFileChange = (e) => {
-    if (e.target.files) {
-      setNewFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setNewFiles((prev) => [...prev, ...Array.from(files)]);
     }
   };
-  const removeExistingImage = (idx) =>
+  const removeExistingImage = (idx: number) => {
     setExistingImages((prev) => prev.filter((_, i) => i !== idx));
-  const removeNewFile = (idx) =>
+  };
+  const removeNewFile = (idx: number) => {
     setNewFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("name", projectName);
@@ -84,21 +116,20 @@ export default function EditProjectForm({ initialProject }) {
       JSON.stringify(existingImages.map((img) => img.id)),
     );
     newFiles.forEach((file) => formData.append("newImages", file));
+
     await fetch(`/api/projects/${id}`, {
       method: "PUT",
       body: formData,
     });
     router.push("/?updated=true");
   };
-
-  const handleDiscard = () => {
-    router.back();
-  };
+  const handleDiscard = () => router.back();
 
   return (
     <>
       <Box
         component="form"
+        id="edit-project-form"
         onSubmit={handleSubmit}
         noValidate
         encType="multipart/form-data"
@@ -111,6 +142,7 @@ export default function EditProjectForm({ initialProject }) {
           General
         </Typography>
         <Stack spacing={2}>
+          {/* General Fields */}
           <TextField
             label="Project Name"
             value={projectName}
@@ -137,9 +169,7 @@ export default function EditProjectForm({ initialProject }) {
             label="Images to Display"
             type="number"
             value={projectImageCount}
-            onChange={(e) =>
-              setProjectImageCount(parseInt(e.target.value, 10) || 0)
-            }
+            onChange={(e) => setProjectImageCount(Number(e.target.value) || 0)}
             fullWidth
           />
           <TextField
@@ -147,10 +177,12 @@ export default function EditProjectForm({ initialProject }) {
             type="number"
             value={projectImageDuration}
             onChange={(e) =>
-              setProjectImageDuration(parseInt(e.target.value, 10) || 0)
+              setProjectImageDuration(Number(e.target.value) || 0)
             }
             fullWidth
           />
+
+          {/* Questions Section */}
           <Box>
             <Typography variant="h6" mb={2}>
               Questions
@@ -174,10 +206,16 @@ export default function EditProjectForm({ initialProject }) {
                 </IconButton>
               </Stack>
             ))}
-            <Button startIcon={<AddIcon />} onClick={addQuestion} mt={1}>
+            <Button
+              startIcon={<AddIcon />}
+              onClick={addQuestion}
+              sx={{ mt: 1 }}
+            >
               Add Question
             </Button>
           </Box>
+
+          {/* Images Section */}
           <Box>
             <Typography variant="h6" mb={2}>
               Images
@@ -196,19 +234,12 @@ export default function EditProjectForm({ initialProject }) {
                     alt="Existing"
                     width={80}
                     height={80}
-                    style={{
-                      objectFit: "cover",
-                      borderRadius: 4,
-                    }}
+                    style={{ objectFit: "cover", borderRadius: 4 }}
                   />
                   <IconButton
                     size="small"
                     onClick={() => removeExistingImage(i)}
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                    }}
+                    sx={{ position: "absolute", top: 0, right: 0 }}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
@@ -221,26 +252,19 @@ export default function EditProjectForm({ initialProject }) {
                     alt="New"
                     width={80}
                     height={80}
-                    style={{
-                      objectFit: "cover",
-                      borderRadius: 4,
-                    }}
+                    style={{ objectFit: "cover", borderRadius: 4 }}
                   />
                   <IconButton
                     size="small"
                     onClick={() => removeNewFile(i)}
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                    }}
+                    sx={{ position: "absolute", top: 0, right: 0 }}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
               ))}
             </Stack>
-            <Button startIcon={<AddIcon />} component="label" mt={1}>
+            <Button startIcon={<AddIcon />} component="label" sx={{ mt: 1 }}>
               Upload Images
               <input
                 type="file"
@@ -251,6 +275,8 @@ export default function EditProjectForm({ initialProject }) {
               />
             </Button>
           </Box>
+
+          {/* Form Actions */}
           <Stack
             direction="row"
             spacing={2}
@@ -299,7 +325,8 @@ export default function EditProjectForm({ initialProject }) {
               Cancel
             </Button>
             <Button
-              onClick={handleSubmit}
+              type="submit"
+              form="edit-project-form"
               variant="contained"
               sx={{ flex: "8 1 10%" }}
             >

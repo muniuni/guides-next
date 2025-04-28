@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { SessionProvider } from "next-auth/react";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { Inter } from "next/font/google";
@@ -57,7 +58,11 @@ const theme = createTheme({
   },
 });
 
-export default function Providers({ children }) {
+interface ProvidersProps {
+  children: React.ReactNode;
+}
+
+export default function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <ThemeProvider theme={theme}>

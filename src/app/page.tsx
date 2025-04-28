@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import NextLink from "next/link";
 import useSWR, { mutate } from "swr";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Box,
   Typography,
@@ -29,6 +31,9 @@ import {
   Snackbar,
   Alert,
   DialogActions,
+  Card,
+  CardContent,
+  CardActions,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import SearchIcon from "@mui/icons-material/Search";
@@ -54,6 +59,8 @@ const truncate = (text: string, max: number) =>
   text.length > max ? text.slice(0, max) + "..." : text;
 
 export default function HomePage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const [tabIndex, setTabIndex] = useState(0);
@@ -112,11 +119,7 @@ export default function HomePage() {
   const handleSuccess = async () => {
     setOpen(false);
     await mutate("/api/projects");
-    setSnackbar({
-      open: true,
-      message: "Project added!",
-      severity: "success",
-    });
+    setSnackbar({ open: true, message: "Project added!", severity: "success" });
   };
 
   const handleMenuOpen = (
@@ -138,25 +141,20 @@ export default function HomePage() {
   };
 
   const confirmDelete = async () => {
-    const deletedProject = projects.find((p) => p.id === pendingDeleteId);
+    const deletedProject = projects.find((p: any) => p.id === pendingDeleteId);
     const res = await fetch(`/api/projects/${pendingDeleteId}`, {
       method: "DELETE",
     });
     if (res.ok) {
       await mutate("/api/projects");
       setUndoProject(deletedProject);
-      setSnackbar({
-        open: true,
-        message: "Project deleted",
-        severity: "info",
-      });
+      setSnackbar({ open: true, message: "Project deleted", severity: "info" });
     }
     setDeleteDialogOpen(false);
   };
 
   const handleUndo = async () => {
     if (!undoProject) return;
-
     const res = await fetch("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -213,7 +211,7 @@ export default function HomePage() {
   const daysAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
     const day = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return `${day} days ago`;
+    return `${day}days ago`;
   };
 
   const handleSnackbarClose = () => {
@@ -222,14 +220,13 @@ export default function HomePage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" mb={2}>
+      <Typography variant="h4" mb={2}>
         Projects
       </Typography>
       <Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)} sx={{ mb: 2 }}>
         <Tab label={`All (${allCount})`} />
         <Tab label={`My Projects (${myCount})`} />
       </Tabs>
-
       <Box sx={{ display: "flex", alignItems: "center", mb: 2, width: "100%" }}>
         <TextField
           size="small"
@@ -257,104 +254,182 @@ export default function HomePage() {
           </Button>
         )}
       </Box>
-
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ width: "15%" }}>
-              <FolderOpenIcon
-                fontSize="small"
-                sx={{ mr: 0.5, verticalAlign: "middle" }}
-              />
-              Project Name
-            </TableCell>
-            <TableCell sx={{ width: "20%" }}>
-              <NotesIcon
-                fontSize="small"
-                sx={{ mr: 0.5, verticalAlign: "middle" }}
-              />
-              Description
-            </TableCell>
-            <TableCell sx={{ width: "10%" }}>
-              <PermIdentityOutlinedIcon
-                fontSize="small"
-                sx={{ mr: 0.5, verticalAlign: "middle" }}
-              />
-              By
-            </TableCell>
-            <TableCell sx={{ width: "10%" }}>
-              <CalendarTodayOutlinedIcon
-                fontSize="small"
-                sx={{ mr: 0.5, verticalAlign: "middle" }}
-              />
-              Created
-            </TableCell>
-            <TableCell sx={{ width: "10%" }}>
-              <ScheduleOutlinedIcon
-                fontSize="small"
-                sx={{ mr: 0.5, verticalAlign: "middle" }}
-              />
-              Updated
-            </TableCell>
-            <TableCell sx={{ width: "15%" }}></TableCell>
-            <TableCell align="right" sx={{ width: "10%" }} />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {displayed.map((project: any) => {
+      {isMobile ? (
+        <Box>
+          {displayed.map((project) => {
             const isOwner = project.userId === userId;
             return (
-              <TableRow key={project.id}>
-                <TableCell>{project.name}</TableCell>
-                <TableCell>
-                  {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
-                </TableCell>
-                <TableCell>{project.user.username}</TableCell>
-                <TableCell>{formatDate(project.createdAt)}</TableCell>
-                <TableCell>{daysAgo(project.updatedAt)}</TableCell>
-                <TableCell>
-                  <IconButton
-                    component={NextLink}
-                    href={`/projects/${project.id}/edit`}
-                    disabled={!isOwner}
-                  >
-                    <CreateOutlinedIcon />
-                  </IconButton>
-                  <IconButton
-                    component={NextLink}
-                    href={`/projects/${project.id}/metrics`}
-                  >
-                    <AssessmentOutlinedIcon />
-                  </IconButton>
-                  <IconButton onClick={(e) => handleMenuOpen(e, project.id)}>
-                    <MoreHorizOutlinedIcon />
-                  </IconButton>
-                </TableCell>
-                <TableCell align="right">
-                  <Typography
-                    component={MUILink}
-                    href={`/projects/${project.id}`}
-                    underline="hover"
-                    variant="body2"
+              <Card key={project.id} sx={{ mb: 2, mt: 1 }}>
+                <CardContent>
+                  <Box
                     sx={{
-                      display: "inline-flex",
+                      display: "flex",
+                      justifyContent: "space-between",
                       alignItems: "center",
-                      fontSize: 14,
                     }}
                   >
-                    Start Evaluation
-                    <ArrowOutwardOutlinedIcon
-                      fontSize="small"
-                      sx={{ ml: 0.5 }}
-                    />
+                    <Typography variant="h6">{project.name}</Typography>
+                    <Box>
+                      <IconButton
+                        component={NextLink}
+                        href={`/projects/${project.id}/edit`}
+                        disabled={!isOwner}
+                        size="small"
+                      >
+                        <CreateOutlinedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        component={NextLink}
+                        href={`/projects/${project.id}/metrics`}
+                        size="small"
+                      >
+                        <AssessmentOutlinedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        onClick={(e) => handleMenuOpen(e, project.id)}
+                        size="small"
+                      >
+                        <MoreHorizOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                    sx={{ ml: 0.5 }}
+                  >
+                    By {project.user.username}
                   </Typography>
-                </TableCell>
-              </TableRow>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
+                  </Typography>
+                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                    <CalendarTodayOutlinedIcon
+                      sx={{ fontSize: 12, verticalAlign: "middle", mr: 0.5 }}
+                    />
+                    {formatDate(project.createdAt)}
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    <ScheduleOutlinedIcon
+                      sx={{ fontSize: 12, verticalAlign: "middle", mr: 0.5 }}
+                    />
+                    {daysAgo(project.updatedAt)}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    component={MUILink}
+                    href={`/projects/${project.id}`}
+                    sx={{ textTransform: "none" }}
+                  >
+                    Start Evaluation
+                  </Button>
+                </CardActions>
+              </Card>
             );
           })}
-        </TableBody>
-      </Table>
-
+        </Box>
+      ) : (
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ width: "15%" }}>
+                <FolderOpenIcon
+                  fontSize="small"
+                  sx={{ mr: 0.5, verticalAlign: "middle" }}
+                />{" "}
+                Project Name
+              </TableCell>
+              <TableCell sx={{ width: "20%" }}>
+                <NotesIcon
+                  fontSize="small"
+                  sx={{ mr: 0.5, verticalAlign: "middle" }}
+                />{" "}
+                Description
+              </TableCell>
+              <TableCell sx={{ width: "10%" }}>
+                <PermIdentityOutlinedIcon
+                  fontSize="small"
+                  sx={{ mr: 0.5, verticalAlign: "middle" }}
+                />{" "}
+                By
+              </TableCell>
+              <TableCell sx={{ width: "10%" }}>
+                <CalendarTodayOutlinedIcon
+                  fontSize="small"
+                  sx={{ mr: 0.5, verticalAlign: "middle" }}
+                />{" "}
+                Created
+              </TableCell>
+              <TableCell sx={{ width: "10%" }}>
+                <ScheduleOutlinedIcon
+                  fontSize="small"
+                  sx={{ mr: 0.5, verticalAlign: "middle" }}
+                />{" "}
+                Updated
+              </TableCell>
+              <TableCell sx={{ width: "15%" }} />
+              <TableCell align="right" sx={{ width: "10%" }} />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {displayed.map((project) => {
+              const isOwner = project.userId === userId;
+              return (
+                <TableRow key={project.id}>
+                  <TableCell>{project.name}</TableCell>
+                  <TableCell>
+                    {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
+                  </TableCell>
+                  <TableCell>{project.user.username}</TableCell>
+                  <TableCell>{formatDate(project.createdAt)}</TableCell>
+                  <TableCell>{daysAgo(project.updatedAt)}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      component={NextLink}
+                      href={`/projects/${project.id}/edit`}
+                      disabled={!isOwner}
+                    >
+                      <CreateOutlinedIcon />
+                    </IconButton>
+                    <IconButton
+                      component={NextLink}
+                      href={`/projects/${project.id}/metrics`}
+                    >
+                      <AssessmentOutlinedIcon />
+                    </IconButton>
+                    <IconButton onClick={(e) => handleMenuOpen(e, project.id)}>
+                      <MoreHorizOutlinedIcon />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Typography
+                      component={MUILink}
+                      href={`/projects/${project.id}`}
+                      underline="hover"
+                      variant="body2"
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        fontSize: 14,
+                      }}
+                    >
+                      Start Evaluation
+                      <ArrowOutwardOutlinedIcon
+                        fontSize="small"
+                        sx={{ ml: 0.5 }}
+                      />
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
       <Menu
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}
@@ -373,8 +448,8 @@ export default function HomePage() {
           <ListItemText>Detail</ListItemText>
         </MenuItem>
         <MenuItem
-          sx={{ color: "error.main" }}
           onClick={handleDeleteClick}
+          sx={{ color: "error.main" }}
           disabled={
             projects.find((p: any) => p.id === menuProjectId)?.userId !== userId
           }
@@ -388,7 +463,6 @@ export default function HomePage() {
           <ListItemText>Delete</ListItemText>
         </MenuItem>
       </Menu>
-
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -404,7 +478,6 @@ export default function HomePage() {
           </Button>
         </DialogActions>
       </Dialog>
-
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
         <DialogTitle sx={{ m: 0, p: 2 }}>
           Create New Project
@@ -420,7 +493,6 @@ export default function HomePage() {
           <CreateProjectForm onSuccess={handleSuccess} onCancel={handleClose} />
         </DialogContent>
       </Dialog>
-
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
