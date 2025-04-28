@@ -72,6 +72,7 @@ export default function HomePage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [undoProject, setUndoProject] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -141,6 +142,7 @@ export default function HomePage() {
   };
 
   const confirmDelete = async () => {
+    setLoading(true);
     const deletedProject = projects.find((p: any) => p.id === pendingDeleteId);
     const res = await fetch(`/api/projects/${pendingDeleteId}`, {
       method: "DELETE",
@@ -151,6 +153,7 @@ export default function HomePage() {
       setSnackbar({ open: true, message: "Project deleted", severity: "info" });
     }
     setDeleteDialogOpen(false);
+    setLoading(false);
   };
 
   const handleUndo = async () => {
@@ -484,7 +487,7 @@ export default function HomePage() {
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
           <Button onClick={confirmDelete} color="error">
-            Delete
+            {loading ? <CircularProgress size={24} /> : "DELETE"}
           </Button>
         </DialogActions>
       </Dialog>

@@ -113,3 +113,35 @@ export async function PUT(request: Request, { params }: { params: Params }) {
 
   return NextResponse.json(updated);
 }
+
+export async function DELETE(request: Request, { params }: { params: Params }) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const projectId = params.id;
+
+  try {
+    // 画像をS3から削除
+    const images = await prisma.image.findMany({ where: { projectId } });
+    for (const img of images) {
+      const key = img.url.split(`/${BUCKET}/`)[1] || img.url.replace(/^\//, "");
+      await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+    }
+
+    // DBから関連データを削除
+    await prisma.image.deleteMany({ where: { projectId } });
+    await prisma.question.deleteMany({ where: { projectId } });
+
+    // プロジェクト自体を削除
+    await prisma.project.delete({ where: { id: projectId } });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Error deleting project" },
+      { status: 500 },
+    );
+  }
+}
