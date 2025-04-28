@@ -103,7 +103,7 @@ export default function Header() {
               }}
             />
             <Typography
-              variant="h4"
+              variant="h6"
               component="span"
               sx={{ color: "#000", fontWeight: "bold", ml: 0.2 }}
             >
