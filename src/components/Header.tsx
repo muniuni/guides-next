@@ -180,7 +180,7 @@ export default function Header() {
                   variant="contained"
                   sx={{ backgroundColor: "#000", color: "#fff" }}
                 >
-                  Create Account
+                  Sign Up
                 </Button>
               </>
             ))}
