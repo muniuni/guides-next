@@ -211,7 +211,7 @@ export default function HomePage() {
   const daysAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
     const day = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return `${day}days ago`;
+    return `${day} days ago`;
   };
 
   const handleSnackbarClose = () => {
@@ -233,7 +233,7 @@ export default function HomePage() {
           placeholder="Search projects"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ width: 300, mr: 2 }}
+          sx={{ mr: 2 }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -250,7 +250,7 @@ export default function HomePage() {
             onClick={handleOpen}
             sx={{ bgcolor: "#000", color: "#fff" }}
           >
-            {isMobile ? "New" : "New Project"}
+            New{isMobile ? "" : "Project"}
           </Button>
         )}
       </Box>
@@ -266,10 +266,20 @@ export default function HomePage() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      overflowX: "auto", // 横スクロール可能にする
                     }}
                   >
-                    <Typography variant="h6">{project.name}</Typography>
-                    <Box>
+                    <Typography variant="h6" noWrap>
+                      {project.name}
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexShrink: 0,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       <IconButton
                         component={NextLink}
                         href={`/projects/${project.id}/edit`}

@@ -107,7 +107,7 @@ export default function Header() {
               component="span"
               sx={{ color: "#000", fontWeight: "bold", ml: 0.2 }}
             >
-              GUIDES-NEXT
+              n-GUIDES
             </Typography>
           </Box>
 
@@ -140,7 +140,7 @@ export default function Header() {
                   </MenuItem>
                   <MenuItem component={Link} href="/about" onClick={closeMenu}>
                     <InfoOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
-                    About GUIDES-NEXT
+                    About n-GUIDES
                   </MenuItem>
                   <Divider />
                   <MenuItem
@@ -170,6 +170,7 @@ export default function Header() {
                     color: "#000",
                     backgroundColor: "#fff",
                     mr: 1,
+                    borderRadius: 3,
                   }}
                 >
                   Login
@@ -178,9 +179,15 @@ export default function Header() {
                   component={Link}
                   href="/auth/signup"
                   variant="contained"
-                  sx={{ backgroundColor: "#000", color: "#fff" }}
+                  sx={{
+                    backgroundColor: "#000",
+                    color: "#fff",
+                    borderRadius: 3,
+                    textWrap: "nowrap",
+                    boxShadow: 0.1,
+                  }}
                 >
-                  Sign Up
+                  Sign up
                 </Button>
               </>
             ))}

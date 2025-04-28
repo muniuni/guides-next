@@ -157,7 +157,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
             <LinearProgress
               variant="determinate"
               value={(timeLeft / project.imageDuration) * 100}
-              sx={{ width: "80%", height: 4, borderRadius: 4 }}
+              sx={{ width: "90%", height: 5, borderRadius: 4 }}
             />
           </Stack>
         ) : (
@@ -202,7 +202,7 @@ function SliderForm({
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      <Stack spacing={4}>
+      <Stack spacing={2}>
         {questions.map((q, i) => (
           <Box key={q.id}>
             <Typography variant="h6" align="center" gutterBottom>
@@ -221,7 +221,6 @@ function SliderForm({
               step={0.01}
               valueLabelDisplay="auto"
               disabled={disabled}
-              sx={{ mt: 1 }}
             />
           </Box>
         ))}
