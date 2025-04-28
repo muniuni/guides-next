@@ -250,7 +250,7 @@ export default function HomePage() {
             onClick={handleOpen}
             sx={{ bgcolor: "#000", color: "#fff" }}
           >
-            New Project
+            {isMobile ? "New" : "New Project"}
           </Button>
         )}
       </Box>
