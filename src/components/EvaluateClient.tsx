@@ -182,7 +182,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         minHeight: ['calc(100vh - 56px)', 'calc(100vh - 64px)'],
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         p: { xs: 2, sm: 3, md: 4 },
         background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
         position: 'fixed',
@@ -190,14 +190,19 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         left: 0,
         right: 0,
         bottom: 0,
-        overflow: 'hidden',
+        overflow: 'auto',
       }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ width: '100%', maxWidth: 1200 }}
+        style={{
+          width: '100%',
+          maxWidth: 1200,
+          paddingTop: '8vh',
+          paddingBottom: '10vh',
+        }}
       >
         <Paper
           elevation={4}
@@ -208,10 +213,9 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(10px)',
             boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
-            maxHeight: 'calc(85vh - 100px)',
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden',
+            overflow: 'visible',
           }}
         >
           <Box sx={{ flexShrink: 0 }}>
@@ -234,13 +238,9 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
           <Box
             sx={{
               flex: 1,
-              overflow: 'auto',
               display: 'flex',
               flexDirection: 'column',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              '&::-webkit-scrollbar': { display: 'none' },
-              minHeight: 0,
+              overflow: 'visible',
             }}
           >
             <AnimatePresence mode="wait">
@@ -283,7 +283,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                         aspectRatio: currentImageSize
                           ? `${currentImageSize.width} / ${currentImageSize.height}`
                           : 'auto',
-                        maxHeight: 'calc(100% - 100px)',
+                        maxHeight: 'calc(100% - 120px)',
                       }}
                     >
                       <Box
@@ -304,7 +304,14 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                         onMouseDown={(e) => e.preventDefault()}
                       />
                     </Card>
-                    <Box sx={{ width: '90%', position: 'relative', mb: { xs: 1, sm: 2 } }}>
+                    <Box
+                      sx={{
+                        width: '90%',
+                        position: 'relative',
+                        mt: { xs: 2, sm: 3 },
+                        mb: { xs: 1, sm: 2 },
+                      }}
+                    >
                       <LinearProgress
                         variant="determinate"
                         value={(timeLeft / project.imageDuration) * 100}
@@ -326,6 +333,9 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                           top: { xs: -24, sm: -28, md: -30 },
                           color: 'rgba(0, 0, 0, 0.6)',
                           fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                          padding: { xs: '0.25rem 0.5rem', sm: '0.375rem 0.75rem' },
+                          borderRadius: { xs: 1, sm: 2 },
                         }}
                       >
                         {Math.ceil(timeLeft)}s
@@ -340,6 +350,11 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
                 >
                   <SliderForm
                     questions={project.questions}
@@ -351,11 +366,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
             </AnimatePresence>
           </Box>
 
-          <Box sx={{ flexShrink: 0 }}>
+          <Box sx={{ flexShrink: 0, mt: 2 }}>
             {submitting && (
               <LinearProgress
                 sx={{
-                  mt: { xs: 2, sm: 3 },
                   height: { xs: 4, sm: 5, md: 6 },
                   borderRadius: { xs: 1, sm: 2 },
                   backgroundColor: 'rgba(0, 0, 0, 0.1)',
@@ -412,124 +426,113 @@ function SliderForm({
       component="form"
       onSubmit={handleSubmit}
       sx={{
-        mt: { xs: 1, sm: 2 },
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        maxHeight: '100%',
-        overflow: 'hidden',
+        gap: { xs: 1, sm: 1.5, md: 2 },
+        pb: { xs: 1, sm: 1.5, md: 2 },
       }}
     >
-      <Stack
-        spacing={{ xs: 2, sm: 4, md: 6 }}
-        sx={{
-          width: '100%',
-          maxWidth: { xs: '100%', sm: 800, md: 1050 },
-          px: { xs: 1, sm: 2, md: 3 },
-          overflow: 'auto',
-          maxHeight: '100%',
-        }}
-      >
-        {questions.map((q, i) => (
-          <Card
-            key={q.id}
-            sx={{
-              width: '100%',
-              p: { xs: 1.5, sm: 3, md: 4.5 },
-              borderRadius: { xs: 2, sm: 3 },
-              background: 'rgba(255, 255, 255, 0.9)',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-            }}
-          >
-            <Typography
-              variant="h4"
-              align="center"
-              gutterBottom
-              sx={{
-                fontWeight: 'bold',
-                color: '#000000',
-                mb: { xs: 1.5, sm: 3, md: 4.5 },
-                fontSize: { xs: '1rem', sm: '1.5rem', md: '2rem' },
-                lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 },
-              }}
-            >
-              {q.text}
-            </Typography>
-            <Slider
-              marks={[
-                { value: -1, label: '-1' },
-                { value: 0, label: '0' },
-                { value: 1, label: '1' },
-              ]}
-              track={false}
-              value={values[i].value}
-              onChange={(_, v) => handleChange(i, v as number)}
-              min={-1}
-              max={1}
-              step={0.01}
-              valueLabelDisplay="auto"
-              disabled={disabled}
-              sx={{
-                width: '100%',
-                '& .MuiSlider-thumb': {
-                  width: { xs: 20, sm: 30, md: 36 },
-                  height: { xs: 20, sm: 30, md: 36 },
-                  background: '#000000',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-                },
-                '& .MuiSlider-track': {
-                  background: '#000000',
-                  height: { xs: 3, sm: 5, md: 6 },
-                },
-                '& .MuiSlider-rail': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                  height: { xs: 3, sm: 5, md: 6 },
-                },
-                '& .MuiSlider-mark': {
-                  width: { xs: 4, sm: 7, md: 8 },
-                  height: { xs: 4, sm: 7, md: 8 },
-                  borderRadius: '50%',
-                  backgroundColor: '#000000',
-                },
-                '& .MuiSlider-markLabel': {
-                  fontSize: { xs: '0.75rem', sm: '1rem', md: '1.2rem' },
-                  marginTop: { xs: 0.25, sm: 0.75, md: 1 },
-                },
-                '& .MuiSlider-valueLabel': {
-                  fontSize: { xs: '0.75rem', sm: '1rem', md: '1.2rem' },
-                  padding: { xs: '0.25rem 0.5rem', sm: '0.375rem 0.75rem', md: '0.5rem 1rem' },
-                },
-              }}
-            />
-          </Card>
-        ))}
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          disabled={disabled}
+      {questions.map((q, i) => (
+        <Card
+          key={q.id}
           sx={{
-            py: { xs: 1, sm: 2, md: 3 },
-            fontSize: { xs: '0.875rem', sm: '1.25rem', md: '1.5rem' },
-            fontWeight: 'bold',
+            width: '100%',
+            p: { xs: 1, sm: 2, md: 3 },
             borderRadius: { xs: 2, sm: 3 },
-            background: '#000000',
-            color: '#ffffff',
-            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-            '&:hover': {
-              boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
-              background: '#000000',
-            },
-            '&.Mui-disabled': {
-              background: 'rgba(0, 0, 0, 0.3)',
-              color: '#ffffff',
-            },
+            background: 'rgba(255, 255, 255, 0.9)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+            mb: i === questions.length - 1 ? { xs: 3, sm: 4, md: 5 } : 0,
           }}
         >
-          {disabled ? 'Submitting…' : 'Next'}
-        </Button>
-      </Stack>
+          <Typography
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 'bold',
+              color: '#000000',
+              mb: { xs: 0.5, sm: 1, md: 1.5 },
+              fontSize: { xs: '1rem', sm: '1.5rem', md: '2rem' },
+              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 },
+            }}
+          >
+            {q.text}
+          </Typography>
+          <Slider
+            marks={[
+              { value: -1, label: '-1' },
+              { value: 0, label: '0' },
+              { value: 1, label: '1' },
+            ]}
+            track={false}
+            value={values[i].value}
+            onChange={(_, v) => handleChange(i, v as number)}
+            min={-1}
+            max={1}
+            step={0.01}
+            valueLabelDisplay="auto"
+            disabled={disabled}
+            sx={{
+              width: '100%',
+              '& .MuiSlider-thumb': {
+                width: { xs: 20, sm: 30, md: 36 },
+                height: { xs: 20, sm: 30, md: 36 },
+                background: '#000000',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+              },
+              '& .MuiSlider-track': {
+                background: '#000000',
+                height: { xs: 3, sm: 5, md: 6 },
+              },
+              '& .MuiSlider-rail': {
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                height: { xs: 3, sm: 5, md: 6 },
+              },
+              '& .MuiSlider-mark': {
+                width: { xs: 4, sm: 7, md: 8 },
+                height: { xs: 4, sm: 7, md: 8 },
+                borderRadius: '50%',
+                backgroundColor: '#000000',
+              },
+              '& .MuiSlider-markLabel': {
+                fontSize: { xs: '0.75rem', sm: '1rem', md: '1.2rem' },
+                marginTop: { xs: 0.25, sm: 0.75, md: 1 },
+              },
+              '& .MuiSlider-valueLabel': {
+                fontSize: { xs: '0.75rem', sm: '1rem', md: '1.2rem' },
+                padding: { xs: '0.25rem 0.5rem', sm: '0.375rem 0.75rem', md: '0.5rem 1rem' },
+              },
+            }}
+          />
+        </Card>
+      ))}
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        disabled={disabled}
+        sx={{
+          py: { xs: 1, sm: 2, md: 3 },
+          fontSize: { xs: '0.875rem', sm: '1.25rem', md: '1.5rem' },
+          fontWeight: 'bold',
+          borderRadius: { xs: 2, sm: 3 },
+          background: '#000000',
+          color: '#ffffff',
+          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+          '&:hover': {
+            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
+            background: '#000000',
+          },
+          '&.Mui-disabled': {
+            background: 'rgba(0, 0, 0, 0.3)',
+            color: '#ffffff',
+          },
+        }}
+      >
+        {disabled ? 'Submitting…' : 'Next'}
+      </Button>
     </Box>
   );
 }
