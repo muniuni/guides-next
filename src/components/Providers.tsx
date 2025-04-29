@@ -1,46 +1,46 @@
-"use client";
-import React from "react";
-import { SessionProvider } from "next-auth/react";
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import { Inter } from "next/font/google";
+'use client';
+import React from 'react';
+import { SessionProvider } from 'next-auth/react';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { Inter } from 'next/font/google';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 const theme = createTheme({
   palette: {
-    mode: "light",
+    mode: 'light',
     primary: {
-      main: "#000000",
-      contrastText: "#FFFFFF",
+      main: '#000000',
+      contrastText: '#FFFFFF',
     },
     background: {
-      default: "#FFFFFF",
-      paper: "#FFFFFF",
+      default: '#FFFFFF',
+      paper: '#FFFFFF',
     },
     text: {
-      primary: "#000000",
-      secondary: "#000000",
+      primary: '#000000',
+      secondary: '#000000',
     },
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: ({ ownerState }) => ({
-          ...(ownerState.variant === "outlined" && {
-            backgroundColor: "#FFFFFF",
-            borderColor: "#000000",
-            color: "#000000",
-            textTransform: "none",
-            "&:hover": {
-              backgroundColor: "#f5f5f5",
+          ...(ownerState.variant === 'outlined' && {
+            backgroundColor: '#FFFFFF',
+            borderColor: '#000000',
+            color: '#000000',
+            textTransform: 'none',
+            '&:hover': {
+              backgroundColor: '#f5f5f5',
             },
           }),
-          ...(ownerState.variant === "contained" && {
-            backgroundColor: "#000000",
-            color: "#FFFFFF",
-            textTransform: "none",
-            "&:hover": {
-              backgroundColor: "#222222",
+          ...(ownerState.variant === 'contained' && {
+            backgroundColor: '#000000',
+            color: '#FFFFFF',
+            textTransform: 'none',
+            '&:hover': {
+              backgroundColor: '#222222',
             },
           }),
         }),
@@ -49,9 +49,9 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#FFFFFF",
-          color: "#000000",
-          boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
+          backgroundColor: '#FFFFFF',
+          color: '#000000',
+          boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
         },
       },
     },

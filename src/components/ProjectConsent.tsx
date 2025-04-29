@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Box, FormControlLabel, Checkbox, Button } from "@mui/material";
-import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
+import { Box, FormControlLabel, Checkbox, Button } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 interface ProjectConsentProps {
   projectId: string;

@@ -34,6 +34,7 @@ import {
   Card,
   CardContent,
   CardActions,
+  Grid,
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import SearchIcon from '@mui/icons-material/Search';
@@ -218,7 +219,7 @@ export default function HomePage() {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, maxWidth: 1200, margin: '0 auto' }}>
       <Typography variant="h4" mb={2}>
         Projects
       </Typography>
@@ -249,196 +250,157 @@ export default function HomePage() {
             onClick={handleOpen}
             sx={{ bgcolor: '#000', color: '#fff' }}
           >
-            New {isMobile ? '' : 'Project'}
+            {isMobile ? 'New' : 'New Project'}
           </Button>
         )}
       </Box>
-      {isMobile ? (
-        <Box>
+      <Box>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+            },
+            gap: 3,
+          }}
+        >
           {displayed.map((project) => {
             const isOwner = project.userId === userId;
             return (
-              <Card key={project.id} sx={{ mb: 2, mt: 1, borderRadius: 3 }}>
-                <Box
+              <Box key={project.id}>
+                <Card
                   sx={{
-                    height: 120,
-                    width: '100%',
-                    bgcolor: 'grey.200',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    borderTopLeftRadius: 24,
-                    borderTopRightRadius: 24,
-                    backgroundImage:
-                      project.images && project.images.length > 0
-                        ? 'none'
-                        : 'repeating-linear-gradient(135deg, #f5f5f5 0px, #f5f5f5 40px, #e0e0e0 40px, #e0e0e0 80px)',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: { xs: 2, sm: 3 },
+                    maxWidth: 400,
+                    margin: '0 auto',
                   }}
                 >
-                  {project.images && project.images.length > 0 && (
-                    <Box
-                      component="img"
-                      src={project.images[0].url}
-                      alt="Cover"
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                    />
-                  )}
-                </Box>
-                <CardContent>
                   <Box
                     sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      overflowX: 'auto',
+                      height: { xs: 120, sm: 200 },
+                      width: '100%',
+                      bgcolor: 'grey.200',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      borderTopLeftRadius: { xs: 2, sm: 3 },
+                      borderTopRightRadius: { xs: 2, sm: 3 },
+                      backgroundImage:
+                        project.images && project.images.length > 0
+                          ? 'none'
+                          : 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
+                      '&::after': {
+                        content: '"No Image"',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        color: 'rgba(0, 0, 0, 0.2)',
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                      },
                     }}
                   >
-                    <Typography variant="h6" noWrap>
-                      {project.name}
-                    </Typography>
-
+                    {project.images && project.images.length > 0 && (
+                      <Box
+                        component="img"
+                        src={project.images[0].url}
+                        alt="Cover"
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    )}
+                  </Box>
+                  <CardContent sx={{ flexGrow: 1 }}>
                     <Box
                       sx={{
                         display: 'flex',
-                        flexShrink: 0,
-                        whiteSpace: 'nowrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        overflowX: 'auto',
                       }}
                     >
-                      <IconButton
-                        component={NextLink}
-                        href={`/projects/${project.id}/edit`}
-                        disabled={!isOwner}
-                        size="small"
+                      <Typography variant="h6" noWrap>
+                        {project.name}
+                      </Typography>
+
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexShrink: 0,
+                          whiteSpace: 'nowrap',
+                        }}
                       >
-                        <CreateOutlinedIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        component={NextLink}
-                        href={`/projects/${project.id}/metrics`}
-                        size="small"
-                      >
-                        <AssessmentOutlinedIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton onClick={(e) => handleMenuOpen(e, project.id)} size="small">
-                        <MoreHorizOutlinedIcon fontSize="small" />
-                      </IconButton>
+                        <IconButton
+                          component={NextLink}
+                          href={`/projects/${project.id}/edit`}
+                          disabled={!isOwner}
+                          size="small"
+                        >
+                          <CreateOutlinedIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          component={NextLink}
+                          href={`/projects/${project.id}/metrics`}
+                          size="small"
+                        >
+                          <AssessmentOutlinedIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton onClick={(e) => handleMenuOpen(e, project.id)} size="small">
+                          <MoreHorizOutlinedIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </Box>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ ml: 0.5 }}>
-                    By {project.user.username}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
-                  </Typography>
-                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                    <CalendarTodayOutlinedIcon
-                      sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }}
-                    />
-                    {formatDate(project.createdAt)}
-                  </Typography>
-                  <Typography variant="caption" display="block">
-                    <ScheduleOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
-                    {timeAgo(project.updatedAt)}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    component={MUILink}
-                    href={`/projects/${project.id}`}
-                    sx={{ textTransform: 'none' }}
-                  >
-                    Start Evaluation
-                  </Button>
-                </CardActions>
-              </Card>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                      sx={{ ml: 0.5 }}
+                    >
+                      By {project.user.username}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
+                    </Typography>
+                    <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                      <CalendarTodayOutlinedIcon
+                        sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }}
+                      />
+                      {formatDate(project.createdAt)}
+                    </Typography>
+                    <Typography variant="caption" display="block">
+                      <ScheduleOutlinedIcon
+                        sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }}
+                      />
+                      {timeAgo(project.updatedAt)}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      component={MUILink}
+                      href={`/projects/${project.id}`}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      Start Evaluation
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Box>
             );
           })}
         </Box>
-      ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ width: '15%' }}>
-                <FolderOpenIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />{' '}
-                Project Name
-              </TableCell>
-              <TableCell sx={{ width: '20%' }}>
-                <NotesIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} /> Description
-              </TableCell>
-              <TableCell sx={{ width: '10%' }}>
-                <PermIdentityOutlinedIcon
-                  fontSize="small"
-                  sx={{ mr: 0.5, verticalAlign: 'middle' }}
-                />{' '}
-                By
-              </TableCell>
-              <TableCell sx={{ width: '10%' }}>
-                <CalendarTodayOutlinedIcon
-                  fontSize="small"
-                  sx={{ mr: 0.5, verticalAlign: 'middle' }}
-                />{' '}
-                Created
-              </TableCell>
-              <TableCell sx={{ width: '10%' }}>
-                <ScheduleOutlinedIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />{' '}
-                Updated
-              </TableCell>
-              <TableCell sx={{ width: '15%' }} />
-              <TableCell align="right" sx={{ width: '10%' }} />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayed.map((project) => {
-              const isOwner = project.userId === userId;
-              return (
-                <TableRow key={project.id}>
-                  <TableCell>{project.name}</TableCell>
-                  <TableCell>{truncate(project.description, MAX_DESCRIPTION_LENGTH)}</TableCell>
-                  <TableCell>{project.user.username}</TableCell>
-                  <TableCell>{formatDate(project.createdAt)}</TableCell>
-                  <TableCell>{timeAgo(project.updatedAt)}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      component={NextLink}
-                      href={`/projects/${project.id}/edit`}
-                      disabled={!isOwner}
-                    >
-                      <CreateOutlinedIcon />
-                    </IconButton>
-                    <IconButton component={NextLink} href={`/projects/${project.id}/metrics`}>
-                      <AssessmentOutlinedIcon />
-                    </IconButton>
-                    <IconButton onClick={(e) => handleMenuOpen(e, project.id)}>
-                      <MoreHorizOutlinedIcon />
-                    </IconButton>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Typography
-                      component={MUILink}
-                      href={`/projects/${project.id}`}
-                      underline="hover"
-                      variant="body2"
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        fontSize: 14,
-                      }}
-                    >
-                      Start Evaluation
-                      <ArrowOutwardOutlinedIcon fontSize="small" sx={{ ml: 0.5 }} />
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      )}
+      </Box>
       <Menu
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}
