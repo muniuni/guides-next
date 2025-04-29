@@ -436,7 +436,17 @@ export default function HomePage() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        fullWidth
+        maxWidth="xs"
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+          },
+        }}
+      >
         <DialogTitle sx={{ m: 0, p: 3, pb: 2 }}>
           Create New Project
           <IconButton
