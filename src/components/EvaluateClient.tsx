@@ -185,24 +185,30 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         alignItems: 'center',
         p: { xs: 2, sm: 3, md: 4 },
         background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'hidden',
       }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ width: '100%', maxWidth: { xs: '100%', sm: 800, md: 1200 } }}
+        style={{ width: '100%', maxWidth: 1200 }}
       >
         <Paper
           elevation={4}
           sx={{
             width: '100%',
-            p: { xs: 3, sm: 4, md: 6 },
+            p: { xs: 2, sm: 3, md: 4 },
             borderRadius: { xs: 2, sm: 3, md: 4 },
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(10px)',
             boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
-            maxHeight: 'calc(100vh - 120px)',
+            maxHeight: 'calc(85vh - 100px)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
@@ -216,16 +222,26 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
               sx={{
                 fontWeight: 'bold',
                 color: '#000000',
-                mb: { xs: 2, sm: 3, md: 4 },
-                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+                mb: { xs: 1.5, sm: 2, md: 3 },
+                fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' },
               }}
             >
               Evaluation ({currentIndex + 1}/{imagesToShow.length})
             </Typography>
-            <Divider sx={{ mb: { xs: 2, sm: 3, md: 4 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
+            <Divider sx={{ mb: { xs: 1.5, sm: 2, md: 3 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
           </Box>
 
-          <Box sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <Box
+            sx={{
+              flex: 1,
+              overflow: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              '&::-webkit-scrollbar': { display: 'none' },
+            }}
+          >
             <AnimatePresence mode="wait">
               {phase === 'showImage' ? (
                 <motion.div
@@ -236,7 +252,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                   transition={{ duration: 0.3 }}
                   style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
                 >
-                  <Stack alignItems="center" spacing={{ xs: 3, sm: 4, md: 6 }} sx={{ flex: 1 }}>
+                  <Stack alignItems="center" spacing={{ xs: 2, sm: 3, md: 4 }} sx={{ flex: 1 }}>
                     <Card
                       ref={containerRef}
                       sx={{
@@ -255,9 +271,9 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                           ? `${currentImageSize.width} / ${currentImageSize.height}`
                           : 'auto',
                         maxHeight: {
-                          xs: 'calc(80vh - 150px)',
-                          sm: 'calc(80vh - 180px)',
-                          md: 'calc(80vh - 200px)',
+                          xs: 'calc(77vh - 120px)',
+                          sm: 'calc(77vh - 140px)',
+                          md: 'calc(77vh - 160px)',
                         },
                       }}
                     >
@@ -392,8 +408,8 @@ function SliderForm({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        maxHeight: { xs: '60vh', sm: '70vh', md: '80vh' },
-        overflow: 'auto',
+        maxHeight: '100%',
+        overflow: 'hidden',
       }}
     >
       <Stack
@@ -402,6 +418,8 @@ function SliderForm({
           width: '100%',
           maxWidth: { xs: '100%', sm: 800, md: 1050 },
           px: { xs: 1, sm: 2, md: 3 },
+          overflow: 'auto',
+          maxHeight: '100%',
         }}
       >
         {questions.map((q, i) => (
