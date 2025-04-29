@@ -1,10 +1,10 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import NextLink from "next/link";
-import useSWR, { mutate } from "swr";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
+'use client';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import NextLink from 'next/link';
+import useSWR, { mutate } from 'swr';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import {
   Box,
   Typography,
@@ -34,38 +34,39 @@ import {
   Card,
   CardContent,
   CardActions,
-} from "@mui/material";
-import { useSession } from "next-auth/react";
-import SearchIcon from "@mui/icons-material/Search";
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import NotesIcon from "@mui/icons-material/Notes";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
-import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
-import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
-import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
-import AddIcon from "@mui/icons-material/Add";
-import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import CloseIcon from "@mui/icons-material/Close";
-import CreateProjectForm from "@/components/CreateProjectForm";
-import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
+} from '@mui/material';
+import { useSession } from 'next-auth/react';
+import SearchIcon from '@mui/icons-material/Search';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import NotesIcon from '@mui/icons-material/Notes';
+import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
+import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
+import ArrowOutwardOutlinedIcon from '@mui/icons-material/ArrowOutwardOutlined';
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
+import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
+import AddIcon from '@mui/icons-material/Add';
+import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+import CreateProjectForm from '@/components/CreateProjectForm';
+import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
+import ProjectDetailsCard from '@/components/ProjectDetailsCard';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const MAX_DESCRIPTION_LENGTH = 45;
 const truncate = (text: string, max: number) =>
-  text.length > max ? text.slice(0, max) + "..." : text;
+  text.length > max ? text.slice(0, max) + '...' : text;
 
 export default function HomePage() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const [tabIndex, setTabIndex] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const { data: projects, error, isLoading } = useSWR("/api/projects", fetcher);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { data: projects, error, isLoading } = useSWR('/api/projects', fetcher);
   const [open, setOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuProjectId, setMenuProjectId] = useState<string | null>(null);
@@ -75,43 +76,45 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: "",
-    severity: "success" as "success" | "info" | "error",
+    message: '',
+    severity: 'success' as 'success' | 'info' | 'error',
   });
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
 
   const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
     const p = searchParams;
-    if (p.get("updated")) {
+    if (p.get('updated')) {
       setSnackbar({
         open: true,
-        message: "Project updated!",
-        severity: "success",
+        message: 'Project updated!',
+        severity: 'success',
       });
-      router.replace("/", { scroll: false });
-    } else if (p.get("login")) {
+      router.replace('/', { scroll: false });
+    } else if (p.get('login')) {
       setSnackbar({
         open: true,
-        message: "Logged in successfully",
-        severity: "success",
+        message: 'Logged in successfully',
+        severity: 'success',
       });
-      router.replace("/", { scroll: false });
-    } else if (p.get("signup")) {
+      router.replace('/', { scroll: false });
+    } else if (p.get('signup')) {
       setSnackbar({
         open: true,
-        message: "Account created!",
-        severity: "success",
+        message: 'Account created!',
+        severity: 'success',
       });
-      router.replace("/", { scroll: false });
-    } else if (p.get("accountUpdated")) {
+      router.replace('/', { scroll: false });
+    } else if (p.get('accountUpdated')) {
       setSnackbar({
         open: true,
-        message: "Account information updated",
-        severity: "success",
+        message: 'Account information updated',
+        severity: 'success',
       });
-      router.replace("/", { scroll: false });
+      router.replace('/', { scroll: false });
     }
   }, [searchParams, router]);
 
@@ -119,14 +122,11 @@ export default function HomePage() {
   const handleClose = () => setOpen(false);
   const handleSuccess = async () => {
     setOpen(false);
-    await mutate("/api/projects");
-    setSnackbar({ open: true, message: "Project added!", severity: "success" });
+    await mutate('/api/projects');
+    setSnackbar({ open: true, message: 'Project added!', severity: 'success' });
   };
 
-  const handleMenuOpen = (
-    event: React.MouseEvent<HTMLElement>,
-    projectId: string,
-  ) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, projectId: string) => {
     setMenuAnchor(event.currentTarget);
     setMenuProjectId(projectId);
   };
@@ -145,12 +145,12 @@ export default function HomePage() {
     setLoading(true);
     const deletedProject = projects.find((p: any) => p.id === pendingDeleteId);
     const res = await fetch(`/api/projects/${pendingDeleteId}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
     if (res.ok) {
-      await mutate("/api/projects");
+      await mutate('/api/projects');
       setUndoProject(deletedProject);
-      setSnackbar({ open: true, message: "Project deleted", severity: "info" });
+      setSnackbar({ open: true, message: 'Project deleted', severity: 'info' });
     }
     setDeleteDialogOpen(false);
     setLoading(false);
@@ -158,19 +158,26 @@ export default function HomePage() {
 
   const handleUndo = async () => {
     if (!undoProject) return;
-    const res = await fetch("/api/projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const res = await fetch('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(undoProject),
     });
     if (res.ok) {
-      await mutate("/api/projects");
+      await mutate('/api/projects');
       setSnackbar({
         open: true,
-        message: "Deletion undone",
-        severity: "success",
+        message: 'Deletion undone',
+        severity: 'success',
       });
     }
+  };
+
+  const handleDetailsClick = () => {
+    const project = projects.find((p: any) => p.id === menuProjectId);
+    setSelectedProject(project);
+    setDetailsDialogOpen(true);
+    handleMenuClose();
   };
 
   if (error) {
@@ -183,7 +190,7 @@ export default function HomePage() {
 
   if (isLoading || !projects) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
         <CircularProgress />
       </Box>
     );
@@ -192,22 +199,20 @@ export default function HomePage() {
   const allCount = projects.length;
   const myCount = projects.filter((p: any) => p.userId === userId).length;
   const sorted = [...projects].sort(
-    (a: any, b: any) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
-  const tabFiltered =
-    tabIndex === 0 ? sorted : sorted.filter((p: any) => p.userId === userId);
+  const tabFiltered = tabIndex === 0 ? sorted : sorted.filter((p: any) => p.userId === userId);
   const displayed = tabFiltered.filter((p: any) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mi = String(d.getMinutes()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
     return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
   };
 
@@ -230,7 +235,7 @@ export default function HomePage() {
         <Tab label={`All (${allCount})`} />
         <Tab label={`My Projects (${myCount})`} />
       </Tabs>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2, width: "100%" }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: '100%' }}>
         <TextField
           size="small"
           placeholder="Search projects"
@@ -251,9 +256,9 @@ export default function HomePage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpen}
-            sx={{ bgcolor: "#000", color: "#fff" }}
+            sx={{ bgcolor: '#000', color: '#fff' }}
           >
-            New{isMobile ? "" : "Project"}
+            New {isMobile ? '' : 'Project'}
           </Button>
         )}
       </Box>
@@ -266,10 +271,10 @@ export default function HomePage() {
                 <CardContent>
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      overflowX: "auto", // 横スクロール可能にする
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      overflowX: 'auto',
                     }}
                   >
                     <Typography variant="h6" noWrap>
@@ -278,9 +283,9 @@ export default function HomePage() {
 
                     <Box
                       sx={{
-                        display: "flex",
+                        display: 'flex',
                         flexShrink: 0,
-                        whiteSpace: "nowrap",
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       <IconButton
@@ -298,20 +303,12 @@ export default function HomePage() {
                       >
                         <AssessmentOutlinedIcon fontSize="small" />
                       </IconButton>
-                      <IconButton
-                        onClick={(e) => handleMenuOpen(e, project.id)}
-                        size="small"
-                      >
+                      <IconButton onClick={(e) => handleMenuOpen(e, project.id)} size="small">
                         <MoreHorizOutlinedIcon fontSize="small" />
                       </IconButton>
                     </Box>
                   </Box>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    gutterBottom
-                    sx={{ ml: 0.5 }}
-                  >
+                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ ml: 0.5 }}>
                     By {project.user.username}
                   </Typography>
                   <Typography variant="body2" sx={{ mt: 1 }}>
@@ -319,14 +316,12 @@ export default function HomePage() {
                   </Typography>
                   <Typography variant="caption" display="block" sx={{ mt: 1 }}>
                     <CalendarTodayOutlinedIcon
-                      sx={{ fontSize: 12, verticalAlign: "middle", mr: 0.5 }}
+                      sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }}
                     />
                     {formatDate(project.createdAt)}
                   </Typography>
                   <Typography variant="caption" display="block">
-                    <ScheduleOutlinedIcon
-                      sx={{ fontSize: 12, verticalAlign: "middle", mr: 0.5 }}
-                    />
+                    <ScheduleOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
                     {daysAgo(project.updatedAt)}
                   </Typography>
                 </CardContent>
@@ -336,7 +331,7 @@ export default function HomePage() {
                     fullWidth
                     component={MUILink}
                     href={`/projects/${project.id}`}
-                    sx={{ textTransform: "none" }}
+                    sx={{ textTransform: 'none' }}
                   >
                     Start Evaluation
                   </Button>
@@ -349,43 +344,33 @@ export default function HomePage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ width: "15%" }}>
-                <FolderOpenIcon
-                  fontSize="small"
-                  sx={{ mr: 0.5, verticalAlign: "middle" }}
-                />{" "}
+              <TableCell sx={{ width: '15%' }}>
+                <FolderOpenIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />{' '}
                 Project Name
               </TableCell>
-              <TableCell sx={{ width: "20%" }}>
-                <NotesIcon
-                  fontSize="small"
-                  sx={{ mr: 0.5, verticalAlign: "middle" }}
-                />{" "}
-                Description
+              <TableCell sx={{ width: '20%' }}>
+                <NotesIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} /> Description
               </TableCell>
-              <TableCell sx={{ width: "10%" }}>
+              <TableCell sx={{ width: '10%' }}>
                 <PermIdentityOutlinedIcon
                   fontSize="small"
-                  sx={{ mr: 0.5, verticalAlign: "middle" }}
-                />{" "}
+                  sx={{ mr: 0.5, verticalAlign: 'middle' }}
+                />{' '}
                 By
               </TableCell>
-              <TableCell sx={{ width: "10%" }}>
+              <TableCell sx={{ width: '10%' }}>
                 <CalendarTodayOutlinedIcon
                   fontSize="small"
-                  sx={{ mr: 0.5, verticalAlign: "middle" }}
-                />{" "}
+                  sx={{ mr: 0.5, verticalAlign: 'middle' }}
+                />{' '}
                 Created
               </TableCell>
-              <TableCell sx={{ width: "10%" }}>
-                <ScheduleOutlinedIcon
-                  fontSize="small"
-                  sx={{ mr: 0.5, verticalAlign: "middle" }}
-                />{" "}
+              <TableCell sx={{ width: '10%' }}>
+                <ScheduleOutlinedIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />{' '}
                 Updated
               </TableCell>
-              <TableCell sx={{ width: "15%" }} />
-              <TableCell align="right" sx={{ width: "10%" }} />
+              <TableCell sx={{ width: '15%' }} />
+              <TableCell align="right" sx={{ width: '10%' }} />
             </TableRow>
           </TableHead>
           <TableBody>
@@ -394,9 +379,7 @@ export default function HomePage() {
               return (
                 <TableRow key={project.id}>
                   <TableCell>{project.name}</TableCell>
-                  <TableCell>
-                    {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
-                  </TableCell>
+                  <TableCell>{truncate(project.description, MAX_DESCRIPTION_LENGTH)}</TableCell>
                   <TableCell>{project.user.username}</TableCell>
                   <TableCell>{formatDate(project.createdAt)}</TableCell>
                   <TableCell>{daysAgo(project.updatedAt)}</TableCell>
@@ -408,10 +391,7 @@ export default function HomePage() {
                     >
                       <CreateOutlinedIcon />
                     </IconButton>
-                    <IconButton
-                      component={NextLink}
-                      href={`/projects/${project.id}/metrics`}
-                    >
+                    <IconButton component={NextLink} href={`/projects/${project.id}/metrics`}>
                       <AssessmentOutlinedIcon />
                     </IconButton>
                     <IconButton onClick={(e) => handleMenuOpen(e, project.id)}>
@@ -425,16 +405,13 @@ export default function HomePage() {
                       underline="hover"
                       variant="body2"
                       sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
+                        display: 'inline-flex',
+                        alignItems: 'center',
                         fontSize: 14,
                       }}
                     >
                       Start Evaluation
-                      <ArrowOutwardOutlinedIcon
-                        fontSize="small"
-                        sx={{ ml: 0.5 }}
-                      />
+                      <ArrowOutwardOutlinedIcon fontSize="small" sx={{ ml: 0.5 }} />
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -447,76 +424,58 @@ export default function HomePage() {
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}
         onClose={handleMenuClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       >
-        <MenuItem
-          component={NextLink}
-          href={`/projects/${menuProjectId}/info`}
-          onClick={handleMenuClose}
-        >
+        <MenuItem onClick={handleDetailsClick}>
           <ListItemIcon>
             <InfoOutlinedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Detail</ListItemText>
+          <ListItemText>Details</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={handleDeleteClick}
-          sx={{ color: "error.main" }}
-          disabled={
-            projects.find((p: any) => p.id === menuProjectId)?.userId !== userId
-          }
+          sx={{ color: 'error.main' }}
+          disabled={projects.find((p: any) => p.id === menuProjectId)?.userId !== userId}
         >
           <ListItemIcon>
-            <DeleteOutlineOutlinedIcon
-              fontSize="small"
-              sx={{ color: "error.main" }}
-            />
+            <DeleteOutlineOutlinedIcon fontSize="small" sx={{ color: 'error.main' }} />
           </ListItemIcon>
           <ListItemText>Delete</ListItemText>
         </MenuItem>
       </Menu>
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this project?
-        </DialogContent>
+        <DialogContent>Are you sure you want to delete this project?</DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
           <Button onClick={confirmDelete} color="error">
-            {loading ? <CircularProgress size={24} /> : "DELETE"}
+            {loading ? <CircularProgress size={24} /> : 'DELETE'}
           </Button>
         </DialogActions>
       </Dialog>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
-        <DialogTitle sx={{ m: 0, p: 2 }}>
+        <DialogTitle sx={{ m: 0, p: 3, pb: 2 }}>
           Create New Project
           <IconButton
             aria-label="close"
             onClick={handleClose}
-            sx={{ position: "absolute", right: 8, top: 8 }}
+            sx={{ position: 'absolute', right: 12, top: 12 }}
           >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent dividers sx={{ p: 3 }}>
           <CreateProjectForm onSuccess={handleSuccess} onCancel={handleClose} />
         </DialogContent>
       </Dialog>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={8000}
-        onClose={handleSnackbarClose}
-      >
+      <Snackbar open={snackbar.open} autoHideDuration={8000} onClose={handleSnackbarClose}>
         <Alert
           onClose={handleSnackbarClose}
           severity={snackbar.severity}
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
           action={
-            snackbar.severity === "info" ? (
+            snackbar.severity === 'info' ? (
               <Button color="inherit" size="small" onClick={handleUndo}>
                 Undo
               </Button>
@@ -526,6 +485,13 @@ export default function HomePage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      {selectedProject && (
+        <ProjectDetailsCard
+          open={detailsDialogOpen}
+          onClose={() => setDetailsDialogOpen(false)}
+          project={selectedProject}
+        />
+      )}
     </Box>
   );
 }
