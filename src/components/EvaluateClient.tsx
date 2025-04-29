@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Paper,
@@ -11,9 +11,9 @@ import {
   Alert,
   Stack,
   Divider,
-} from "@mui/material";
-import { v4 as uuidv4 } from "uuid";
-import { useRouter } from "next/navigation";
+} from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
+import { useRouter } from 'next/navigation';
 
 interface Question {
   id: string;
@@ -45,10 +45,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
 
   const imagesToShow = useMemo(
     () => project.images.slice(0, project.imageCount),
-    [project.images, project.imageCount],
+    [project.images, project.imageCount]
   );
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [phase, setPhase] = useState<"showImage" | "showSliders">("showImage");
+  const [phase, setPhase] = useState<'showImage' | 'showSliders'>('showImage');
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,14 +57,14 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    if (phase === "showImage") {
+    if (phase === 'showImage') {
       const t0 = Date.now();
       setStartTime(t0);
       setNow(t0);
     }
   }, [phase]);
   useEffect(() => {
-    if (phase === "showImage" && startTime !== null) {
+    if (phase === 'showImage' && startTime !== null) {
       let rafId: number;
       const tick = () => {
         setNow(Date.now());
@@ -78,7 +78,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const elapsed = startTime !== null ? (now - startTime) / 1000 : 0;
   const timeLeft = Math.max(project.imageDuration - elapsed, 0);
   useEffect(() => {
-    if (phase === "showImage" && timeLeft <= 0) setPhase("showSliders");
+    if (phase === 'showImage' && timeLeft <= 0) setPhase('showSliders');
   }, [phase, timeLeft]);
 
   if (!imagesToShow.length)
@@ -88,9 +88,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       </Alert>
     );
 
-  const handleAnswerSubmit = (
-    vals: { questionId: string; value: number }[],
-  ) => {
+  const handleAnswerSubmit = (vals: { questionId: string; value: number }[]) => {
     const batch = vals.map((v) => ({
       imageId: imagesToShow[currentIndex].id,
       questionId: v.questionId,
@@ -102,7 +100,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       const nowTs = Date.now();
       setStartTime(nowTs);
       setNow(nowTs);
-      setPhase("showImage");
+      setPhase('showImage');
     } else {
       submitAllScores([...answers, ...batch]);
     }
@@ -111,15 +109,15 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const submitAllScores = async (all: Answer[]) => {
     setSubmitting(true);
     try {
-      const res = await fetch("/api/scores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, answers: all }),
       });
       if (!res.ok) throw new Error();
       router.push(`/projects/${project.id}/thanks`);
     } catch (e) {
-      setError("Error submitting. Please try again.");
+      setError('Error submitting. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -128,36 +126,44 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   return (
     <Box
       sx={{
-        backgroundColor: "grey.100",
-        width: "100%",
-        minHeight: ["calc(100vh - 56px)", "calc(100vh - 64px)"],
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: 'grey.100',
+        width: '100%',
+        minHeight: ['calc(100vh - 56px)', 'calc(100vh - 64px)'],
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         p: 4,
       }}
     >
-      <Paper
-        elevation={4}
-        sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 2 }}
-      >
+      <Paper elevation={4} sx={{ width: '100%', maxWidth: 600, p: 4, borderRadius: 2 }}>
         <Typography variant="h5" gutterBottom align="center">
           Evaluation ({currentIndex + 1}/{imagesToShow.length})
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
-        {phase === "showImage" ? (
+        {phase === 'showImage' ? (
           <Stack alignItems="center" spacing={4}>
             <Box
               component="img"
               src={imagesToShow[currentIndex].url}
               alt={`Image ${currentIndex + 1}`}
-              sx={{ maxWidth: "100%", maxHeight: "50vh", borderRadius: 1 }}
+              sx={{
+                maxWidth: '100%',
+                maxHeight: '50vh',
+                borderRadius: 1,
+                WebkitTouchCallout: 'none',
+                WebkitUserSelect: 'none',
+                MozTouchCallout: 'none',
+                MozUserSelect: 'none',
+                userSelect: 'none',
+              }}
+              onContextMenu={(e) => e.preventDefault()}
+              onMouseDown={(e) => e.preventDefault()}
             />
             <LinearProgress
               variant="determinate"
               value={(timeLeft / project.imageDuration) * 100}
-              sx={{ width: "90%", height: 5, borderRadius: 4 }}
+              sx={{ width: '90%', height: 5, borderRadius: 4 }}
             />
           </Stack>
         ) : (
@@ -189,12 +195,10 @@ function SliderForm({
   disabled?: boolean;
 }) {
   const [values, setValues] = React.useState(
-    questions.map((q) => ({ questionId: q.id, value: 0 })),
+    questions.map((q) => ({ questionId: q.id, value: 0 }))
   );
   const handleChange = (index: number, val: number) =>
-    setValues((vs) =>
-      vs.map((v, i) => (i === index ? { ...v, value: val } : v)),
-    );
+    setValues((vs) => vs.map((v, i) => (i === index ? { ...v, value: val } : v)));
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(values);
@@ -210,8 +214,8 @@ function SliderForm({
             </Typography>
             <Slider
               marks={[
-                { value: -1, label: "-1" },
-                { value: 1, label: "1" },
+                { value: -1, label: '-1' },
+                { value: 1, label: '1' },
               ]}
               track={false}
               value={values[i].value}
@@ -229,9 +233,9 @@ function SliderForm({
           variant="contained"
           fullWidth
           disabled={disabled}
-          sx={{ py: 1.5, fontSize: "1rem" }}
+          sx={{ py: 1.5, fontSize: '1rem' }}
         >
-          {disabled ? "Submitting…" : "Next"}
+          {disabled ? 'Submitting…' : 'Next'}
         </Button>
       </Stack>
     </Box>
