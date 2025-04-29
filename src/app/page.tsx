@@ -294,7 +294,8 @@ export default function HomePage() {
                           ? 'none'
                           : 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
                       '&::after': {
-                        content: '"No Image"',
+                        content:
+                          project.images && project.images.length > 0 ? 'none' : '"No Image"',
                         position: 'absolute',
                         top: '50%',
                         left: '50%',

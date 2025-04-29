@@ -67,6 +67,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
   );
   const [existingImages, setExistingImages] = useState<ImageRecord[]>(images);
   const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [imagesToDelete, setImagesToDelete] = useState<Set<string>>(new Set());
   const footerRef = useRef<HTMLDivElement | null>(null);
   const [footerVisible, setFooterVisible] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
@@ -75,7 +76,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
-  const totalImages = existingImages.length + newFiles.length;
+  const totalImages = existingImages.length + newFiles.length - imagesToDelete.size;
   const isImageCountValid = parseInt(projectImageCount) <= totalImages;
 
   useEffect(() => {
@@ -117,20 +118,16 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
     });
   };
 
-  const handleDeleteSelected = async () => {
-    setLoading(true);
-    try {
-      for (const imageId of selectedImages) {
-        await fetch(`/api/projects/${id}/images/${imageId}`, { method: 'DELETE' });
-      }
-      setExistingImages((prev) => prev.filter((img) => !selectedImages.has(img.id)));
-      setSelectedImages(new Set());
-      setDeleteDialogOpen(false);
-      setIsSelectMode(false);
-    } catch (error) {
-      console.error('Failed to delete images', error);
-    }
-    setLoading(false);
+  const handleDeleteSelected = () => {
+    setImagesToDelete((prev) => {
+      const newSet = new Set(prev);
+      selectedImages.forEach((id) => newSet.add(id));
+      return newSet;
+    });
+    setExistingImages((prev) => prev.filter((img) => !selectedImages.has(img.id)));
+    setSelectedImages(new Set());
+    setDeleteDialogOpen(false);
+    setIsSelectMode(false);
   };
 
   const removeExistingImage = async (idx: number) => {
@@ -160,6 +157,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       formData.append('imageCount', projectImageCount);
       formData.append('imageDuration', projectImageDuration);
       formData.append('questions', JSON.stringify(filteredQuestions));
+      formData.append('imagesToDelete', JSON.stringify(Array.from(imagesToDelete)));
       formData.append('existingImageIds', JSON.stringify(existingImages.map((img) => img.id)));
       newFiles.forEach((file) => formData.append('newImages', file));
 
@@ -253,12 +251,9 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
 
     // 画像の変更チェック
     const imagesChanged = () => {
-      // Selectモードで画像が選択されていない場合は変更とみなさない
-      if (isSelectMode && selectedImages.size === 0) return false;
-
       return (
         newFiles.length > 0 || // 新規アップロード
-        selectedImages.size > 0 || // 削除予定の画像
+        imagesToDelete.size > 0 || // 削除予定の画像
         existingImages.length !== images.length // 既存画像の削除
       );
     };
