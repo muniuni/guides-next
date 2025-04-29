@@ -17,8 +17,14 @@ interface ProjectDetailsCardProps {
     };
     createdAt: string;
     updatedAt: string;
-    imageCount?: number;
-    questionCount?: number;
+    images: {
+      id: string;
+      url: string;
+    }[];
+    questions: {
+      id: string | null;
+      text: string;
+    }[];
   };
 }
 
@@ -40,6 +46,9 @@ const daysAgo = (dateStr: string) => {
 
 export default function ProjectDetailsCard({ open, onClose, project }: ProjectDetailsCardProps) {
   if (!project) return null;
+
+  const imageCount = project.images?.length || 0;
+  const questionCount = project.questions?.length || 0;
 
   return (
     <Dialog
@@ -92,12 +101,12 @@ export default function ProjectDetailsCard({ open, onClose, project }: ProjectDe
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <ImageOutlinedIcon sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2">{project.imageCount || 0} images enrolled</Typography>
+            <Typography variant="body2">{imageCount} images enrolled</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <HelpOutlineOutlinedIcon sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2">{project.questionCount || 0} questions</Typography>
+            <Typography variant="body2">{questionCount} questions</Typography>
           </Box>
         </Box>
       </DialogContent>

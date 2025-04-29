@@ -1,7 +1,7 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   AppBar,
   Toolbar,
@@ -13,32 +13,36 @@ import {
   MenuItem,
   Divider,
   ListItemIcon,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { useSession, signOut } from "next-auth/react";
-import { mutate } from "swr";
-import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useSession, signOut } from 'next-auth/react';
+import { mutate } from 'swr';
+import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Avatar from '@mui/material/Avatar';
 
 export default function Header() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const isLoading = status === "loading";
-  const isLoggedIn = status === "authenticated";
+  const isLoading = status === 'loading';
+  const isLoggedIn = status === 'authenticated';
   const [open, setOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const openMenu = (e: React.MouseEvent<HTMLElement>) =>
-    setAnchorEl(e.currentTarget);
+  const openMenu = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const closeMenu = () => setAnchorEl(null);
 
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => setOpen(false);
   const handleClose = () => setOpen(false);
 
   const handleSuccess = async () => {
     setOpen(false);
-    await mutate("/api/projects");
+    await mutate('/api/projects');
+  };
+
+  const getInitial = (username: string) => {
+    return username.charAt(0).toUpperCase();
   };
 
   return (
@@ -46,8 +50,8 @@ export default function Header() {
       <AppBar
         position="sticky"
         sx={{
-          bgcolor: "#ffffff",
-          color: "#000",
+          bgcolor: '#ffffff',
+          color: '#000',
           boxShadow: 0.5,
           top: 0,
           pt: 0.5,
@@ -61,12 +65,12 @@ export default function Header() {
             href="/"
             sx={{
               flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              textDecoration: "none",
-              "&:hover .dot1": { transform: "translateY(2px)" },
-              "&:hover .dot2": { transform: "translateY(-4px)" },
-              "&:hover .dot3": { transform: "translateY(2px)" },
+              display: 'flex',
+              alignItems: 'center',
+              textDecoration: 'none',
+              '&:hover .dot1': { transform: 'translateY(2px)' },
+              '&:hover .dot2': { transform: 'translateY(-4px)' },
+              '&:hover .dot3': { transform: 'translateY(2px)' },
             }}
           >
             <Box
@@ -74,10 +78,10 @@ export default function Header() {
               sx={{
                 width: 8,
                 height: 8,
-                bgcolor: "primary.main",
-                borderRadius: "50%",
+                bgcolor: 'primary.main',
+                borderRadius: '50%',
                 mr: 0.5,
-                transition: "transform 0.3s",
+                transition: 'transform 0.3s',
               }}
             />
             <Box
@@ -85,10 +89,10 @@ export default function Header() {
               sx={{
                 width: 8,
                 height: 8,
-                bgcolor: "secondary.main",
-                borderRadius: "50%",
+                bgcolor: 'secondary.main',
+                borderRadius: '50%',
                 mr: 0.5,
-                transition: "transform 0.3s",
+                transition: 'transform 0.3s',
               }}
             />
             <Box
@@ -96,16 +100,16 @@ export default function Header() {
               sx={{
                 width: 8,
                 height: 8,
-                bgcolor: "error.main",
-                borderRadius: "50%",
+                bgcolor: 'error.main',
+                borderRadius: '50%',
                 mr: 1,
-                transition: "transform 0.3s",
+                transition: 'transform 0.3s',
               }}
             />
             <Typography
               variant="h6"
               component="span"
-              sx={{ color: "#000", fontWeight: "bold", ml: 0.2 }}
+              sx={{ color: '#000', fontWeight: 'bold', ml: 0.2 }}
             >
               n-GUIDES
             </Typography>
@@ -118,23 +122,63 @@ export default function Header() {
                   edge="end"
                   size="small"
                   onClick={openMenu}
-                  sx={{ color: "#000", mr: 0.1 }}
+                  sx={{
+                    color: '#000',
+                    mr: { xs: 0, sm: 0.1 },
+                    p: 0,
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                    },
+                  }}
                 >
-                  <MenuIcon />
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      bgcolor: 'black',
+                      color: 'white',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: 'none',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                      },
+                    }}
+                  >
+                    {getInitial(session?.user?.username || '')}
+                  </Avatar>
                 </IconButton>
 
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
                   onClose={closeMenu}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                 >
                   <MenuItem
-                    component={Link}
-                    href="/auth/account"
-                    onClick={closeMenu}
+                    sx={{
+                      py: 1.5,
+                      cursor: 'default',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                    }}
                   >
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: 'bold',
+                        color: 'text.primary',
+                      }}
+                    >
+                      {session?.user?.username}
+                    </Typography>
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem component={Link} href="/auth/account" onClick={closeMenu}>
                     <PermIdentityOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
                     Account settings
                   </MenuItem>
@@ -146,14 +190,11 @@ export default function Header() {
                   <MenuItem
                     onClick={() => {
                       closeMenu();
-                      signOut({ callbackUrl: "/" });
+                      signOut({ callbackUrl: '/' });
                     }}
                   >
                     <ListItemIcon>
-                      <LogoutIcon
-                        fontSize="small"
-                        sx={{ mr: 1, verticalAlign: "middle" }}
-                      />
+                      <LogoutIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
                       Log out
                     </ListItemIcon>
                   </MenuItem>
@@ -166,9 +207,9 @@ export default function Header() {
                   href="/auth/login"
                   variant="outlined"
                   sx={{
-                    borderColor: "#000",
-                    color: "#000",
-                    backgroundColor: "#fff",
+                    borderColor: '#000',
+                    color: '#000',
+                    backgroundColor: '#fff',
                     mr: 1,
                     borderRadius: 3,
                   }}
@@ -180,10 +221,10 @@ export default function Header() {
                   href="/auth/signup"
                   variant="contained"
                   sx={{
-                    backgroundColor: "#000",
-                    color: "#fff",
+                    backgroundColor: '#000',
+                    color: '#fff',
                     borderRadius: 3,
-                    textWrap: "nowrap",
+                    textWrap: 'nowrap',
                     boxShadow: 0.1,
                   }}
                 >

@@ -175,8 +175,14 @@ export default function HomePage() {
 
   const handleDetailsClick = () => {
     const project = projects.find((p: any) => p.id === menuProjectId);
-    setSelectedProject(project);
-    setDetailsDialogOpen(true);
+    if (project) {
+      setSelectedProject({
+        ...project,
+        images: project.images || [],
+        questions: project.questions || [],
+      });
+      setDetailsDialogOpen(true);
+    }
     handleMenuClose();
   };
 
@@ -199,7 +205,7 @@ export default function HomePage() {
   const allCount = projects.length;
   const myCount = projects.filter((p: any) => p.userId === userId).length;
   const sorted = [...projects].sort(
-    (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
   const tabFiltered = tabIndex === 0 ? sorted : sorted.filter((p: any) => p.userId === userId);
   const displayed = tabFiltered.filter((p: any) =>
@@ -216,10 +222,19 @@ export default function HomePage() {
     return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
   };
 
-  const daysAgo = (dateStr: string) => {
+  const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
-    const day = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return `${day} days ago`;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (days > 0) {
+      return `${days} days ago`;
+    } else if (hours > 0) {
+      return `${hours} hours ago`;
+    } else {
+      return `${minutes} minutes ago`;
+    }
   };
 
   const handleSnackbarClose = () => {
@@ -322,7 +337,7 @@ export default function HomePage() {
                   </Typography>
                   <Typography variant="caption" display="block">
                     <ScheduleOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
-                    {daysAgo(project.updatedAt)}
+                    {timeAgo(project.updatedAt)}
                   </Typography>
                 </CardContent>
                 <CardActions>
@@ -382,7 +397,7 @@ export default function HomePage() {
                   <TableCell>{truncate(project.description, MAX_DESCRIPTION_LENGTH)}</TableCell>
                   <TableCell>{project.user.username}</TableCell>
                   <TableCell>{formatDate(project.createdAt)}</TableCell>
-                  <TableCell>{daysAgo(project.updatedAt)}</TableCell>
+                  <TableCell>{timeAgo(project.updatedAt)}</TableCell>
                   <TableCell>
                     <IconButton
                       component={NextLink}
