@@ -72,7 +72,6 @@ export default function HomePage() {
   const [menuProjectId, setMenuProjectId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-  const [undoProject, setUndoProject] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -143,34 +142,15 @@ export default function HomePage() {
 
   const confirmDelete = async () => {
     setLoading(true);
-    const deletedProject = projects.find((p: any) => p.id === pendingDeleteId);
     const res = await fetch(`/api/projects/${pendingDeleteId}`, {
       method: 'DELETE',
     });
     if (res.ok) {
       await mutate('/api/projects');
-      setUndoProject(deletedProject);
       setSnackbar({ open: true, message: 'Project deleted', severity: 'info' });
     }
     setDeleteDialogOpen(false);
     setLoading(false);
-  };
-
-  const handleUndo = async () => {
-    if (!undoProject) return;
-    const res = await fetch('/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(undoProject),
-    });
-    if (res.ok) {
-      await mutate('/api/projects');
-      setSnackbar({
-        open: true,
-        message: 'Deletion undone',
-        severity: 'success',
-      });
-    }
   };
 
   const handleDetailsClick = () => {
@@ -235,10 +215,6 @@ export default function HomePage() {
     } else {
       return `${minutes} minutes ago`;
     }
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbar((s) => ({ ...s, open: false }));
   };
 
   return (
@@ -512,18 +488,15 @@ export default function HomePage() {
           <CreateProjectForm onSuccess={handleSuccess} onCancel={handleClose} />
         </DialogContent>
       </Dialog>
-      <Snackbar open={snackbar.open} autoHideDuration={8000} onClose={handleSnackbarClose}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={8000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+      >
         <Alert
-          onClose={handleSnackbarClose}
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
           severity={snackbar.severity}
           sx={{ width: '100%' }}
-          action={
-            snackbar.severity === 'info' ? (
-              <Button color="inherit" size="small" onClick={handleUndo}>
-                Undo
-              </Button>
-            ) : null
-          }
         >
           {snackbar.message}
         </Alert>
