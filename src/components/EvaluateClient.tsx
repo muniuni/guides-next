@@ -240,6 +240,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               '&::-webkit-scrollbar': { display: 'none' },
+              minHeight: 0,
             }}
           >
             <AnimatePresence mode="wait">
@@ -250,9 +251,21 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
-                  style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 0,
+                  }}
                 >
-                  <Stack alignItems="center" spacing={{ xs: 2, sm: 3, md: 4 }} sx={{ flex: 1 }}>
+                  <Stack
+                    alignItems="center"
+                    spacing={{ xs: 2, sm: 3, md: 4 }}
+                    sx={{
+                      flex: 1,
+                      minHeight: 0,
+                    }}
+                  >
                     <Card
                       ref={containerRef}
                       sx={{
@@ -270,11 +283,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                         aspectRatio: currentImageSize
                           ? `${currentImageSize.width} / ${currentImageSize.height}`
                           : 'auto',
-                        maxHeight: {
-                          xs: 'calc(77vh - 120px)',
-                          sm: 'calc(77vh - 140px)',
-                          md: 'calc(77vh - 160px)',
-                        },
+                        maxHeight: 'calc(100% - 100px)',
                       }}
                     >
                       <Box
