@@ -282,7 +282,35 @@ export default function HomePage() {
           {displayed.map((project) => {
             const isOwner = project.userId === userId;
             return (
-              <Card key={project.id} sx={{ mb: 2, mt: 1 }}>
+              <Card key={project.id} sx={{ mb: 2, mt: 1, borderRadius: 3 }}>
+                <Box
+                  sx={{
+                    height: 120,
+                    width: '100%',
+                    bgcolor: 'grey.200',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderTopLeftRadius: 24,
+                    borderTopRightRadius: 24,
+                    backgroundImage:
+                      project.images && project.images.length > 0
+                        ? 'none'
+                        : 'repeating-linear-gradient(135deg, #f5f5f5 0px, #f5f5f5 40px, #e0e0e0 40px, #e0e0e0 80px)',
+                  }}
+                >
+                  {project.images && project.images.length > 0 && (
+                    <Box
+                      component="img"
+                      src={project.images[0].url}
+                      alt="Cover"
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  )}
+                </Box>
                 <CardContent>
                   <Box
                     sx={{
