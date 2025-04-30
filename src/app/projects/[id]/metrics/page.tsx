@@ -19,5 +19,5 @@ export default async function MetricsPage({ params }: Props) {
 
   const data = (await res.json()) as ApiResponse;
 
-  return <MetricsDashboard data={data} />;
+  return <MetricsDashboard data={data} projectId={params.id} />;
 }

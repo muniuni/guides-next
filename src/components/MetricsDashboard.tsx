@@ -38,6 +38,7 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 export interface PerImage {
   id: string;
@@ -70,9 +71,10 @@ export interface ApiResponse {
 
 export interface MetricsDashboardProps {
   data?: ApiResponse; // data may be undefined if fetch failed
+  projectId?: string; // Add projectId parameter
 }
 
-export default function MetricsDashboard({ data }: MetricsDashboardProps) {
+export default function MetricsDashboard({ data, projectId }: MetricsDashboardProps) {
   const theme = useTheme();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState('1');
@@ -80,6 +82,11 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setMobileTab(newValue);
+  };
+
+  const handleExportCSV = () => {
+    if (!projectId) return;
+    window.open(`/api/projects/${projectId}/export-csv`, '_blank');
   };
 
   if (!data) {
@@ -174,9 +181,24 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
   if (isMobile) {
     return (
       <Box sx={{ p: 1, maxWidth: 1200, margin: '0 auto' }}>
-        <Typography variant="h5" mb={1.5} sx={{ fontWeight: 500 }}>
-          Metrics Dashboard
-        </Typography>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: 500 }}>
+            Metrics Dashboard
+          </Typography>
+          {projectId && (
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<FileDownloadIcon />}
+              onClick={handleExportCSV}
+              sx={{ fontSize: 12, textTransform: 'none' }}
+            >
+              Export CSV
+            </Button>
+          )}
+        </Box>
 
         {/* Summary Cards in Horizontal Scrollable Row */}
         <Box sx={{ mb: 2, overflowX: 'auto', pb: 1 }}>
@@ -707,9 +729,23 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
   // Desktop UI (existing code)
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: 1200, margin: '0 auto' }}>
-      <Typography variant="h4" mb={{ xs: 1, sm: 2 }} fontSize={{ xs: 22, sm: 28, md: 32 }}>
-        Metrics Dashboard
-      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: { xs: 1, sm: 2 },
+        }}
+      >
+        <Typography variant="h4" fontSize={{ xs: 22, sm: 28, md: 32 }}>
+          Metrics Dashboard
+        </Typography>
+        {projectId && (
+          <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExportCSV}>
+            Export CSV
+          </Button>
+        )}
+      </Box>
 
       {/* Summary Cards */}
       <Box
