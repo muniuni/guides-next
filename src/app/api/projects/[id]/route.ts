@@ -30,6 +30,23 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   }
 
   const projectId = params.id;
+
+  // Check if the current user owns this project
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+  });
+
+  if (!project) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
+
+  if (project.userId !== session.user.id) {
+    return NextResponse.json(
+      { error: 'Forbidden: You do not have permission to edit this project' },
+      { status: 403 }
+    );
+  }
+
   const formData = await request.formData();
 
   const name = formData.get('name') as string;
@@ -125,6 +142,22 @@ export async function DELETE(_req: Request, { params }: { params: Params }) {
   const projectId = params.id;
 
   try {
+    // Check if the current user owns this project
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    if (project.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden: You do not have permission to delete this project' },
+        { status: 403 }
+      );
+    }
+
     /* 1. Score を先に削除（FK 制約回避） */
     await prisma.score.deleteMany({
       where: {
