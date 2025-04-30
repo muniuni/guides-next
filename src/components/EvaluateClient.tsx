@@ -105,6 +105,49 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     }
   }, [phase, currentIndex, imagesToShow]);
 
+  // 状態変化を監視してスクロール
+  useEffect(() => {
+    if (phase === 'showImage') {
+      // 画像表示モードに切り替わったらスクロールする
+      forceScrollToTop();
+    }
+  }, [phase, currentIndex]);
+
+  // 強制スクロール関数
+  const forceScrollToTop = () => {
+    // 複数回呼び出して確実にスクロールさせる
+    scrollToTopImmediate();
+    setTimeout(() => scrollToTopImmediate(), 50);
+    setTimeout(() => scrollToTopImmediate(), 150);
+
+    // デバイスサイズに関係なく、ヘッダー直下に確実にスクロールするための追加処理
+    setTimeout(() => {
+      if (scrollmRef.current) {
+        // スクロール要素の一番上に移動
+        scrollmRef.current.scrollTop = 0;
+
+        // 一旦最上部にスクロールした後、windowも最上部にスクロール
+        window.scrollTo(0, 0);
+      }
+    }, 250);
+  };
+
+  // 即時スクロール
+  const scrollToTopImmediate = () => {
+    if (scrollmRef.current) {
+      // スクロール要素を最上部に
+      scrollmRef.current.scrollTop = 0;
+    }
+
+    // ウィンドウ自体も最上部に
+    window.scrollTo(0, 0);
+  };
+
+  // 元のスクロール関数を修正
+  const scrollToTop = () => {
+    forceScrollToTop();
+  };
+
   if (!imagesToShow.length)
     return (
       <Alert severity="error" sx={{ mt: 4 }}>
@@ -148,14 +191,6 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     }
   };
 
-  const scrollToTop = () => {
-    if (scrollmRef.current) {
-      scrollmRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
   const calculateImageStyle = () => {
     if (!currentImageSize || !containerRef.current) return {};
 
@@ -194,7 +229,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        p: { xs: 2, sm: 3, md: 4 },
+        p: { xs: 1.5, sm: 3, md: 3.5 },
         background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
         position: 'fixed',
         top: 0,
@@ -202,6 +237,11 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         right: 0,
         bottom: 0,
         overflow: 'auto',
+        pt: {
+          xs: 'calc(56px + 1.25rem)',
+          sm: 'calc(64px + 1rem)',
+          md: 'calc(64px + 1.5rem)',
+        },
       }}
     >
       <motion.div
@@ -210,23 +250,36 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         transition={{ duration: 0.5 }}
         style={{
           width: '100%',
-          maxWidth: 1200,
-          paddingTop: '8vh',
-          paddingBottom: '10vh',
+          maxWidth: 1000,
+          paddingTop: '0',
+          paddingBottom: '5vh',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Paper
           elevation={4}
           sx={{
             width: '100%',
-            p: { xs: 2, sm: 3, md: 4 },
-            borderRadius: { xs: 2, sm: 3, md: 4 },
+            p: { xs: 1.5, sm: 2.5, md: 3.5 },
+            borderRadius: { xs: 2, sm: 3, md: 3 },
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(10px)',
             boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'visible',
+            mt: { xs: 0, sm: 0 },
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: -10,
+              left: 0,
+              right: 0,
+              height: 10,
+              background: 'transparent',
+            },
           }}
         >
           <Box sx={{ flexShrink: 0 }}>
@@ -237,13 +290,13 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
               sx={{
                 fontWeight: 'bold',
                 color: '#000000',
-                mb: { xs: 1.5, sm: 2, md: 3 },
-                fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' },
+                mb: { xs: 1, sm: 2, md: 2.5 },
+                fontSize: { xs: '1.25rem', sm: '1.6rem', md: '1.85rem' },
               }}
             >
               Evaluation ({currentIndex + 1}/{imagesToShow.length})
             </Typography>
-            <Divider sx={{ mb: { xs: 1.5, sm: 2, md: 3 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
+            <Divider sx={{ mb: { xs: 1, sm: 2, md: 2.5 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
           </Box>
 
           <Box
@@ -271,7 +324,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                 >
                   <Stack
                     alignItems="center"
-                    spacing={{ xs: 2, sm: 3, md: 4 }}
+                    spacing={{ xs: 1.5, sm: 2.5, md: 3 }}
                     sx={{
                       flex: 1,
                       minHeight: 0,
@@ -281,7 +334,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                       ref={containerRef}
                       sx={{
                         width: '100%',
-                        maxWidth: { xs: '100%', sm: 800, md: 1050 },
+                        maxWidth: { xs: '100%', sm: 750, md: 850 },
                         borderRadius: { xs: 2, sm: 3 },
                         overflow: 'hidden',
                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
@@ -295,9 +348,9 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                           ? `${currentImageSize.width} / ${currentImageSize.height}`
                           : 'auto',
                         maxHeight: {
-                          xs: 'calc(90vh - 200px)', // Reserve 10% space at bottom for mobile
-                          sm: 'calc(100% - 120px)',
-                          md: 'calc(100% - 120px)',
+                          xs: 'calc(85vh - 200px)',
+                          sm: 'calc(80vh - 120px)',
+                          md: 'calc(80vh - 120px)',
                         },
                       }}
                     >
@@ -322,11 +375,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                     <Box
                       sx={{
                         width: '100%',
-                        mt: { xs: 2, sm: 3 },
-                        mb: { xs: 1, sm: 2 },
+                        mt: { xs: 1.5, sm: 3 },
+                        mb: { xs: 0.5, sm: 2 },
                         display: 'flex',
                         alignItems: 'center',
-                        // gap: { xs: 1, sm: 2 },
                       }}
                     >
                       <LinearProgress
@@ -334,7 +386,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                         value={(timeLeft / project.imageDuration) * 100}
                         sx={{
                           flexGrow: 1,
-                          height: { xs: 8, sm: 10, md: 12 },
+                          height: { xs: 6, sm: 10, md: 12 },
                           borderRadius: { xs: 2, sm: 3, md: 4 },
                           backgroundColor: 'rgba(0,0,0,0.1)',
                           '& .MuiLinearProgress-bar': {
@@ -446,6 +498,8 @@ function SliderForm({
         alignItems: 'center',
         gap: { xs: 1, sm: 1.5, md: 2 },
         pb: { xs: 1, sm: 1.5, md: 2 },
+        maxWidth: { md: '850px' },
+        mx: 'auto',
       }}
     >
       {questions.map((q, i) => (
@@ -453,11 +507,11 @@ function SliderForm({
           key={q.id}
           sx={{
             width: '100%',
-            p: { xs: 1, sm: 2, md: 3 },
+            p: { xs: 1, sm: 2, md: 2.5 },
             borderRadius: { xs: 2, sm: 3 },
             background: 'rgba(255, 255, 255, 0.9)',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-            mb: i === questions.length - 1 ? { xs: 3, sm: 4, md: 5 } : 0,
+            mb: i === questions.length - 1 ? { xs: 3, sm: 3.5, md: 4 } : 0,
           }}
         >
           <Typography
@@ -467,8 +521,8 @@ function SliderForm({
             sx={{
               fontWeight: 'bold',
               color: '#000000',
-              mb: { xs: 0.5, sm: 1, md: 1.5 },
-              fontSize: { xs: '1rem', sm: '1.5rem', md: '2rem' },
+              mb: { xs: 0.5, sm: 1, md: 1.25 },
+              fontSize: { xs: '1rem', sm: '1.35rem', md: '1.65rem' },
               lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 },
             }}
           >
@@ -491,32 +545,32 @@ function SliderForm({
             sx={{
               width: '100%',
               '& .MuiSlider-thumb': {
-                width: { xs: 20, sm: 30, md: 36 },
-                height: { xs: 20, sm: 30, md: 36 },
+                width: { xs: 20, sm: 26, md: 32 },
+                height: { xs: 20, sm: 26, md: 32 },
                 background: '#000000',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
               },
               '& .MuiSlider-track': {
                 background: '#000000',
-                height: { xs: 3, sm: 5, md: 6 },
+                height: { xs: 3, sm: 4, md: 5 },
               },
               '& .MuiSlider-rail': {
                 backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                height: { xs: 3, sm: 5, md: 6 },
+                height: { xs: 3, sm: 4, md: 5 },
               },
               '& .MuiSlider-mark': {
-                width: { xs: 4, sm: 7, md: 8 },
-                height: { xs: 4, sm: 7, md: 8 },
+                width: { xs: 4, sm: 6, md: 7 },
+                height: { xs: 4, sm: 6, md: 7 },
                 borderRadius: '50%',
                 backgroundColor: '#000000',
               },
               '& .MuiSlider-markLabel': {
-                fontSize: { xs: '0.75rem', sm: '1rem', md: '1.2rem' },
-                marginTop: { xs: 0.25, sm: 0.75, md: 1 },
+                fontSize: { xs: '0.75rem', sm: '0.95rem', md: '1.1rem' },
+                marginTop: { xs: 0.25, sm: 0.5, md: 0.8 },
               },
               '& .MuiSlider-valueLabel': {
-                fontSize: { xs: '0.75rem', sm: '1rem', md: '1.2rem' },
-                padding: { xs: '0.25rem 0.5rem', sm: '0.375rem 0.75rem', md: '0.5rem 1rem' },
+                fontSize: { xs: '0.75rem', sm: '0.95rem', md: '1.1rem' },
+                padding: { xs: '0.25rem 0.5rem', sm: '0.35rem 0.65rem', md: '0.45rem 0.85rem' },
               },
             }}
           />
@@ -528,8 +582,8 @@ function SliderForm({
         fullWidth
         disabled={disabled}
         sx={{
-          py: { xs: 1, sm: 2, md: 3 },
-          fontSize: { xs: '0.875rem', sm: '1.25rem', md: '1.5rem' },
+          py: { xs: 1, sm: 1.5, md: 2.25 },
+          fontSize: { xs: '0.875rem', sm: '1.15rem', md: '1.35rem' },
           fontWeight: 'bold',
           borderRadius: { xs: 2, sm: 3 },
           background: '#000000',
@@ -543,6 +597,7 @@ function SliderForm({
             background: 'rgba(0, 0, 0, 0.3)',
             color: '#ffffff',
           },
+          maxWidth: { md: '450px' },
         }}
       >
         {disabled ? 'Submitting…' : 'Next'}
