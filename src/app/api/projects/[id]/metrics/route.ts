@@ -8,10 +8,11 @@ interface Params {
 /**
  * GET /api/projects/[id]/metrics
  *
- * Returns three blocks of data:
+ * Returns four blocks of data:
  *  - perImage     … [{ imageId, url, count }]
  *  - monthly      … [{ month: "YYYY-MM", count }]
  *  - avgByQuestion… [{ questionId, question, avg }]
+ *  - questionScoresPerImage … [{ imageId, questionId, avg }]
  */
 export async function GET(_req: Request, { params }: { params: Params }) {
   const id = params.id;
@@ -58,9 +59,39 @@ export async function GET(_req: Request, { params }: { params: Params }) {
     avg: row._avg.value ?? 0,
   }));
 
+  // Get IDs for filtering
+  const imageIds = perImage.map((img) => img.id);
+  const questionIds = questionText.map((q) => q.id);
+
+  /* 4. question scores per image ------------------------------------------ */
+  // Get average score for each question for each image (only within this project)
+  const questionScoresPerImageRaw = await prisma.score.groupBy({
+    by: ['imageId', 'questionId'],
+    where: {
+      imageId: { in: imageIds as any },
+      questionId: { in: questionIds as any },
+    },
+    _avg: { value: true },
+  });
+
+  // Transform
+  const formattedQuestionScores = questionScoresPerImageRaw.map((row) => ({
+    imageId: row.imageId,
+    questionId: row.questionId,
+    avg: row._avg.value ?? 0,
+  }));
+
+  /* 5. Unique respondents ------------------------------------------------- */
+  const uniqueRespondents = await prisma.score.count({
+    where: { imageId: { in: imageIds as any } },
+    distinct: ['sessionId'],
+  });
+
   return NextResponse.json({
     perImage,
     monthly,
     avgByQuestion,
+    questionScoresPerImage: formattedQuestionScores,
+    uniqueRespondents,
   });
 }
