@@ -125,6 +125,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       setStartTime(nowTs);
       setNow(nowTs);
       setPhase('showImage');
+      scrollToTop();
     } else {
       submitAllScores([...answers, ...batch]);
     }
@@ -147,8 +148,12 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     }
   };
 
-  const scroll = () => {
-    scrollmRef?.current?.scrollIntoView();
+  const scrollToTop = () => {
+    if (scrollmRef.current) {
+      scrollmRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const calculateImageStyle = () => {
@@ -316,19 +321,22 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                     </Card>
                     <Box
                       sx={{
-                        width: '90%',
-                        position: 'relative',
+                        width: '100%',
                         mt: { xs: 2, sm: 3 },
                         mb: { xs: 1, sm: 2 },
+                        display: 'flex',
+                        alignItems: 'center',
+                        // gap: { xs: 1, sm: 2 },
                       }}
                     >
                       <LinearProgress
                         variant="determinate"
                         value={(timeLeft / project.imageDuration) * 100}
                         sx={{
+                          flexGrow: 1,
                           height: { xs: 8, sm: 10, md: 12 },
                           borderRadius: { xs: 2, sm: 3, md: 4 },
-                          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                          backgroundColor: 'rgba(0,0,0,0.1)',
                           '& .MuiLinearProgress-bar': {
                             borderRadius: { xs: 2, sm: 3, md: 4 },
                             background: '#000000',
@@ -338,14 +346,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                       <Typography
                         variant="h6"
                         sx={{
-                          position: 'absolute',
-                          right: 0,
-                          top: { xs: -24, sm: -28, md: -30 },
-                          color: 'rgba(0, 0, 0, 0.6)',
+                          minWidth: { xs: 40, sm: 48, md: 56 },
+                          textAlign: 'right',
                           fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          padding: { xs: '0.25rem 0.5rem', sm: '0.375rem 0.75rem' },
-                          borderRadius: { xs: 1, sm: 2 },
+                          color: 'rgba(0,0,0,0.6)',
                         }}
                       >
                         {Math.ceil(timeLeft)}s
