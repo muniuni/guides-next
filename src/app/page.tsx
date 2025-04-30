@@ -38,11 +38,8 @@ import {
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import SearchIcon from '@mui/icons-material/Search';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import NotesIcon from '@mui/icons-material/Notes';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
-import ArrowOutwardOutlinedIcon from '@mui/icons-material/ArrowOutwardOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import AddIcon from '@mui/icons-material/Add';
@@ -51,7 +48,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import CreateProjectForm from '@/components/CreateProjectForm';
-import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
+
 import ProjectDetailsCard from '@/components/ProjectDetailsCard';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -353,6 +350,7 @@ export default function HomePage() {
                           component={NextLink}
                           href={`/projects/${project.id}/metrics`}
                           size="small"
+                          disabled={true}
                         >
                           <AssessmentOutlinedIcon fontSize="small" />
                         </IconButton>

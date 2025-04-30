@@ -182,7 +182,7 @@ export default function Header() {
                     <PermIdentityOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
                     Account settings
                   </MenuItem>
-                  <MenuItem component={Link} href="/about" onClick={closeMenu}>
+                  <MenuItem component={Link} href="/about" onClick={closeMenu} disabled={true}>
                     <InfoOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
                     About n-GUIDES
                   </MenuItem>
