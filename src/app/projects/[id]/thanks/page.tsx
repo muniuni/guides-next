@@ -27,6 +27,7 @@ export default function ThanksPage({ params }: Params) {
         alignItems: 'center',
         p: { xs: 2, sm: 3, md: 4 },
         background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        transform: 'translateY(-10vh)',
       }}
     >
       <Paper

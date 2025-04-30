@@ -55,6 +55,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const [currentImageSize, setCurrentImageSize] = useState<ImageSize | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const scrollmRef = useRef<HTMLDivElement>(null);
 
   const imagesToShow = useMemo(
     () => project.images.slice(0, project.imageCount),
@@ -146,6 +147,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     }
   };
 
+  const scroll = () => {
+    scrollmRef?.current?.scrollIntoView();
+  };
+
   const calculateImageStyle = () => {
     if (!currentImageSize || !containerRef.current) return {};
 
@@ -176,6 +181,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
 
   return (
     <Box
+      ref={scrollmRef}
       sx={{
         backgroundColor: '#f5f5f5',
         width: '100%',
@@ -283,7 +289,11 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                         aspectRatio: currentImageSize
                           ? `${currentImageSize.width} / ${currentImageSize.height}`
                           : 'auto',
-                        maxHeight: 'calc(100% - 120px)',
+                        maxHeight: {
+                          xs: 'calc(90vh - 200px)', // Reserve 10% space at bottom for mobile
+                          sm: 'calc(100% - 120px)',
+                          md: 'calc(100% - 120px)',
+                        },
                       }}
                     >
                       <Box
