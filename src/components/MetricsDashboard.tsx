@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -34,6 +34,10 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import ImageIcon from '@mui/icons-material/Image';
 import QuizIcon from '@mui/icons-material/Quiz';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export interface PerImage {
   id: string;
@@ -71,6 +75,12 @@ export interface MetricsDashboardProps {
 export default function MetricsDashboard({ data }: MetricsDashboardProps) {
   const theme = useTheme();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [mobileTab, setMobileTab] = useState('1');
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+    setMobileTab(newValue);
+  };
 
   if (!data) {
     return (
@@ -160,9 +170,544 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
       ? imageQuestionData[selectedImageIndex] || imageQuestionData[0]
       : null;
 
+  // Mobile UI
+  if (isMobile) {
+    return (
+      <Box sx={{ p: 1, maxWidth: 1200, margin: '0 auto' }}>
+        <Typography variant="h5" mb={1.5} sx={{ fontWeight: 500 }}>
+          Metrics Dashboard
+        </Typography>
+
+        {/* Summary Cards in Horizontal Scrollable Row */}
+        <Box sx={{ mb: 2, overflowX: 'auto', pb: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1.5, width: 'max-content', minWidth: '100%' }}>
+            {/* Unique Respondents Card */}
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'grey.200',
+                minWidth: 120,
+                flexGrow: 1,
+              }}
+            >
+              <CardContent sx={{ p: 1.2, py: 0.8 }}>
+                <Box display="flex" alignItems="center" sx={{ minHeight: 32 }}>
+                  <Avatar
+                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.2, width: 28, height: 28 }}
+                  >
+                    <PeopleOutlineIcon sx={{ fontSize: 16 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      fontSize={11}
+                      lineHeight={1.2}
+                    >
+                      Respondents
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      fontWeight="medium"
+                      fontSize={16}
+                      lineHeight={1.3}
+                    >
+                      {uniqueRespondents !== undefined ? uniqueRespondents : 'N/A'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Total Scores Card */}
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'grey.200',
+                minWidth: 120,
+                flexGrow: 1,
+              }}
+            >
+              <CardContent sx={{ p: 1.2, py: 0.8 }}>
+                <Box display="flex" alignItems="center" sx={{ minHeight: 32 }}>
+                  <Avatar
+                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.2, width: 28, height: 28 }}
+                  >
+                    <BarChartIcon sx={{ fontSize: 16 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      fontSize={11}
+                      lineHeight={1.2}
+                    >
+                      Total Scores
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      fontWeight="medium"
+                      fontSize={16}
+                      lineHeight={1.3}
+                    >
+                      {totalScores}
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Total Images Card */}
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'grey.200',
+                minWidth: 120,
+                flexGrow: 1,
+              }}
+            >
+              <CardContent sx={{ p: 1.2, py: 0.8 }}>
+                <Box display="flex" alignItems="center" sx={{ minHeight: 32 }}>
+                  <Avatar
+                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.2, width: 28, height: 28 }}
+                  >
+                    <ImageIcon sx={{ fontSize: 16 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      fontSize={11}
+                      lineHeight={1.2}
+                    >
+                      Total Images
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      fontWeight="medium"
+                      fontSize={16}
+                      lineHeight={1.3}
+                    >
+                      {totalImages}
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Total Questions Card */}
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'grey.200',
+                minWidth: 120,
+                flexGrow: 1,
+              }}
+            >
+              <CardContent sx={{ p: 1.2, py: 0.8 }}>
+                <Box display="flex" alignItems="center" sx={{ minHeight: 32 }}>
+                  <Avatar
+                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.2, width: 28, height: 28 }}
+                  >
+                    <QuizIcon sx={{ fontSize: 16 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      fontSize={11}
+                      lineHeight={1.2}
+                    >
+                      Total Questions
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      fontWeight="medium"
+                      fontSize={16}
+                      lineHeight={1.3}
+                    >
+                      {totalQuestions}
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        </Box>
+
+        {/* Tabs for Different Charts */}
+        <TabContext value={mobileTab}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <TabList
+              onChange={handleTabChange}
+              variant="fullWidth"
+              sx={{
+                minHeight: 40,
+                '& .MuiTab-root': {
+                  minHeight: 40,
+                  fontSize: 13,
+                  textTransform: 'none',
+                },
+              }}
+            >
+              <Tab label="Monthly Scores" value="1" />
+              <Tab label="By Image" value="2" />
+              <Tab label="By Question" value="3" />
+            </TabList>
+          </Box>
+
+          {/* Monthly Scores Tab */}
+          <TabPanel value="1" sx={{ p: 0, pt: 1.5 }}>
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'grey.200',
+              }}
+            >
+              <CardContent sx={{ p: 1.5 }}>
+                <Typography variant="subtitle1" gutterBottom fontSize={15} fontWeight={500}>
+                  Monthly Total Scores
+                </Typography>
+                <Typography variant="body2" color="text.secondary" fontSize={12} mb={1}>
+                  Last 6 months of scoring activity
+                </Typography>
+                <Box height={220}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={monthlyData}
+                      margin={{ top: 15, right: 20, left: 0, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="0"
+                        stroke="rgba(0, 0, 0, 0.1)"
+                        horizontal={true}
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="month"
+                        stroke="rgba(0, 0, 0, 0.6)"
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(value) => value.split('-')[1]} // Only show month part
+                      />
+                      <YAxis
+                        allowDecimals={false}
+                        padding={{ top: 20 }}
+                        domain={[0, 'dataMax + 1']}
+                        stroke="rgba(0, 0, 0, 0.6)"
+                        tick={{ fontSize: 10 }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                          fontSize: 12,
+                        }}
+                      />
+                      <Bar dataKey="count" fill="#000" radius={[4, 4, 0, 0]}>
+                        <LabelList dataKey="count" position="top" fill="#000" fontSize={10} />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              </CardContent>
+            </Card>
+          </TabPanel>
+
+          {/* Scores Per Image Tab */}
+          <TabPanel value="2" sx={{ p: 0, pt: 1.5 }}>
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'grey.200',
+              }}
+            >
+              <CardContent sx={{ p: 1.5 }}>
+                <Typography variant="subtitle1" gutterBottom fontSize={15} fontWeight={500}>
+                  Scores per Image
+                </Typography>
+                <Typography variant="body2" color="text.secondary" fontSize={12} mb={1}>
+                  Distribution of scores across images
+                </Typography>
+                <Box sx={{ display: 'flex' }}>
+                  <ResponsiveContainer width="100%" height={perImageData.length * 50 + 20}>
+                    <BarChart
+                      layout="vertical"
+                      data={perImageData}
+                      margin={{ top: 5, right: 20, left: 5, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="0"
+                        stroke="rgba(0, 0, 0, 0.1)"
+                        horizontal={false}
+                        vertical={true}
+                      />
+                      <XAxis
+                        type="number"
+                        allowDecimals={false}
+                        stroke="rgba(0, 0, 0, 0.6)"
+                        tick={{ fontSize: 10 }}
+                      />
+                      <YAxis
+                        dataKey="image"
+                        type="category"
+                        width={60}
+                        stroke="rgba(0, 0, 0, 0.6)"
+                        tick={({ x, y, payload }) => (
+                          <g transform={`translate(${x},${y})`}>
+                            <image
+                              href={payload.value}
+                              x={-55}
+                              y={-20}
+                              width={40}
+                              height={40}
+                              style={{ objectFit: 'cover', borderRadius: '8px' }}
+                            />
+                          </g>
+                        )}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                          fontSize: 12,
+                        }}
+                      />
+                      <Bar dataKey="count" fill="#000" radius={[0, 4, 4, 0]}>
+                        <LabelList dataKey="count" position="right" fill="#000" fontSize={10} />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              </CardContent>
+            </Card>
+          </TabPanel>
+
+          {/* Question Scores Tab */}
+          <TabPanel value="3" sx={{ p: 0, pt: 1.5 }}>
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'grey.200',
+              }}
+            >
+              <CardContent sx={{ p: 1.5 }}>
+                <Typography variant="subtitle1" gutterBottom fontSize={15} fontWeight={500}>
+                  Question Scores by Image
+                </Typography>
+
+                {imageQuestionData && imageQuestionData.length > 0 ? (
+                  <>
+                    <FormControl variant="outlined" size="small" sx={{ minWidth: 150, mb: 1.5 }}>
+                      <InputLabel id="mobile-image-select-label">Select Image</InputLabel>
+                      <Select
+                        labelId="mobile-image-select-label"
+                        id="mobile-image-select"
+                        value={selectedImageIndex}
+                        onChange={(e) => setSelectedImageIndex(Number(e.target.value))}
+                        label="Select Image"
+                        sx={{ fontSize: 13 }}
+                      >
+                        {imageQuestionData.map((img, index) => (
+                          <MenuItem key={img.id} value={index}>
+                            {`Image ${index + 1}`}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    {selectedImage && (
+                      <>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <Box
+                            component="img"
+                            src={selectedImage?.image}
+                            alt="Selected image"
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: 1,
+                              objectFit: 'cover',
+                              mr: 1,
+                              border: '1px solid',
+                              borderColor: 'grey.300',
+                            }}
+                          />
+                          <Typography variant="body2" color="text.secondary" fontSize={11}>
+                            Position indicates average score between -1 and 1
+                          </Typography>
+                        </Box>
+
+                        <Divider sx={{ mb: 1.5 }} />
+
+                        <Box sx={{ height: 300, overflowY: 'auto' }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 2,
+                              pr: 1,
+                              pt: 1,
+                              pb: 1,
+                            }}
+                          >
+                            {selectedImage?.questions.map((question) => (
+                              <Box
+                                key={question.questionId}
+                                sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    mb: 0.5,
+                                    fontSize: 12,
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  {question.question}
+                                </Typography>
+                                {question.avg !== null ? (
+                                  <Box sx={{ position: 'relative', height: 18, mb: 1 }}>
+                                    {/* Scale line */}
+                                    <Box
+                                      sx={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: 0,
+                                        right: 0,
+                                        height: 2,
+                                        bgcolor: 'grey.300',
+                                        transform: 'translateY(-50%)',
+                                      }}
+                                    />
+
+                                    {/* Center marker */}
+                                    <Box
+                                      sx={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        height: 10,
+                                        width: 2,
+                                        bgcolor: 'grey.400',
+                                        transform: 'translate(-50%, -50%)',
+                                      }}
+                                    />
+
+                                    {/* Min marker */}
+                                    <Box
+                                      sx={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: 0,
+                                        height: 6,
+                                        width: 2,
+                                        bgcolor: 'grey.400',
+                                        transform: 'translateY(-50%)',
+                                      }}
+                                    />
+
+                                    {/* Max marker */}
+                                    <Box
+                                      sx={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        right: 0,
+                                        height: 6,
+                                        width: 2,
+                                        bgcolor: 'grey.400',
+                                        transform: 'translateY(-50%)',
+                                      }}
+                                    />
+
+                                    {/* Value marker */}
+                                    <Box
+                                      sx={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        bottom: 0,
+                                        left: `${((question.avg + 1) / 2) * 100}%`,
+                                        width: 3,
+                                        bgcolor: '#000',
+                                        transform: 'translateX(-50%)',
+                                        borderRadius: '2px',
+                                        transition: 'left 0.4s ease-in-out',
+                                      }}
+                                    />
+
+                                    {/* Value tooltip */}
+                                    <Box
+                                      sx={{
+                                        position: 'absolute',
+                                        top: -22,
+                                        left: `${((question.avg + 1) / 2) * 100}%`,
+                                        transform: 'translateX(-50%)',
+                                        bgcolor: '#000',
+                                        color: 'white',
+                                        px: 0.7,
+                                        py: 0.2,
+                                        borderRadius: 1,
+                                        fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                                        fontWeight: 'bold',
+                                        zIndex: 1,
+                                        transition: 'left 0.4s ease-in-out',
+                                      }}
+                                    >
+                                      {question.avg.toFixed(2)}
+                                    </Box>
+                                  </Box>
+                                ) : (
+                                  <Typography variant="body2" color="text.secondary" fontSize={11}>
+                                    No data available
+                                  </Typography>
+                                )}
+                              </Box>
+                            ))}
+                          </Box>
+                        </Box>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <Box sx={{ pt: 2 }}>
+                    <Alert severity="info" sx={{ width: '100%' }}>
+                      No question score data available for images.
+                    </Alert>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </TabPanel>
+        </TabContext>
+      </Box>
+    );
+  }
+
+  // Desktop UI (existing code)
   return (
-    <Box sx={{ p: 3, maxWidth: 1200, margin: '0 auto' }}>
-      <Typography variant="h4" mb={2}>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: 1200, margin: '0 auto' }}>
+      <Typography variant="h4" mb={{ xs: 1, sm: 2 }} fontSize={{ xs: 22, sm: 28, md: 32 }}>
         Metrics Dashboard
       </Typography>
 
@@ -175,8 +720,8 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
             sm: 'repeat(2, 1fr)',
             md: 'repeat(4, 1fr)',
           },
-          gap: 3,
-          mb: 3,
+          gap: { xs: 1.5, sm: 2, md: 3 },
+          mb: { xs: 2, sm: 3 },
         }}
       >
         {/* Unique Respondents Card */}
@@ -285,7 +830,7 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
       </Box>
 
       {/* Charts */}
-      <Stack spacing={3}>
+      <Stack spacing={{ xs: 2, sm: 3 }}>
         {/* Monthly Scores */}
         <Card
           elevation={0}
@@ -296,17 +841,27 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
           }}
         >
           <CardContent>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom fontSize={{ xs: 16, sm: 20 }}>
               Monthly Total Scores
             </Typography>
-            <Typography variant="body2" color="text.secondary" paragraph>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              paragraph
+              fontSize={{ xs: 12, sm: 14 }}
+            >
               Last 6 months of scoring activity
             </Typography>
-            <Divider sx={{ mb: 3 }} />
-            <Box height={450}>
+            <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
+            <Box height={{ xs: 220, sm: 320, md: 450 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.1)" />
+                <BarChart data={monthlyData} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
+                  <CartesianGrid
+                    strokeDasharray="0"
+                    stroke="rgba(0, 0, 0, 0.1)"
+                    horizontal={true}
+                    vertical={false}
+                  />
                   <XAxis dataKey="month" stroke="rgba(0, 0, 0, 0.6)" />
                   <YAxis
                     allowDecimals={false}
@@ -339,7 +894,7 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
               xs: '1fr',
               md: 'repeat(2, 1fr)',
             },
-            gap: 3,
+            gap: { xs: 2, sm: 3 },
           }}
         >
           {/* Scores Per Image */}
@@ -352,26 +907,37 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
             }}
           >
             <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom fontSize={{ xs: 16, sm: 20 }}>
                 Scores per Image
               </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                paragraph
+                fontSize={{ xs: 12, sm: 14 }}
+              >
                 Distribution of scores across images
               </Typography>
-              <Divider sx={{ mb: 3 }} />
-              <Box flex={1} minHeight={450}>
-                <ResponsiveContainer width="100%" height="100%">
+              <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
+              <Box sx={{ flex: 1, display: 'flex' }}>
+                <ResponsiveContainer width="100%" height={perImageData.length * 60 + 40}>
                   <BarChart
                     layout="vertical"
                     data={perImageData}
-                    margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+                    margin={{ top: 5, right: 20, left: 5, bottom: 5 }}
                   >
                     <CartesianGrid
-                      strokeDasharray="3 3"
-                      horizontal={false}
+                      strokeDasharray="0"
                       stroke="rgba(0, 0, 0, 0.1)"
+                      horizontal={false}
+                      vertical={true}
                     />
-                    <XAxis type="number" allowDecimals={false} stroke="rgba(0, 0, 0, 0.6)" />
+                    <XAxis
+                      type="number"
+                      allowDecimals={false}
+                      stroke="rgba(0, 0, 0, 0.6)"
+                      tick={{ fontSize: 10 }}
+                    />
                     <YAxis
                       dataKey="image"
                       type="category"
@@ -420,16 +986,22 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
               <Box
                 sx={{
                   display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
                   justifyContent: 'space-between',
-                  alignItems: 'center',
+                  alignItems: { xs: 'flex-start', sm: 'center' },
                   mb: 1,
+                  gap: { xs: 1, sm: 0 },
                 }}
               >
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom fontSize={{ xs: 16, sm: 20 }}>
                   Question Scores by Image
                 </Typography>
                 {imageQuestionData && imageQuestionData.length > 0 && (
-                  <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
+                  <FormControl
+                    variant="outlined"
+                    size="small"
+                    sx={{ minWidth: { xs: 120, sm: 150 }, mt: { xs: 1, sm: 0 } }}
+                  >
                     <InputLabel id="image-select-label">Select Image</InputLabel>
                     <Select
                       labelId="image-select-label"
@@ -450,52 +1022,49 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
 
               {selectedImage ? (
                 <>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <Box
                       component="img"
                       src={selectedImage?.image}
                       alt="Selected image"
                       sx={{
-                        width: 60,
-                        height: 60,
+                        width: 40,
+                        height: 40,
                         borderRadius: 1,
                         objectFit: 'cover',
-                        mr: 2,
+                        mr: 1,
                         border: '1px solid',
                         borderColor: 'grey.300',
                       }}
                     />
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" fontSize={11}>
                       Position indicates average score between -1 and 1
                     </Typography>
                   </Box>
 
-                  <Divider sx={{ mb: 3 }} />
+                  <Divider sx={{ mb: 1.5 }} />
 
-                  <Box flex={1} minHeight={450} sx={{ overflowY: 'auto' }}>
+                  <Box sx={{ height: 300, overflowY: 'auto' }}>
                     <Box
-                      sx={{ display: 'flex', flexDirection: 'column', gap: 4, pr: 2, pt: 2, pb: 2 }}
+                      sx={{ display: 'flex', flexDirection: 'column', gap: 2, pr: 1, pt: 1, pb: 1 }}
                     >
                       {selectedImage?.questions.map((question) => (
                         <Box
                           key={question.questionId}
-                          sx={{ display: 'flex', alignItems: 'center', width: '100%' }}
+                          sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}
                         >
                           <Typography
                             variant="body2"
                             sx={{
-                              width: '150px',
-                              flexShrink: 0,
-                              pr: 2,
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
+                              mb: 0.5,
+                              fontSize: 12,
+                              fontWeight: 500,
                             }}
                           >
                             {question.question}
                           </Typography>
                           {question.avg !== null ? (
-                            <Box sx={{ position: 'relative', flex: 1, height: 24, mt: 4, mb: 2 }}>
+                            <Box sx={{ position: 'relative', height: 18, mb: 1 }}>
                               {/* Scale line */}
                               <Box
                                 sx={{
@@ -515,7 +1084,7 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
                                   position: 'absolute',
                                   top: '50%',
                                   left: '50%',
-                                  height: 12,
+                                  height: 10,
                                   width: 2,
                                   bgcolor: 'grey.400',
                                   transform: 'translate(-50%, -50%)',
@@ -528,7 +1097,7 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
                                   position: 'absolute',
                                   top: '50%',
                                   left: 0,
-                                  height: 8,
+                                  height: 6,
                                   width: 2,
                                   bgcolor: 'grey.400',
                                   transform: 'translateY(-50%)',
@@ -541,7 +1110,7 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
                                   position: 'absolute',
                                   top: '50%',
                                   right: 0,
-                                  height: 8,
+                                  height: 6,
                                   width: 2,
                                   bgcolor: 'grey.400',
                                   transform: 'translateY(-50%)',
@@ -559,6 +1128,7 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
                                   bgcolor: '#000',
                                   transform: 'translateX(-50%)',
                                   borderRadius: '2px',
+                                  transition: 'left 0.4s ease-in-out',
                                 }}
                               />
 
@@ -566,24 +1136,25 @@ export default function MetricsDashboard({ data }: MetricsDashboardProps) {
                               <Box
                                 sx={{
                                   position: 'absolute',
-                                  top: -30,
+                                  top: -22,
                                   left: `${((question.avg + 1) / 2) * 100}%`,
                                   transform: 'translateX(-50%)',
                                   bgcolor: '#000',
                                   color: 'white',
-                                  px: 1,
-                                  py: 0.5,
+                                  px: 0.7,
+                                  py: 0.2,
                                   borderRadius: 1,
-                                  fontSize: '0.7rem',
+                                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
                                   fontWeight: 'bold',
                                   zIndex: 1,
+                                  transition: 'left 0.4s ease-in-out',
                                 }}
                               >
                                 {question.avg.toFixed(2)}
                               </Box>
                             </Box>
                           ) : (
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="text.secondary" fontSize={11}>
                               No data available
                             </Typography>
                           )}
