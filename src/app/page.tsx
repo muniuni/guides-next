@@ -350,7 +350,6 @@ export default function HomePage() {
                           component={NextLink}
                           href={`/projects/${project.id}/metrics`}
                           size="small"
-                          disabled={true}
                         >
                           <AssessmentOutlinedIcon fontSize="small" />
                         </IconButton>
