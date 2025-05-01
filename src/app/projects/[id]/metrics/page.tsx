@@ -14,9 +14,9 @@ export default async function MetricsPage({ params }: Props) {
   const headersData = headers();
   const host = (await headersData).get('host');
   const protocol =
-    ((await headersData).get('x-forwarded-proto') ?? host.startsWith('localhost'))
-      ? 'http'
-      : 'https';
+    (await headersData).get('x-forwarded-proto') === 'https' || !host.startsWith('localhost')
+      ? 'https'
+      : 'http';
   const apiBase = `${protocol}://${host}`;
 
   const res = await fetch(`${apiBase}/api/projects/${params.id}/metrics`, {
