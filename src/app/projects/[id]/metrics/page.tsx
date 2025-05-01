@@ -10,12 +10,9 @@ interface Props {
 }
 
 export default async function MetricsPage({ params }: Props) {
-  const res = await fetch(
-    `https://${process.env.VERCEL_URL || 'localhost:3000'}/api/projects/${params.id}/metrics`,
-    {
-      next: { revalidate: 60 },
-    }
-  );
+  const res = await fetch(`https://guides-next-ids.vercel.app/api/projects/${params.id}/metrics`, {
+    next: { revalidate: 60 },
+  });
 
   if (!res.ok) notFound();
 

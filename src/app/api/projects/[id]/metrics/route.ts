@@ -82,9 +82,10 @@ export async function GET(_req: Request, { params }: { params: Params }) {
   }));
 
   /* 5. Unique respondents ------------------------------------------------- */
-  const uniqueRespondents = await prisma.score.count({
+  const uniqueRespondents = await prisma.score.findMany({
     where: { imageId: { in: imageIds as any } },
     distinct: ['sessionId'],
+    select: { sessionId: true },
   });
 
   return NextResponse.json({
@@ -92,6 +93,6 @@ export async function GET(_req: Request, { params }: { params: Params }) {
     monthly,
     avgByQuestion,
     questionScoresPerImage: formattedQuestionScores,
-    uniqueRespondents,
+    uniqueRespondents: uniqueRespondents.length,
   });
 }
