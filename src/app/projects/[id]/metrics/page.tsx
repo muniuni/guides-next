@@ -11,7 +11,7 @@ interface Props {
 
 export default async function MetricsPage({ params }: Props) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:3000'}/api/projects/${params.id}/metrics`,
+    `https://${process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:3000'}/api/projects/${params.id}/metrics`,
     {
       next: { revalidate: 60 },
     }
