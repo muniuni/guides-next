@@ -180,20 +180,16 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
   // Mobile UI
   if (isMobile) {
     return (
-      <Box sx={{ p: 1, maxWidth: 1200, margin: '0 auto' }}>
-        <Box
-          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}
-        >
-          <Typography variant="h5" sx={{ fontWeight: 500 }}>
-            Metrics Dashboard
-          </Typography>
+      <Box sx={{ p: 2, maxWidth: 1200, margin: '0 auto' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h5">Metrics Dashboard</Typography>
           {projectId && (
             <Button
               variant="outlined"
               size="small"
               startIcon={<FileDownloadIcon />}
               onClick={handleExportCSV}
-              sx={{ fontSize: 12, textTransform: 'none' }}
+              sx={{ fontSize: 13, textTransform: 'none' }}
             >
               Export CSV
             </Button>
@@ -214,18 +210,18 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                 flexGrow: 1,
               }}
             >
-              <CardContent sx={{ p: 1.2, py: 0.8 }}>
+              <CardContent sx={{ p: 1.5, py: 1.2 }}>
                 <Box display="flex" alignItems="center" sx={{ minHeight: 32 }}>
                   <Avatar
-                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.2, width: 28, height: 28 }}
+                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.5, width: 32, height: 32 }}
                   >
-                    <PeopleOutlineIcon sx={{ fontSize: 16 }} />
+                    <PeopleOutlineIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      fontSize={11}
+                      fontSize={12}
                       lineHeight={1.2}
                     >
                       Respondents
@@ -234,7 +230,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                       variant="h6"
                       component="div"
                       fontWeight="medium"
-                      fontSize={16}
+                      fontSize={18}
                       lineHeight={1.3}
                     >
                       {uniqueRespondents !== undefined ? uniqueRespondents : 'N/A'}
@@ -255,18 +251,18 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                 flexGrow: 1,
               }}
             >
-              <CardContent sx={{ p: 1.2, py: 0.8 }}>
+              <CardContent sx={{ p: 1.5, py: 1.2 }}>
                 <Box display="flex" alignItems="center" sx={{ minHeight: 32 }}>
                   <Avatar
-                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.2, width: 28, height: 28 }}
+                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.5, width: 32, height: 32 }}
                   >
-                    <BarChartIcon sx={{ fontSize: 16 }} />
+                    <BarChartIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      fontSize={11}
+                      fontSize={12}
                       lineHeight={1.2}
                     >
                       Total Scores
@@ -275,7 +271,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                       variant="h6"
                       component="div"
                       fontWeight="medium"
-                      fontSize={16}
+                      fontSize={18}
                       lineHeight={1.3}
                     >
                       {totalScores}
@@ -296,18 +292,18 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                 flexGrow: 1,
               }}
             >
-              <CardContent sx={{ p: 1.2, py: 0.8 }}>
+              <CardContent sx={{ p: 1.5, py: 1.2 }}>
                 <Box display="flex" alignItems="center" sx={{ minHeight: 32 }}>
                   <Avatar
-                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.2, width: 28, height: 28 }}
+                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.5, width: 32, height: 32 }}
                   >
-                    <ImageIcon sx={{ fontSize: 16 }} />
+                    <ImageIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      fontSize={11}
+                      fontSize={12}
                       lineHeight={1.2}
                     >
                       Total Images
@@ -316,7 +312,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                       variant="h6"
                       component="div"
                       fontWeight="medium"
-                      fontSize={16}
+                      fontSize={18}
                       lineHeight={1.3}
                     >
                       {totalImages}
@@ -337,18 +333,18 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                 flexGrow: 1,
               }}
             >
-              <CardContent sx={{ p: 1.2, py: 0.8 }}>
+              <CardContent sx={{ p: 1.5, py: 1.2 }}>
                 <Box display="flex" alignItems="center" sx={{ minHeight: 32 }}>
                   <Avatar
-                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.2, width: 28, height: 28 }}
+                    sx={{ bgcolor: 'grey.100', color: '#000', mr: 1.5, width: 32, height: 32 }}
                   >
-                    <QuizIcon sx={{ fontSize: 16 }} />
+                    <QuizIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      fontSize={11}
+                      fontSize={12}
                       lineHeight={1.2}
                     >
                       Total Questions
@@ -357,7 +353,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                       variant="h6"
                       component="div"
                       fontWeight="medium"
-                      fontSize={16}
+                      fontSize={18}
                       lineHeight={1.3}
                     >
                       {totalQuestions}
@@ -407,11 +403,12 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                 <Typography variant="body2" color="text.secondary" fontSize={12} mb={1}>
                   Last 6 months of scoring activity
                 </Typography>
-                <Box height={220}>
+                <Divider sx={{ mb: { xs: 2, sm: 2 } }} />
+                <Box height={{ xs: 220, sm: 320, md: 400 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={monthlyData}
-                      margin={{ top: 15, right: 20, left: 0, bottom: 5 }}
+                      margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
                     >
                       <CartesianGrid
                         strokeDasharray="0"
@@ -419,16 +416,12 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                         horizontal={true}
                         vertical={false}
                       />
-                      <XAxis
-                        dataKey="month"
-                        stroke="rgba(0, 0, 0, 0.6)"
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(value) => value.split('-')[1]} // Only show month part
-                      />
+                      <XAxis dataKey="month" stroke="rgba(0, 0, 0, 0.6)" tick={{ fontSize: 10 }} />
                       <YAxis
                         allowDecimals={false}
                         padding={{ top: 20 }}
-                        domain={[0, 'dataMax + 1']}
+                        domain={[0, 'auto']}
+                        tickCount={5}
                         stroke="rgba(0, 0, 0, 0.6)"
                         tick={{ fontSize: 10 }}
                       />
@@ -438,7 +431,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                           border: '1px solid #e0e0e0',
                           borderRadius: '8px',
                           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                          fontSize: 12,
+                          fontSize: 11,
                         }}
                       />
                       <Bar dataKey="count" fill="#000" radius={[4, 4, 0, 0]}>
@@ -484,6 +477,8 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                       <XAxis
                         type="number"
                         allowDecimals={false}
+                        domain={[0, 'auto']}
+                        tickCount={5}
                         stroke="rgba(0, 0, 0, 0.6)"
                         tick={{ fontSize: 10 }}
                       />
@@ -576,12 +571,12 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                               borderColor: 'grey.300',
                             }}
                           />
-                          <Typography variant="body2" color="text.secondary" fontSize={11}>
+                          <Typography variant="body2" color="text.secondary" fontSize={12}>
                             Position indicates average score between -1 and 1
                           </Typography>
                         </Box>
 
-                        <Divider sx={{ mb: 1.5 }} />
+                        <Divider sx={{ mb: 2 }} />
 
                         <Box sx={{ height: 300, overflowY: 'auto' }}>
                           <Box
@@ -603,7 +598,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                                   variant="body2"
                                   sx={{
                                     mb: 0.5,
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     fontWeight: 500,
                                   }}
                                 >
@@ -690,7 +685,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                                         px: 0.7,
                                         py: 0.2,
                                         borderRadius: 1,
-                                        fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                                        fontSize: 11,
                                         fontWeight: 'bold',
                                         zIndex: 1,
                                         transition: 'left 0.4s ease-in-out',
@@ -700,7 +695,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                                     </Box>
                                   </Box>
                                 ) : (
-                                  <Typography variant="body2" color="text.secondary" fontSize={11}>
+                                  <Typography variant="body2" color="text.secondary" fontSize={12}>
                                     No data available
                                   </Typography>
                                 )}
@@ -712,8 +707,8 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                     )}
                   </>
                 ) : (
-                  <Box sx={{ pt: 2 }}>
-                    <Alert severity="info" sx={{ width: '100%' }}>
+                  <Box flex={1} display="flex" alignItems="center" justifyContent="center">
+                    <Alert severity="info" sx={{ width: '100%', fontSize: 13 }}>
                       No question score data available for images.
                     </Alert>
                   </Box>
@@ -728,20 +723,25 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
 
   // Desktop UI (existing code)
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: 1200, margin: '0 auto' }}>
+    <Box sx={{ p: 3, maxWidth: 1200, margin: '0 auto' }}>
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: { xs: 1, sm: 2 },
+          mb: { xs: 2, sm: 2 },
         }}
       >
-        <Typography variant="h4" fontSize={{ xs: 22, sm: 28, md: 32 }}>
+        <Typography variant="h4" fontSize={{ xs: 22, sm: 28 }}>
           Metrics Dashboard
         </Typography>
         {projectId && (
-          <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExportCSV}>
+          <Button
+            variant="outlined"
+            startIcon={<FileDownloadIcon />}
+            onClick={handleExportCSV}
+            sx={{ textTransform: 'none' }}
+          >
             Export CSV
           </Button>
         )}
@@ -756,7 +756,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
             sm: 'repeat(2, 1fr)',
             md: 'repeat(4, 1fr)',
           },
-          gap: { xs: 1.5, sm: 2, md: 3 },
+          gap: { xs: 2, sm: 2, md: 3 },
           mb: { xs: 2, sm: 3 },
         }}
       >
@@ -764,21 +764,21 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
         <Card
           elevation={0}
           sx={{
-            borderRadius: { xs: 2, sm: 3 },
+            borderRadius: 2,
             border: '1px solid',
             borderColor: 'grey.200',
           }}
         >
           <CardContent>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: 'grey.100', color: '#000', mr: 2 }}>
+              <Avatar sx={{ bgcolor: 'grey.100', color: '#000', mr: 2, width: 40, height: 40 }}>
                 <PeopleOutlineIcon />
               </Avatar>
               <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Unique Respondents
+                <Typography variant="body2" color="text.secondary" fontSize={13}>
+                  Respondents
                 </Typography>
-                <Typography variant="h5" component="div" fontWeight="medium">
+                <Typography variant="h5" component="div" fontWeight="medium" fontSize={20}>
                   {uniqueRespondents !== undefined ? uniqueRespondents : 'N/A'}
                 </Typography>
               </Box>
@@ -790,21 +790,21 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
         <Card
           elevation={0}
           sx={{
-            borderRadius: { xs: 2, sm: 3 },
+            borderRadius: 2,
             border: '1px solid',
             borderColor: 'grey.200',
           }}
         >
           <CardContent>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: 'grey.100', color: '#000', mr: 2 }}>
+              <Avatar sx={{ bgcolor: 'grey.100', color: '#000', mr: 2, width: 40, height: 40 }}>
                 <BarChartIcon />
               </Avatar>
               <Box>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" fontSize={13}>
                   Total Scores
                 </Typography>
-                <Typography variant="h5" component="div" fontWeight="medium">
+                <Typography variant="h5" component="div" fontWeight="medium" fontSize={20}>
                   {totalScores}
                 </Typography>
               </Box>
@@ -816,21 +816,21 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
         <Card
           elevation={0}
           sx={{
-            borderRadius: { xs: 2, sm: 3 },
+            borderRadius: 2,
             border: '1px solid',
             borderColor: 'grey.200',
           }}
         >
           <CardContent>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: 'grey.100', color: '#000', mr: 2 }}>
+              <Avatar sx={{ bgcolor: 'grey.100', color: '#000', mr: 2, width: 40, height: 40 }}>
                 <ImageIcon />
               </Avatar>
               <Box>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" fontSize={13}>
                   Total Images
                 </Typography>
-                <Typography variant="h5" component="div" fontWeight="medium">
+                <Typography variant="h5" component="div" fontWeight="medium" fontSize={20}>
                   {totalImages}
                 </Typography>
               </Box>
@@ -842,21 +842,21 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
         <Card
           elevation={0}
           sx={{
-            borderRadius: { xs: 2, sm: 3 },
+            borderRadius: 2,
             border: '1px solid',
             borderColor: 'grey.200',
           }}
         >
           <CardContent>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: 'grey.100', color: '#000', mr: 2 }}>
+              <Avatar sx={{ bgcolor: 'grey.100', color: '#000', mr: 2, width: 40, height: 40 }}>
                 <QuizIcon />
               </Avatar>
               <Box>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" fontSize={13}>
                   Total Questions
                 </Typography>
-                <Typography variant="h5" component="div" fontWeight="medium">
+                <Typography variant="h5" component="div" fontWeight="medium" fontSize={20}>
                   {totalQuestions}
                 </Typography>
               </Box>
@@ -871,25 +871,20 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
         <Card
           elevation={0}
           sx={{
-            borderRadius: { xs: 2, sm: 3 },
+            borderRadius: 2,
             border: '1px solid',
             borderColor: 'grey.200',
           }}
         >
           <CardContent>
-            <Typography variant="h6" gutterBottom fontSize={{ xs: 16, sm: 20 }}>
+            <Typography variant="h6" gutterBottom fontSize={16}>
               Monthly Total Scores
             </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              paragraph
-              fontSize={{ xs: 12, sm: 14 }}
-            >
+            <Typography variant="body2" color="text.secondary" paragraph fontSize={13}>
               Last 6 months of scoring activity
             </Typography>
             <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
-            <Box height={{ xs: 220, sm: 320, md: 450 }}>
+            <Box height={{ xs: 220, sm: 320, md: 400 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyData} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
                   <CartesianGrid
@@ -898,12 +893,14 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                     horizontal={true}
                     vertical={false}
                   />
-                  <XAxis dataKey="month" stroke="rgba(0, 0, 0, 0.6)" />
+                  <XAxis dataKey="month" stroke="rgba(0, 0, 0, 0.6)" tick={{ fontSize: 10 }} />
                   <YAxis
                     allowDecimals={false}
                     padding={{ top: 20 }}
-                    domain={[0, 'dataMax + 1']}
+                    domain={[0, 'auto']}
+                    tickCount={5}
                     stroke="rgba(0, 0, 0, 0.6)"
+                    tick={{ fontSize: 10 }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -911,10 +908,11 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                       border: '1px solid #e0e0e0',
                       borderRadius: '8px',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                      fontSize: 11,
                     }}
                   />
                   <Bar dataKey="count" fill="#000" radius={[4, 4, 0, 0]}>
-                    <LabelList dataKey="count" position="top" fill="#000" />
+                    <LabelList dataKey="count" position="top" fill="#000" fontSize={10} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -930,33 +928,28 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
               xs: '1fr',
               md: 'repeat(2, 1fr)',
             },
-            gap: { xs: 2, sm: 3 },
+            gap: 2,
           }}
         >
           {/* Scores Per Image */}
           <Card
             elevation={0}
             sx={{
-              borderRadius: { xs: 2, sm: 3 },
+              borderRadius: 2,
               border: '1px solid',
               borderColor: 'grey.200',
             }}
           >
             <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h6" gutterBottom fontSize={{ xs: 16, sm: 20 }}>
+              <Typography variant="h6" gutterBottom fontSize={16}>
                 Scores per Image
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                paragraph
-                fontSize={{ xs: 12, sm: 14 }}
-              >
+              <Typography variant="body2" color="text.secondary" paragraph fontSize={13}>
                 Distribution of scores across images
               </Typography>
-              <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
+              <Divider sx={{ mb: 2 }} />
               <Box sx={{ flex: 1, display: 'flex' }}>
-                <ResponsiveContainer width="100%" height={perImageData.length * 60 + 40}>
+                <ResponsiveContainer width="100%" height={perImageData.length * 60 + 20}>
                   <BarChart
                     layout="vertical"
                     data={perImageData}
@@ -971,6 +964,8 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                     <XAxis
                       type="number"
                       allowDecimals={false}
+                      domain={[0, 'auto']}
+                      tickCount={5}
                       stroke="rgba(0, 0, 0, 0.6)"
                       tick={{ fontSize: 10 }}
                     />
@@ -998,10 +993,11 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                         border: '1px solid #e0e0e0',
                         borderRadius: '8px',
                         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        fontSize: 13,
                       }}
                     />
                     <Bar dataKey="count" fill="#000" radius={[0, 4, 4, 0]}>
-                      <LabelList dataKey="count" position="right" fill="#000" />
+                      <LabelList dataKey="count" position="right" fill="#000" fontSize={12} />
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -1013,7 +1009,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
           <Card
             elevation={0}
             sx={{
-              borderRadius: { xs: 2, sm: 3 },
+              borderRadius: 2,
               border: '1px solid',
               borderColor: 'grey.200',
             }}
@@ -1029,14 +1025,14 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                   gap: { xs: 1, sm: 0 },
                 }}
               >
-                <Typography variant="h6" gutterBottom fontSize={{ xs: 16, sm: 20 }}>
+                <Typography variant="h6" gutterBottom fontSize={16}>
                   Question Scores by Image
                 </Typography>
                 {imageQuestionData && imageQuestionData.length > 0 && (
                   <FormControl
                     variant="outlined"
                     size="small"
-                    sx={{ minWidth: { xs: 120, sm: 150 }, mt: { xs: 1, sm: 0 } }}
+                    sx={{ minWidth: { xs: 120, sm: 150 }, mt: { xs: 0, sm: 0 } }}
                   >
                     <InputLabel id="image-select-label">Select Image</InputLabel>
                     <Select
@@ -1045,9 +1041,10 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                       value={selectedImageIndex}
                       onChange={(e) => setSelectedImageIndex(Number(e.target.value))}
                       label="Select Image"
+                      sx={{ fontSize: 13 }}
                     >
                       {imageQuestionData.map((img, index) => (
-                        <MenuItem key={img.id} value={index}>
+                        <MenuItem key={img.id} value={index} sx={{ fontSize: 13 }}>
                           {`Image ${index + 1}`}
                         </MenuItem>
                       ))}
@@ -1073,12 +1070,12 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                         borderColor: 'grey.300',
                       }}
                     />
-                    <Typography variant="body2" color="text.secondary" fontSize={11}>
+                    <Typography variant="body2" color="text.secondary" fontSize={12}>
                       Position indicates average score between -1 and 1
                     </Typography>
                   </Box>
 
-                  <Divider sx={{ mb: 1.5 }} />
+                  <Divider sx={{ mb: 2 }} />
 
                   <Box sx={{ height: 300, overflowY: 'auto' }}>
                     <Box
@@ -1093,7 +1090,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                             variant="body2"
                             sx={{
                               mb: 0.5,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: 500,
                             }}
                           >
@@ -1180,7 +1177,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                                   px: 0.7,
                                   py: 0.2,
                                   borderRadius: 1,
-                                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                                  fontSize: 11,
                                   fontWeight: 'bold',
                                   zIndex: 1,
                                   transition: 'left 0.4s ease-in-out',
@@ -1190,7 +1187,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                               </Box>
                             </Box>
                           ) : (
-                            <Typography variant="body2" color="text.secondary" fontSize={11}>
+                            <Typography variant="body2" color="text.secondary" fontSize={12}>
                               No data available
                             </Typography>
                           )}
@@ -1201,7 +1198,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                 </>
               ) : (
                 <Box flex={1} display="flex" alignItems="center" justifyContent="center">
-                  <Alert severity="info" sx={{ width: '100%' }}>
+                  <Alert severity="info" sx={{ width: '100%', fontSize: 13 }}>
                     No question score data available for images.
                   </Alert>
                 </Box>
