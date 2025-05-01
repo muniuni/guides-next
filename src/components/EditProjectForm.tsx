@@ -376,6 +376,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
                     whiteSpace: 'nowrap',
                     minWidth: 'auto',
                     px: { xs: 1, sm: 2 },
+                    mt: 0.5,
                   }}
                 >
                   Add Question
@@ -417,7 +418,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
               title="Images"
               titleTypographyProps={{ variant: 'h6' }}
               action={
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={0.5} sx={{ mt: 0.5 }}>
                   {isSelectMode ? (
                     <>
                       <Button

@@ -29,11 +29,13 @@ import {
   FormControl,
   InputLabel,
   Alert,
+  Tooltip as MUITooltip,
 } from '@mui/material';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ImageIcon from '@mui/icons-material/Image';
 import QuizIcon from '@mui/icons-material/Quiz';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
@@ -223,8 +225,17 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                       color="text.secondary"
                       fontSize={12}
                       lineHeight={1.2}
+                      sx={{ display: 'flex', alignItems: 'center' }}
                     >
                       Respondents
+                      <MUITooltip
+                        title="This is an approximate count calculated from session IDs"
+                        arrow
+                      >
+                        <InfoOutlinedIcon
+                          sx={{ fontSize: 12, ml: 0.5, color: 'text.secondary', cursor: 'help' }}
+                        />
+                      </MUITooltip>
                     </Typography>
                     <Typography
                       variant="h6"
@@ -408,7 +419,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={monthlyData}
-                      margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
+                      margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
                     >
                       <CartesianGrid
                         strokeDasharray="0"
@@ -416,7 +427,12 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                         horizontal={true}
                         vertical={false}
                       />
-                      <XAxis dataKey="month" stroke="rgba(0, 0, 0, 0.6)" tick={{ fontSize: 10 }} />
+                      <XAxis
+                        dataKey="month"
+                        stroke="rgba(0, 0, 0, 0.6)"
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(value) => value.split('-')[1]} // Only show month part
+                      />
                       <YAxis
                         allowDecimals={false}
                         padding={{ top: 20 }}
@@ -424,6 +440,8 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                         tickCount={5}
                         stroke="rgba(0, 0, 0, 0.6)"
                         tick={{ fontSize: 10 }}
+                        width={30}
+                        axisLine={true}
                       />
                       <Tooltip
                         contentStyle={{
@@ -536,7 +554,11 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
 
                 {imageQuestionData && imageQuestionData.length > 0 ? (
                   <>
-                    <FormControl variant="outlined" size="small" sx={{ minWidth: 150, mb: 1.5 }}>
+                    <FormControl
+                      variant="outlined"
+                      size="small"
+                      sx={{ minWidth: 150, mb: 1.5, mt: 2 }}
+                    >
                       <InputLabel id="mobile-image-select-label">Select Image</InputLabel>
                       <Select
                         labelId="mobile-image-select-label"
@@ -556,7 +578,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
 
                     {selectedImage && (
                       <>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 0.5 }}>
                           <Box
                             component="img"
                             src={selectedImage?.image}
@@ -777,6 +799,14 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
               <Box>
                 <Typography variant="body2" color="text.secondary" fontSize={13}>
                   Respondents
+                  <MUITooltip
+                    title="This is an approximate count calculated from session IDs"
+                    arrow
+                  >
+                    <InfoOutlinedIcon
+                      sx={{ fontSize: 12, ml: 0.5, color: 'text.secondary', cursor: 'help' }}
+                    />
+                  </MUITooltip>
                 </Typography>
                 <Typography variant="h5" component="div" fontWeight="medium" fontSize={20}>
                   {uniqueRespondents !== undefined ? uniqueRespondents : 'N/A'}
@@ -886,14 +916,19 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
             <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
             <Box height={{ xs: 220, sm: 320, md: 400 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
+                <BarChart data={monthlyData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
                   <CartesianGrid
                     strokeDasharray="0"
                     stroke="rgba(0, 0, 0, 0.1)"
                     horizontal={true}
                     vertical={false}
                   />
-                  <XAxis dataKey="month" stroke="rgba(0, 0, 0, 0.6)" tick={{ fontSize: 10 }} />
+                  <XAxis
+                    dataKey="month"
+                    stroke="rgba(0, 0, 0, 0.6)"
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(value) => value.split('-')[1]} // Only show month part
+                  />
                   <YAxis
                     allowDecimals={false}
                     padding={{ top: 20 }}
@@ -901,6 +936,8 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
                     tickCount={5}
                     stroke="rgba(0, 0, 0, 0.6)"
                     tick={{ fontSize: 10 }}
+                    width={30}
+                    axisLine={true}
                   />
                   <Tooltip
                     contentStyle={{
@@ -1055,7 +1092,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
 
               {selectedImage ? (
                 <>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, mt: 1 }}>
                     <Box
                       component="img"
                       src={selectedImage?.image}
