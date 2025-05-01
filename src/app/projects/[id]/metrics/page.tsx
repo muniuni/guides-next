@@ -1,6 +1,5 @@
 // app/projects/[id]/metrics/page.tsx
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import MetricsDashboard, { ApiResponse } from '@/components/MetricsDashboard';
 
@@ -11,17 +10,12 @@ interface Props {
 }
 
 export default async function MetricsPage({ params }: Props) {
-  const headersData = headers();
-  const host = (await headersData).get('host');
-  const protocol =
-    (await headersData).get('x-forwarded-proto') === 'https' || !host.startsWith('localhost')
-      ? 'https'
-      : 'http';
-  const apiBase = `${protocol}://${host}`;
-
-  const res = await fetch(`${apiBase}/api/projects/${params.id}/metrics`, {
-    next: { revalidate: 60 },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:3000'}/api/projects/${params.id}/metrics`,
+    {
+      next: { revalidate: 60 },
+    }
+  );
 
   if (!res.ok) notFound();
 
