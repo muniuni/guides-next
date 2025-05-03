@@ -313,44 +313,12 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   // State
   // 画像をランダム順に表示 - 初期化時に1回だけシャッフル
   const imagesToShow = useMemo(() => {
-    // 開発モードではホットリロード時に再シャッフルされるのを避けるため
-    // sessionStorageをシャッフル順序の保存に使用
-    const storageKey = `image_order_${project.id}`;
-
-    // すでにシャッフルした順序があるか確認
-    const storedOrder = typeof window !== 'undefined' ? sessionStorage.getItem(storageKey) : null;
-
-    if (storedOrder) {
-      try {
-        // 保存されている順序をパース
-        const orderIndexes = JSON.parse(storedOrder);
-        // 保存された順序に基づいて画像を並べ替え
-        const orderedImages = orderIndexes
-          .map((index: number) => project.images[index])
-          .filter(Boolean); // 無効なインデックスを除外
-
-        // 必要な数だけ取得
-        return orderedImages.slice(0, project.imageCount);
-      } catch (e) {
-        console.error('Failed to parse stored image order', e);
-        // エラー時は新たにシャッフル
-      }
-    }
-
-    // 初回または保存データがない場合、新たにシャッフル
+    // 画像を完全にランダムにするため、毎回シャッフルする
     const shuffledImages = shuffleArray(project.images);
-
-    // 元の配列に対するインデックスを保存
-    if (typeof window !== 'undefined') {
-      const indexes = shuffledImages.map((img) =>
-        project.images.findIndex((original) => original.id === img.id)
-      );
-      sessionStorage.setItem(storageKey, JSON.stringify(indexes));
-    }
 
     // 指定された数だけ取得
     return shuffledImages.slice(0, project.imageCount);
-  }, [project.id, project.images, project.imageCount, shuffleArray]);
+  }, [project.images, project.imageCount, shuffleArray]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>(PHASE.SHOW_IMAGE);
