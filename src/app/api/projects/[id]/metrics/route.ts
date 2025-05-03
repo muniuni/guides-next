@@ -32,7 +32,7 @@ export async function GET(_req: Request, { params }: { params: Params }) {
   // `groupBy` cannot bucket by month, so we use raw SQL (PostgreSQL syntax)
   const monthly = await prisma.$queryRaw<{ month: string; count: number }[]>`SELECT
      TO_CHAR(DATE_TRUNC('month', s."createdAt"), 'YYYY-MM') AS month,
-     COUNT(*)::int                                         AS count  -- ★ここで int へキャスト
+     COUNT(*)::int                                         AS count
   FROM   "Score"  s
   JOIN   "Image"  i ON i.id = s."imageId"
   WHERE  i."projectId" = ${id}

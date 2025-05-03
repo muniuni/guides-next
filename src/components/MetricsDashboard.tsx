@@ -107,7 +107,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
       const today = new Date();
       for (let i = 0; i < 6; i++) {
         const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-        months.push(date.toISOString().slice(0, 7)); // Format: YYYY-MM
+        months.push(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
       }
       return months.reverse();
     };
