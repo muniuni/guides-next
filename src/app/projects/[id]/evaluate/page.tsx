@@ -1,7 +1,21 @@
 import prisma from '@/lib/prisma';
 import { Metadata } from 'next';
-import React from 'react';
-import EvaluateClient from '@/components/EvaluateClient';
+import React, { Suspense } from 'react';
+import dynamic from 'next/dynamic';
+import { Box, CircularProgress } from '@mui/material';
+import { EvaluateClientProps } from '@/types/evaluate';
+
+// EvaluateClientを動的インポート
+const EvaluateClient = dynamic<EvaluateClientProps>(() => import('@/components/EvaluateClient'), {
+  loading: () => (
+    <Box
+      sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}
+    >
+      <CircularProgress />
+    </Box>
+  ),
+  ssr: true,
+});
 
 interface Params {
   params: { id: string };
@@ -33,5 +47,22 @@ export default async function EvaluatePage({ params }: Params) {
     );
   }
 
-  return <EvaluateClient project={project} />;
+  return (
+    <Suspense
+      fallback={
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '50vh',
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      }
+    >
+      <EvaluateClient project={project} />
+    </Suspense>
+  );
 }

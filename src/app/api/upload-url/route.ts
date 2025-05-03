@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { NextResponse } from 'next/server';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -14,7 +14,7 @@ const BUCKET = process.env.S3_BUCKET_NAME!;
 export async function POST(req: Request) {
   const { filename, contentType } = await req.json();
   if (!filename || !contentType) {
-    return NextResponse.json({ error: "Invalid params" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid params' }, { status: 400 });
   }
 
   // S3上の保存先キー
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     Bucket: BUCKET,
     Key: key,
     ContentType: contentType,
-    ACL: "public-read", // 公開したい場合
+    ACL: 'public-read', // 公開したい場合
   });
   const uploadUrl = await getSignedUrl(s3, cmd, { expiresIn: 3600 });
 

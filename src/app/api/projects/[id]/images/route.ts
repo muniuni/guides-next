@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import type { Image } from "@prisma/client";
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import type { Image } from '@prisma/client';
 
 export const config = { api: { bodyParser: false } };
 
@@ -22,21 +22,18 @@ interface Params {
   id: string;
 }
 
-export async function POST(
-  req: Request,
-  { params }: { params: Params },
-): Promise<NextResponse> {
+export async function POST(req: Request, { params }: { params: Params }): Promise<NextResponse> {
   // 認証チェック
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const formData = await req.formData();
-  const files = formData.getAll("file") as File[];
+  const files = formData.getAll('file') as File[];
 
   if (!files.length) {
-    return NextResponse.json({ error: "No files provided" }, { status: 400 });
+    return NextResponse.json({ error: 'No files provided' }, { status: 400 });
   }
 
   const createdImages: Image[] = [];
@@ -50,7 +47,7 @@ export async function POST(
       Bucket: BUCKET,
       Key: key,
       Body: buffer,
-      ACL: "public-read",
+      ACL: 'public-read',
       ContentType: file.type,
     });
 

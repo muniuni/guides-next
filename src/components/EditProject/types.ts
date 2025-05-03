@@ -1,0 +1,93 @@
+export interface Question {
+  id: string | null;
+  text: string;
+}
+
+export interface ImageRecord {
+  id: string;
+  url: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  consentInfo: string;
+  imageCount: number;
+  imageDuration: number;
+  questions: Question[];
+  images: ImageRecord[];
+}
+
+export interface EditProjectFormProps {
+  initialProject: Project;
+}
+
+// 数値フィールドの返り値型定義
+export interface NumberFieldReturn {
+  value: string;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBlur: () => void;
+}
+
+// 画像選択フックの戻り値型定義
+export interface ImageSelectionReturn {
+  selectedImages: Set<string>;
+  isSelectMode: boolean;
+  deleteDialogOpen: boolean;
+  setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  handleImageSelect: (imageId: string) => void;
+  handleSelectModeToggle: () => void;
+  exitSelectMode: () => void;
+}
+
+// 一般情報フォームプロップスの型定義
+export interface GeneralInformationCardProps {
+  projectName: string;
+  setProjectName: (value: string) => void;
+  projectDesc: string;
+  setProjectDesc: (value: string) => void;
+  consentText: string;
+  setConsentText: (value: string) => void;
+  imageCountInfo: NumberFieldReturn;
+  imageDurationInfo: NumberFieldReturn;
+  isImageCountValid: boolean;
+  totalImages: number;
+}
+
+// 質問フォームプロップスの型定義
+export interface QuestionsCardProps {
+  questionList: Question[];
+  addQuestion: () => void;
+  updateQuestion: (index: number, text: string) => void;
+  removeQuestion: (index: number) => void;
+}
+
+// 画像管理プロップスの型定義
+export interface ImagesCardProps {
+  existingImages: ImageRecord[];
+  newFiles: File[];
+  isSelectMode: boolean;
+  selectedImages: Set<string>;
+  handleImageSelect: (imageId: string) => void;
+  handleSelectModeToggle: () => void;
+  exitSelectMode: () => void;
+  setDeleteDialogOpen: (open: boolean) => void;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  removeNewFile: (idx: number) => void;
+}
+
+// 既存画像アイテムプロップスの型定義
+export interface ExistingImageItemProps {
+  image: ImageRecord;
+  isSelectMode: boolean;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+}
+
+// 新規画像アイテムプロップスの型定義
+export interface NewImageItemProps {
+  file: File;
+  index: number;
+  onRemove: (index: number) => void;
+}

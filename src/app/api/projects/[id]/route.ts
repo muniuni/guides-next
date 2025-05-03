@@ -29,7 +29,7 @@ export async function PUT(request: Request, { params }: { params: Params }) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const projectId = params.id;
+  const projectId = String(params.id);
 
   // Check if the current user owns this project
   const project = await prisma.project.findUnique({
@@ -54,6 +54,7 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   const consentInfo = formData.get('consentInfo') as string;
   const questions = JSON.parse((formData.get('questions') as string) || '[]');
   const existingImageIds = JSON.parse((formData.get('existingImageIds') as string) || '[]');
+  const imagesToDelete = JSON.parse((formData.get('imagesToDelete') as string) || '[]');
   const imageCount = parseInt(formData.get('imageCount') as string, 10) || 0;
   const imageDuration = parseInt(formData.get('imageDuration') as string, 10) || 0;
 
@@ -97,7 +98,12 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   /* 3. 既存画像の削除 */
   const currentImages = await prisma.image.findMany({ where: { projectId } });
   for (const img of currentImages) {
-    if (!existingImageIds.includes(img.id)) {
+    if (!existingImageIds.includes(img.id) || imagesToDelete.includes(img.id)) {
+      // 先に関連するScoreレコードを削除（FK制約回避）
+      await prisma.score.deleteMany({
+        where: { imageId: img.id },
+      });
+
       const key = img.url.split('.amazonaws.com/')[1];
       if (key) {
         await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
@@ -139,7 +145,7 @@ export async function DELETE(_req: Request, { params }: { params: Params }) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const projectId = params.id;
+  const projectId = String(params.id);
 
   try {
     // Check if the current user owns this project

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import {
   Box,
   Paper,
@@ -12,21 +13,23 @@ import {
   Stack,
   Divider,
   Card,
-  CardContent,
   useTheme,
 } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Types
 interface Question {
   id: string;
   text: string;
 }
+
 interface ImageItem {
   id: string;
   url: string;
 }
+
 interface ProjectProps {
   id: string;
   imageCount: number;
@@ -34,9 +37,11 @@ interface ProjectProps {
   questions: Question[];
   images: ImageItem[];
 }
+
 interface EvaluateClientProps {
   project: ProjectProps;
 }
+
 interface Answer {
   imageId: string;
   questionId: string;
@@ -48,426 +53,106 @@ interface ImageSize {
   height: number;
 }
 
-export default function EvaluateClient({ project }: EvaluateClientProps) {
-  const router = useRouter();
-  const sessionId = useMemo(() => uuidv4(), []);
-  const theme = useTheme();
-  const [currentImageSize, setCurrentImageSize] = useState<ImageSize | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const scrollmRef = useRef<HTMLDivElement>(null);
+// Constants
+const PHASE = {
+  SHOW_IMAGE: 'showImage',
+  SHOW_SLIDERS: 'showSliders',
+} as const;
 
-  const imagesToShow = useMemo(
-    () => project.images.slice(0, project.imageCount),
-    [project.images, project.imageCount]
-  );
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [phase, setPhase] = useState<'showImage' | 'showSliders'>('showImage');
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type Phase = (typeof PHASE)[keyof typeof PHASE];
 
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [now, setNow] = useState(Date.now());
-
-  useEffect(() => {
-    if (phase === 'showImage') {
-      const t0 = Date.now();
-      setStartTime(t0);
-      setNow(t0);
-    }
-  }, [phase]);
-  useEffect(() => {
-    if (phase === 'showImage' && startTime !== null) {
-      let rafId: number;
-      const tick = () => {
-        setNow(Date.now());
-        rafId = requestAnimationFrame(tick);
-      };
-      tick();
-      return () => cancelAnimationFrame(rafId);
-    }
-  }, [phase, startTime]);
-
-  const elapsed = startTime !== null ? (now - startTime) / 1000 : 0;
-  const timeLeft = Math.max(project.imageDuration - elapsed, 0);
-  useEffect(() => {
-    if (phase === 'showImage' && timeLeft <= 0) setPhase('showSliders');
-  }, [phase, timeLeft]);
-
-  useEffect(() => {
-    if (phase === 'showImage' && imageRef.current) {
-      const img = new Image();
-      img.src = imagesToShow[currentIndex].url;
-      img.onload = () => {
-        setCurrentImageSize({ width: img.width, height: img.height });
-      };
-    }
-  }, [phase, currentIndex, imagesToShow]);
-
-  // 状態変化を監視してスクロール
-  useEffect(() => {
-    if (phase === 'showImage') {
-      // 画像表示モードに切り替わったらスクロールする
-      forceScrollToTop();
-    }
-  }, [phase, currentIndex]);
-
-  // 強制スクロール関数
-  const forceScrollToTop = () => {
-    // 複数回呼び出して確実にスクロールさせる
-    scrollToTopImmediate();
-    setTimeout(() => scrollToTopImmediate(), 50);
-    setTimeout(() => scrollToTopImmediate(), 150);
-
-    // デバイスサイズに関係なく、ヘッダー直下に確実にスクロールするための追加処理
-    setTimeout(() => {
-      if (scrollmRef.current) {
-        // スクロール要素の一番上に移動
-        scrollmRef.current.scrollTop = 0;
-
-        // 一旦最上部にスクロールした後、windowも最上部にスクロール
-        window.scrollTo(0, 0);
-      }
-    }, 250);
-  };
-
-  // 即時スクロール
-  const scrollToTopImmediate = () => {
-    if (scrollmRef.current) {
-      // スクロール要素を最上部に
-      scrollmRef.current.scrollTop = 0;
-    }
-
-    // ウィンドウ自体も最上部に
-    window.scrollTo(0, 0);
-  };
-
-  // 元のスクロール関数を修正
-  const scrollToTop = () => {
-    forceScrollToTop();
-  };
-
-  if (!imagesToShow.length)
-    return (
-      <Alert severity="error" sx={{ mt: 4 }}>
-        No images registered.
-      </Alert>
-    );
-
-  const handleAnswerSubmit = (vals: { questionId: string; value: number }[]) => {
-    const batch = vals.map((v) => ({
-      imageId: imagesToShow[currentIndex].id,
-      questionId: v.questionId,
-      value: v.value,
-    }));
-    setAnswers((prev) => [...prev, ...batch]);
-    if (currentIndex + 1 < imagesToShow.length) {
-      setCurrentIndex((i) => i + 1);
-      const nowTs = Date.now();
-      setStartTime(nowTs);
-      setNow(nowTs);
-      setPhase('showImage');
-      scrollToTop();
-    } else {
-      submitAllScores([...answers, ...batch]);
-    }
-  };
-
-  const submitAllScores = async (all: Answer[]) => {
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/scores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, answers: all }),
-      });
-      if (!res.ok) throw new Error();
-      router.push(`/projects/${project.id}/thanks`);
-    } catch (e) {
-      setError('Error submitting. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const calculateImageStyle = () => {
-    if (!currentImageSize || !containerRef.current) return {};
-
-    const containerWidth = containerRef.current.clientWidth;
-    const containerHeight = containerRef.current.clientHeight;
-    const imageAspectRatio = currentImageSize.width / currentImageSize.height;
-    const containerAspectRatio = containerWidth / containerHeight;
-
-    let width, height;
-    if (imageAspectRatio > containerAspectRatio) {
-      // 画像が横長の場合
-      width = '100%';
-      height = `${containerWidth / imageAspectRatio}px`;
-    } else {
-      // 画像が縦長の場合
-      height = '100%';
-      width = `${containerHeight * imageAspectRatio}px`;
-    }
-
-    return {
-      width,
-      height,
-      maxWidth: '100%',
-      maxHeight: '100%',
-      objectFit: 'contain',
-    };
-  };
+// ImageViewer Component
+const ImageViewer = ({
+  imageUrl,
+  index,
+  onImageLoad,
+  imageStyle,
+}: {
+  imageUrl: string;
+  index: number;
+  onImageLoad: (event: React.SyntheticEvent<HTMLImageElement>) => void;
+  imageStyle: React.CSSProperties;
+}) => {
+  const imageContainerRef = useRef<HTMLDivElement>(null);
 
   return (
     <Box
-      ref={scrollmRef}
+      ref={imageContainerRef}
       sx={{
-        backgroundColor: '#f5f5f5',
-        width: '100%',
-        minHeight: ['calc(100vh - 56px)', 'calc(100vh - 64px)'],
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        p: { xs: 1.5, sm: 3, md: 3.5 },
-        background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        overflow: 'auto',
-        pt: {
-          xs: 'calc(56px + 1.25rem)',
-          sm: 'calc(64px + 1rem)',
-          md: 'calc(64px + 1.5rem)',
-        },
+        ...imageStyle,
+        display: 'block',
+        position: 'relative',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        MozTouchCallout: 'none',
+        MozUserSelect: 'none',
+        userSelect: 'none',
       }}
+      onContextMenu={(e) => e.preventDefault()}
+      onMouseDown={(e) => e.preventDefault()}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{
-          width: '100%',
-          maxWidth: 1000,
-          paddingTop: '0',
-          paddingBottom: '5vh',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        <Paper
-          elevation={4}
-          sx={{
-            width: '100%',
-            p: { xs: 1.5, sm: 2.5, md: 3.5 },
-            borderRadius: { xs: 2, sm: 3, md: 3 },
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'visible',
-            mt: { xs: 0, sm: 0 },
-            position: 'relative',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: -10,
-              left: 0,
-              right: 0,
-              height: 10,
-              background: 'transparent',
-            },
-          }}
-        >
-          <Box sx={{ flexShrink: 0 }}>
-            <Typography
-              variant="h4"
-              gutterBottom
-              align="center"
-              sx={{
-                fontWeight: 'bold',
-                color: '#000000',
-                mb: { xs: 1, sm: 2, md: 2.5 },
-                fontSize: { xs: '1.25rem', sm: '1.6rem', md: '1.85rem' },
-              }}
-            >
-              Evaluation ({currentIndex + 1}/{imagesToShow.length})
-            </Typography>
-            <Divider sx={{ mb: { xs: 1, sm: 2, md: 2.5 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
-          </Box>
-
-          <Box
-            sx={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'visible',
-            }}
-          >
-            <AnimatePresence mode="wait">
-              {phase === 'showImage' ? (
-                <motion.div
-                  key="image"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    minHeight: 0,
-                  }}
-                >
-                  <Stack
-                    alignItems="center"
-                    spacing={{ xs: 1.5, sm: 2.5, md: 3 }}
-                    sx={{
-                      flex: 1,
-                      minHeight: 0,
-                    }}
-                  >
-                    <Card
-                      ref={containerRef}
-                      sx={{
-                        width: '100%',
-                        maxWidth: { xs: '100%', sm: 750, md: 850 },
-                        borderRadius: { xs: 2, sm: 3 },
-                        overflow: 'hidden',
-                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flex: 1,
-                        minHeight: 0,
-                        position: 'relative',
-                        aspectRatio: currentImageSize
-                          ? `${currentImageSize.width} / ${currentImageSize.height}`
-                          : 'auto',
-                        maxHeight: {
-                          xs: 'calc(85vh - 200px)',
-                          sm: 'calc(80vh - 120px)',
-                          md: 'calc(80vh - 120px)',
-                        },
-                      }}
-                    >
-                      <Box
-                        ref={imageRef}
-                        component="img"
-                        src={imagesToShow[currentIndex].url}
-                        alt={`Image ${currentIndex + 1}`}
-                        sx={{
-                          ...calculateImageStyle(),
-                          display: 'block',
-                          WebkitTouchCallout: 'none',
-                          WebkitUserSelect: 'none',
-                          MozTouchCallout: 'none',
-                          MozUserSelect: 'none',
-                          userSelect: 'none',
-                        }}
-                        onContextMenu={(e) => e.preventDefault()}
-                        onMouseDown={(e) => e.preventDefault()}
-                      />
-                    </Card>
-                    <Box
-                      sx={{
-                        width: '100%',
-                        mt: { xs: 1.5, sm: 3 },
-                        mb: { xs: 0.5, sm: 2 },
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <LinearProgress
-                        variant="determinate"
-                        value={(timeLeft / project.imageDuration) * 100}
-                        sx={{
-                          flexGrow: 1,
-                          height: { xs: 6, sm: 10, md: 12 },
-                          borderRadius: { xs: 2, sm: 3, md: 4 },
-                          backgroundColor: 'rgba(0,0,0,0.1)',
-                          '& .MuiLinearProgress-bar': {
-                            borderRadius: { xs: 2, sm: 3, md: 4 },
-                            background: '#000000',
-                          },
-                        }}
-                      />
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          minWidth: { xs: 40, sm: 48, md: 56 },
-                          textAlign: 'right',
-                          fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
-                          color: 'rgba(0,0,0,0.6)',
-                        }}
-                      >
-                        {Math.ceil(timeLeft)}s
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="sliders"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <SliderForm
-                    questions={project.questions}
-                    onSubmit={handleAnswerSubmit}
-                    disabled={submitting}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Box>
-
-          <Box sx={{ flexShrink: 0, mt: 2 }}>
-            {submitting && (
-              <LinearProgress
-                sx={{
-                  height: { xs: 4, sm: 5, md: 6 },
-                  borderRadius: { xs: 1, sm: 2 },
-                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                  '& .MuiLinearProgress-bar': {
-                    borderRadius: { xs: 1, sm: 2 },
-                    background: '#000000',
-                  },
-                }}
-              />
-            )}
-            {error && (
-              <Alert
-                severity="error"
-                sx={{
-                  mt: { xs: 2, sm: 3 },
-                  borderRadius: { xs: 1, sm: 2 },
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                  color: '#000000',
-                }}
-              >
-                {error}
-              </Alert>
-            )}
-          </Box>
-        </Paper>
-      </motion.div>
+      <Image
+        src={imageUrl}
+        alt={`Image ${index + 1}`}
+        fill
+        style={{ objectFit: 'contain' }}
+        priority
+        sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 850px"
+        onLoad={onImageLoad}
+      />
     </Box>
   );
-}
+};
 
-function SliderForm({
+// Timer Component
+const TimerProgress = ({
+  timeLeft,
+  totalDuration,
+}: {
+  timeLeft: number;
+  totalDuration: number;
+}) => {
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        mt: { xs: 1.5, sm: 3 },
+        mb: { xs: 0.5, sm: 2 },
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      <LinearProgress
+        variant="determinate"
+        value={(timeLeft / totalDuration) * 100}
+        sx={{
+          flexGrow: 1,
+          height: { xs: 6, sm: 10, md: 12 },
+          borderRadius: { xs: 2, sm: 3, md: 4 },
+          backgroundColor: 'rgba(0,0,0,0.1)',
+          '& .MuiLinearProgress-bar': {
+            borderRadius: { xs: 2, sm: 3, md: 4 },
+            background: '#000000',
+          },
+        }}
+      />
+      <Typography
+        variant="h6"
+        sx={{
+          minWidth: { xs: 40, sm: 48, md: 56 },
+          textAlign: 'right',
+          fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
+          color: 'rgba(0,0,0,0.6)',
+        }}
+      >
+        {Math.ceil(timeLeft)}s
+      </Typography>
+    </Box>
+  );
+};
+
+// SliderForm Component
+const SliderForm = ({
   questions,
   onSubmit,
   disabled = false,
@@ -475,13 +160,13 @@ function SliderForm({
   questions: Question[];
   onSubmit: (vals: { questionId: string; value: number }[]) => void;
   disabled?: boolean;
-}) {
-  const theme = useTheme();
-  const [values, setValues] = React.useState(
-    questions.map((q) => ({ questionId: q.id, value: 0 }))
-  );
-  const handleChange = (index: number, val: number) =>
+}) => {
+  const [values, setValues] = useState(questions.map((q) => ({ questionId: q.id, value: 0 })));
+
+  const handleChange = useCallback((index: number, val: number) => {
     setValues((vs) => vs.map((v, i) => (i === index ? { ...v, value: val } : v)));
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(values);
@@ -602,6 +287,439 @@ function SliderForm({
       >
         {disabled ? 'Submitting…' : 'Next'}
       </Button>
+    </Box>
+  );
+};
+
+export default function EvaluateClient({ project }: EvaluateClientProps) {
+  const router = useRouter();
+  const sessionId = useMemo(() => uuidv4(), []);
+  const [currentImageSize, setCurrentImageSize] = useState<ImageSize | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollmRef = useRef<HTMLDivElement>(null);
+
+  // 配列をシャッフルするヘルパー関数
+  const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
+    // 配列のコピーを作成
+    const newArray = [...array];
+    // Fisher-Yatesアルゴリズムでシャッフル
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  }, []);
+
+  // State
+  // 画像をランダム順に表示 - 初期化時に1回だけシャッフル
+  const imagesToShow = useMemo(() => {
+    // 開発モードではホットリロード時に再シャッフルされるのを避けるため
+    // sessionStorageをシャッフル順序の保存に使用
+    const storageKey = `image_order_${project.id}`;
+
+    // すでにシャッフルした順序があるか確認
+    const storedOrder = typeof window !== 'undefined' ? sessionStorage.getItem(storageKey) : null;
+
+    if (storedOrder) {
+      try {
+        // 保存されている順序をパース
+        const orderIndexes = JSON.parse(storedOrder);
+        // 保存された順序に基づいて画像を並べ替え
+        const orderedImages = orderIndexes
+          .map((index: number) => project.images[index])
+          .filter(Boolean); // 無効なインデックスを除外
+
+        // 必要な数だけ取得
+        return orderedImages.slice(0, project.imageCount);
+      } catch (e) {
+        console.error('Failed to parse stored image order', e);
+        // エラー時は新たにシャッフル
+      }
+    }
+
+    // 初回または保存データがない場合、新たにシャッフル
+    const shuffledImages = shuffleArray(project.images);
+
+    // 元の配列に対するインデックスを保存
+    if (typeof window !== 'undefined') {
+      const indexes = shuffledImages.map((img) =>
+        project.images.findIndex((original) => original.id === img.id)
+      );
+      sessionStorage.setItem(storageKey, JSON.stringify(indexes));
+    }
+
+    // 指定された数だけ取得
+    return shuffledImages.slice(0, project.imageCount);
+  }, [project.id, project.images, project.imageCount, shuffleArray]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [phase, setPhase] = useState<Phase>(PHASE.SHOW_IMAGE);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [now, setNow] = useState(Date.now());
+
+  // Timer Management
+  useEffect(() => {
+    if (phase === PHASE.SHOW_IMAGE) {
+      const t0 = Date.now();
+      setStartTime(t0);
+      setNow(t0);
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase === PHASE.SHOW_IMAGE && startTime !== null) {
+      let rafId: number;
+      const tick = () => {
+        setNow(Date.now());
+        rafId = requestAnimationFrame(tick);
+      };
+      tick();
+      return () => cancelAnimationFrame(rafId);
+    }
+  }, [phase, startTime]);
+
+  const elapsed = startTime !== null ? (now - startTime) / 1000 : 0;
+  const timeLeft = Math.max(project.imageDuration - elapsed, 0);
+
+  useEffect(() => {
+    if (phase === PHASE.SHOW_IMAGE && timeLeft <= 0) setPhase(PHASE.SHOW_SLIDERS);
+  }, [phase, timeLeft]);
+
+  // Image Preloading
+  useEffect(() => {
+    if (phase === PHASE.SHOW_IMAGE) {
+      // For preloading the next image if needed
+      const nextIndex = currentIndex + 1;
+      if (nextIndex < imagesToShow.length) {
+        const preloadImage = new window.Image();
+        preloadImage.src = imagesToShow[nextIndex].url;
+      }
+    }
+  }, [phase, currentIndex, imagesToShow]);
+
+  // Scroll Management
+  useEffect(() => {
+    if (phase === PHASE.SHOW_IMAGE) {
+      forceScrollToTop();
+    }
+  }, [phase, currentIndex]);
+
+  const forceScrollToTop = useCallback(() => {
+    // 複数回呼び出して確実にスクロールさせる
+    scrollToTopImmediate();
+    setTimeout(() => scrollToTopImmediate(), 50);
+    setTimeout(() => scrollToTopImmediate(), 150);
+
+    // デバイスサイズに関係なく、ヘッダー直下に確実にスクロールするための追加処理
+    setTimeout(() => {
+      if (scrollmRef.current) {
+        scrollmRef.current.scrollTop = 0;
+        window.scrollTo(0, 0);
+      }
+    }, 250);
+  }, []);
+
+  const scrollToTopImmediate = useCallback(() => {
+    if (scrollmRef.current) {
+      scrollmRef.current.scrollTop = 0;
+    }
+    window.scrollTo(0, 0);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    forceScrollToTop();
+  }, [forceScrollToTop]);
+
+  // Error Handling
+  if (!imagesToShow.length)
+    return (
+      <Alert severity="error" sx={{ mt: 4 }}>
+        No images registered.
+      </Alert>
+    );
+
+  // Event Handlers
+  const handleImageLoad = useCallback(
+    (event: React.SyntheticEvent<HTMLImageElement>) => {
+      const img = event.target as HTMLImageElement;
+      if (currentImageSize) return;
+      setCurrentImageSize({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      });
+    },
+    [currentImageSize]
+  );
+
+  const handleAnswerSubmit = useCallback(
+    (vals: { questionId: string; value: number }[]) => {
+      const batch = vals.map((v) => ({
+        imageId: imagesToShow[currentIndex].id,
+        questionId: v.questionId,
+        value: v.value,
+      }));
+      setAnswers((prev) => [...prev, ...batch]);
+
+      if (currentIndex + 1 < imagesToShow.length) {
+        setCurrentIndex((i) => i + 1);
+        const nowTs = Date.now();
+        setStartTime(nowTs);
+        setNow(nowTs);
+        setPhase(PHASE.SHOW_IMAGE);
+        scrollToTop();
+      } else {
+        submitAllScores([...answers, ...batch]);
+      }
+    },
+    [answers, currentIndex, imagesToShow, scrollToTop]
+  );
+
+  const submitAllScores = async (all: Answer[]) => {
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, answers: all }),
+      });
+      if (!res.ok) throw new Error('Failed to submit scores');
+      router.push(`/projects/${project.id}/thanks`);
+    } catch (e) {
+      setError('Error submitting. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const calculateImageStyle = useCallback(() => {
+    if (!currentImageSize || !containerRef.current) return {};
+
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
+    const imageAspectRatio = currentImageSize.width / currentImageSize.height;
+    const containerAspectRatio = containerWidth / containerHeight;
+
+    let width, height;
+    if (imageAspectRatio > containerAspectRatio) {
+      width = '100%';
+      height = `${containerWidth / imageAspectRatio}px`;
+    } else {
+      height = '100%';
+      width = `${containerHeight * imageAspectRatio}px`;
+    }
+
+    return {
+      width,
+      height,
+      maxWidth: '100%',
+      maxHeight: '100%',
+      objectFit: 'contain' as const,
+    };
+  }, [currentImageSize]);
+
+  return (
+    <Box
+      ref={scrollmRef}
+      sx={{
+        backgroundColor: '#f5f5f5',
+        width: '100%',
+        minHeight: ['calc(100vh - 56px)', 'calc(100vh - 64px)'],
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        p: { xs: 1.5, sm: 3, md: 3.5 },
+        background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'auto',
+        pt: {
+          xs: 'calc(56px + 1.25rem)',
+          sm: 'calc(64px + 1rem)',
+          md: 'calc(64px + 1.5rem)',
+        },
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          width: '100%',
+          maxWidth: 1000,
+          paddingTop: '0',
+          paddingBottom: '5vh',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        <Paper
+          elevation={4}
+          sx={{
+            width: '100%',
+            p: { xs: 1.5, sm: 2.5, md: 3.5 },
+            borderRadius: { xs: 2, sm: 3, md: 3 },
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'visible',
+            mt: { xs: 0, sm: 0 },
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: -10,
+              left: 0,
+              right: 0,
+              height: 10,
+              background: 'transparent',
+            },
+          }}
+        >
+          <Box sx={{ flexShrink: 0 }}>
+            <Typography
+              variant="h4"
+              gutterBottom
+              align="center"
+              sx={{
+                fontWeight: 'bold',
+                color: '#000000',
+                mb: { xs: 1, sm: 2, md: 2.5 },
+                fontSize: { xs: '1.25rem', sm: '1.6rem', md: '1.85rem' },
+              }}
+            >
+              Evaluation ({currentIndex + 1}/{imagesToShow.length})
+            </Typography>
+            <Divider sx={{ mb: { xs: 1, sm: 2, md: 2.5 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
+          </Box>
+
+          <Box
+            sx={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'visible',
+            }}
+          >
+            <AnimatePresence mode="wait">
+              {phase === PHASE.SHOW_IMAGE ? (
+                <motion.div
+                  key="image"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 0,
+                  }}
+                >
+                  <Stack
+                    alignItems="center"
+                    spacing={{ xs: 1.5, sm: 2.5, md: 3 }}
+                    sx={{
+                      flex: 1,
+                      minHeight: 0,
+                    }}
+                  >
+                    <Card
+                      ref={containerRef}
+                      sx={{
+                        width: '100%',
+                        maxWidth: { xs: '100%', sm: 750, md: 850 },
+                        borderRadius: { xs: 2, sm: 3 },
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flex: 1,
+                        minHeight: 0,
+                        position: 'relative',
+                        aspectRatio: currentImageSize
+                          ? `${currentImageSize.width} / ${currentImageSize.height}`
+                          : 'auto',
+                        maxHeight: {
+                          xs: 'calc(85vh - 200px)',
+                          sm: 'calc(80vh - 120px)',
+                          md: 'calc(80vh - 120px)',
+                        },
+                      }}
+                    >
+                      <ImageViewer
+                        imageUrl={imagesToShow[currentIndex].url}
+                        index={currentIndex}
+                        onImageLoad={handleImageLoad}
+                        imageStyle={calculateImageStyle()}
+                      />
+                    </Card>
+
+                    <TimerProgress timeLeft={timeLeft} totalDuration={project.imageDuration} />
+                  </Stack>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="sliders"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <SliderForm
+                    questions={project.questions}
+                    onSubmit={handleAnswerSubmit}
+                    disabled={submitting}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Box>
+
+          <Box sx={{ flexShrink: 0, mt: 2 }}>
+            {submitting && (
+              <LinearProgress
+                sx={{
+                  height: { xs: 4, sm: 5, md: 6 },
+                  borderRadius: { xs: 1, sm: 2 },
+                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                  '& .MuiLinearProgress-bar': {
+                    borderRadius: { xs: 1, sm: 2 },
+                    background: '#000000',
+                  },
+                }}
+              />
+            )}
+            {error && (
+              <Alert
+                severity="error"
+                sx={{
+                  mt: { xs: 2, sm: 3 },
+                  borderRadius: { xs: 1, sm: 2 },
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                  color: '#000000',
+                }}
+              >
+                {error}
+              </Alert>
+            )}
+          </Box>
+        </Paper>
+      </motion.div>
     </Box>
   );
 }
