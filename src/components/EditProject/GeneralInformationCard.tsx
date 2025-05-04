@@ -1,5 +1,18 @@
-import React from 'react';
-import { Box, TextField, Typography, Stack, Card, CardContent, CardHeader } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  Box,
+  TextField,
+  Typography,
+  Stack,
+  Card,
+  CardContent,
+  CardHeader,
+  FormHelperText,
+  Button,
+  Switch,
+  FormControlLabel,
+  Paper,
+} from '@mui/material';
 import { GeneralInformationCardProps } from './types';
 import {
   CARD_STYLES,
@@ -7,6 +20,10 @@ import {
   CARD_CONTENT_STYLES,
   INPUT_HEIGHT_STYLES,
 } from './styles';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the MarkdownContent component
+const MarkdownContent = dynamic(() => import('../MarkdownContent'), { ssr: false });
 
 export function GeneralInformationCard({
   projectName,
@@ -20,6 +37,9 @@ export function GeneralInformationCard({
   isImageCountValid,
   totalImages,
 }: GeneralInformationCardProps) {
+  const [descPreview, setDescPreview] = useState(false);
+  const [consentPreview, setConsentPreview] = useState(false);
+
   return (
     <Card sx={CARD_STYLES}>
       <CardHeader
@@ -37,24 +57,97 @@ export function GeneralInformationCard({
             size="small"
             sx={INPUT_HEIGHT_STYLES}
           />
-          <TextField
-            label="Description"
-            value={projectDesc}
-            onChange={(e) => setProjectDesc(e.target.value)}
-            multiline
-            rows={5}
-            fullWidth
-            size="small"
-          />
-          <TextField
-            label="Consent Info"
-            value={consentText}
-            onChange={(e) => setConsentText(e.target.value)}
-            multiline
-            rows={4}
-            fullWidth
-            size="small"
-          />
+
+          <Box>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
+            >
+              <Typography variant="subtitle1">Description</Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={descPreview}
+                    onChange={(e) => setDescPreview(e.target.checked)}
+                    size="small"
+                  />
+                }
+                label={<Typography variant="body2">Preview</Typography>}
+                labelPlacement="start"
+              />
+            </Box>
+
+            {!descPreview ? (
+              <TextField
+                value={projectDesc}
+                onChange={(e) => setProjectDesc(e.target.value)}
+                multiline
+                rows={8}
+                fullWidth
+                size="small"
+                placeholder="Enter project description"
+                sx={{ '& .MuiInputBase-root': { fontSize: '0.9rem' } }}
+              />
+            ) : (
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  minHeight: '200px',
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <MarkdownContent content={projectDesc || '*No content yet*'} />
+              </Paper>
+            )}
+          </Box>
+
+          <Box>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
+            >
+              <Typography variant="subtitle1">Consent Information</Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={consentPreview}
+                    onChange={(e) => setConsentPreview(e.target.checked)}
+                    size="small"
+                  />
+                }
+                label={<Typography variant="body2">Preview</Typography>}
+                labelPlacement="start"
+              />
+            </Box>
+
+            {!consentPreview ? (
+              <TextField
+                value={consentText}
+                onChange={(e) => setConsentText(e.target.value)}
+                multiline
+                rows={8}
+                fullWidth
+                size="small"
+                placeholder="Enter consent information"
+                sx={{ '& .MuiInputBase-root': { fontSize: '0.9rem' } }}
+              />
+            ) : (
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  minHeight: '200px',
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <MarkdownContent content={consentText || '*No content yet*'} />
+              </Paper>
+            )}
+          </Box>
+
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <Box sx={{ width: { xs: '100%', sm: '50%' } }}>
               <TextField
