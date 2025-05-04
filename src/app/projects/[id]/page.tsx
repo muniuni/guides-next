@@ -42,9 +42,11 @@ export default async function ProjectPage({ params }: Params) {
         minHeight: ['calc(100vh - 56px)', 'calc(100vh - 64px)'],
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         p: { xs: 2, sm: 3, md: 4 },
         background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        pt: { xs: '48px', sm: '56px', md: '56px' },
+        overflow: 'auto',
       }}
     >
       <Paper
@@ -57,7 +59,8 @@ export default async function ProjectPage({ params }: Params) {
           background: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(10px)',
           boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
-          transform: 'translateY(-7vh)',
+          mt: { xs: 0, sm: 0, md: 0 },
+          mb: { xs: 4, sm: 6, md: 8 },
         }}
       >
         <Typography
