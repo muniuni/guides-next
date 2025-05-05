@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
-
 import { Inter } from 'next/font/google';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-
 import Header from '@/components/Header';
 import Providers from '@/components/Providers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
