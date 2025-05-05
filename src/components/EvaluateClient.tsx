@@ -196,6 +196,13 @@ const SliderForm = ({
         pb: { xs: 1, sm: 1.5, md: 2 },
         maxWidth: { md: '850px' },
         mx: 'auto',
+        overflow: 'auto',
+        // Hide scrollbar for all browsers
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none',
       }}
     >
       {questions.map((q, i) => (
@@ -308,6 +315,38 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const [currentImageSize, setCurrentImageSize] = useState<ImageSize | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollmRef = useRef<HTMLDivElement>(null);
+
+  // Add global style to hide scrollbars
+  useEffect(() => {
+    // Create style element
+    const style = document.createElement('style');
+    style.innerHTML = `
+      body, html, div {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+      }
+      body::-webkit-scrollbar, html::-webkit-scrollbar, div::-webkit-scrollbar {
+        width: 0 !important;
+        height: 0 !important;
+        display: none !important;
+        background: transparent !important;
+      }
+      * {
+        -webkit-overflow-scrolling: touch;
+      }
+    `;
+    // Append to document head
+    document.head.appendChild(style);
+
+    // Also apply directly to body
+    document.body.style.overflow = 'hidden';
+
+    // Cleanup
+    return () => {
+      document.head.removeChild(style);
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   // 配列をシャッフルするヘルパー関数
   const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
@@ -593,6 +632,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
           paddingBottom: '5vh',
           position: 'relative',
           zIndex: 1,
+          overflow: 'hidden',
         }}
       >
         <Paper
