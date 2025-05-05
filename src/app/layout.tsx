@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { CssBaseline } from '@mui/material';
+
 import { Inter } from 'next/font/google';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import { SessionProvider } from 'next-auth/react';
+
 import Header from '@/components/Header';
 import Providers from '@/components/Providers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
