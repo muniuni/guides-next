@@ -80,8 +80,12 @@ const ImageViewer = ({
       ref={imageContainerRef}
       sx={{
         ...imageStyle,
-        display: 'block',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         position: 'relative',
+        width: '100%',
+        height: '100%',
         WebkitTouchCallout: 'none',
         WebkitUserSelect: 'none',
         MozTouchCallout: 'none',
@@ -94,8 +98,15 @@ const ImageViewer = ({
       <Image
         src={imageUrl}
         alt={`Image ${index + 1}`}
-        fill
-        style={{ objectFit: 'contain' }}
+        width={parseInt(imageStyle.width as string) || 500}
+        height={parseInt(imageStyle.height as string) || 300}
+        style={{
+          objectFit: 'contain',
+          width: '100%',
+          height: '100%',
+          maxWidth: imageStyle.width || '100%',
+          maxHeight: imageStyle.height || '100%',
+        }}
         priority
         sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 850px"
         onLoad={onImageLoad}
@@ -356,6 +367,31 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     if (phase === PHASE.SHOW_IMAGE && timeLeft <= 0) setPhase(PHASE.SHOW_SLIDERS);
   }, [phase, timeLeft]);
 
+  // Reset currentImageSize when currentIndex changes
+  useEffect(() => {
+    setCurrentImageSize(null);
+  }, [currentIndex]);
+
+  // Handle window resize - recalculate optimal image size when window dimensions change
+  useEffect(() => {
+    const handleResize = () => {
+      // Force recalculation of image dimensions by temporarily clearing currentImageSize
+      setCurrentImageSize((prev) => {
+        if (prev) {
+          // Preserve the original dimensions for recalculation
+          const dimensions = { ...prev };
+          // Reset and then immediately restore with new calculations
+          setTimeout(() => setCurrentImageSize(dimensions), 0);
+          return null;
+        }
+        return prev;
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Image Preloading
   useEffect(() => {
     if (phase === PHASE.SHOW_IMAGE) {
@@ -410,17 +446,14 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     );
 
   // Event Handlers
-  const handleImageLoad = useCallback(
-    (event: React.SyntheticEvent<HTMLImageElement>) => {
-      const img = event.target as HTMLImageElement;
-      if (currentImageSize) return;
-      setCurrentImageSize({
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-      });
-    },
-    [currentImageSize]
-  );
+  const handleImageLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = event.target as HTMLImageElement;
+    // Always update the image size for the current image
+    setCurrentImageSize({
+      width: img.naturalWidth,
+      height: img.naturalHeight,
+    });
+  }, []);
 
   const handleAnswerSubmit = useCallback(
     (vals: { questionId: string; value: number }[]) => {
@@ -465,23 +498,59 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const calculateImageStyle = useCallback(() => {
     if (!currentImageSize || !containerRef.current) return {};
 
+    // Get the available viewport height - use maximum possible screen space
+    const viewportHeight = window.innerHeight;
+    // Reduce margin/padding estimates to allow for more image space
+    const headerHeight = 80;
+    const timerHeight = 50;
+    const paddingHeight = 50;
+
+    // Calculate the maximum available height - use as much space as possible
+    const maxAvailableHeight = viewportHeight - headerHeight - timerHeight - paddingHeight;
+
+    // Get container width - maximum width available
     const containerWidth = containerRef.current.clientWidth;
-    const containerHeight = containerRef.current.clientHeight;
+
+    // Get image aspect ratio
     const imageAspectRatio = currentImageSize.width / currentImageSize.height;
-    const containerAspectRatio = containerWidth / containerHeight;
 
     let width, height;
-    if (imageAspectRatio > containerAspectRatio) {
-      width = '100%';
-      height = `${containerWidth / imageAspectRatio}px`;
-    } else {
-      height = '100%';
-      width = `${containerHeight * imageAspectRatio}px`;
+
+    // For wider images - prioritize filling the width
+    if (imageAspectRatio > 1) {
+      // Use full container width
+      width = containerWidth;
+      height = width / imageAspectRatio;
+
+      // If height can grow more, scale it up to fill maximum height
+      if (height < maxAvailableHeight) {
+        height = maxAvailableHeight;
+        width = height * imageAspectRatio;
+
+        // If new width exceeds container, scale back down
+        if (width > containerWidth) {
+          width = containerWidth;
+          height = width / imageAspectRatio;
+        }
+      }
+    }
+    // For taller images - prioritize filling the height
+    else {
+      // Use maximum height first
+      height = maxAvailableHeight;
+      width = height * imageAspectRatio;
+
+      // If width exceeds container, scale down to fit
+      if (width > containerWidth) {
+        width = containerWidth;
+        height = width / imageAspectRatio;
+      }
     }
 
+    // Return precise dimensions (round down to avoid scrollbars)
     return {
-      width,
-      height,
+      width: `${Math.floor(width)}px`,
+      height: `${Math.floor(height)}px`,
       maxWidth: '100%',
       maxHeight: '100%',
       objectFit: 'contain' as const,
@@ -494,11 +563,11 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       sx={{
         backgroundColor: '#f5f5f5',
         width: '100%',
-        minHeight: ['calc(100vh - 56px)', 'calc(100vh - 64px)'],
+        minHeight: '100vh',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        p: { xs: 1.5, sm: 3, md: 3.5 },
+        p: { xs: 1, sm: 2, md: 2.5 },
         background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
         position: 'fixed',
         top: 0,
@@ -507,9 +576,9 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         bottom: 0,
         overflow: 'auto',
         pt: {
-          xs: 'calc(56px + 1.25rem)',
-          sm: 'calc(64px + 1rem)',
-          md: 'calc(64px + 1.5rem)',
+          xs: 'calc(56px + 0.75rem)',
+          sm: 'calc(64px + 0.5rem)',
+          md: 'calc(64px + 0.75rem)',
         },
       }}
     >
@@ -530,7 +599,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
           elevation={4}
           sx={{
             width: '100%',
-            p: { xs: 1.5, sm: 2.5, md: 3.5 },
+            p: { xs: 1, sm: 2, md: 2.5 },
             borderRadius: { xs: 2, sm: 3, md: 3 },
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(10px)',
@@ -540,6 +609,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
             overflow: 'visible',
             mt: { xs: 0, sm: 0 },
             position: 'relative',
+            minHeight: '80vh',
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -603,7 +673,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                       ref={containerRef}
                       sx={{
                         width: '100%',
-                        maxWidth: { xs: '100%', sm: 750, md: 850 },
+                        maxWidth: { xs: '100%', sm: 850, md: 950 },
                         borderRadius: { xs: 2, sm: 3 },
                         overflow: 'hidden',
                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
@@ -613,14 +683,13 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                         flex: 1,
                         minHeight: 0,
                         position: 'relative',
-                        aspectRatio: currentImageSize
-                          ? `${currentImageSize.width} / ${currentImageSize.height}`
-                          : 'auto',
+                        height: 'auto',
                         maxHeight: {
-                          xs: 'calc(85vh - 200px)',
-                          sm: 'calc(80vh - 120px)',
-                          md: 'calc(80vh - 120px)',
+                          xs: 'calc(90vh - 160px)',
+                          sm: 'calc(90vh - 120px)',
+                          md: 'calc(90vh - 100px)',
                         },
+                        margin: '0 auto',
                       }}
                     >
                       <ImageViewer
