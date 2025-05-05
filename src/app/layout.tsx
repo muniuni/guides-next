@@ -5,6 +5,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { SessionProvider } from 'next-auth/react';
 import Header from '@/components/Header';
 import Providers from '@/components/Providers';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             <Header />
             {children}
+            <SpeedInsights />
           </Providers>
         </AppRouterCacheProvider>
       </body>
