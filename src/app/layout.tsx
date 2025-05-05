@@ -20,9 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             <Header />
             {children}
-            <SpeedInsights />
           </Providers>
         </AppRouterCacheProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
