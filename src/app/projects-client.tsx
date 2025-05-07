@@ -59,6 +59,23 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
     }
   }, []);
 
+  // ページがマウントされるたびにプロジェクトを再取得
+  useEffect(() => {
+    // ブラウザの戻るボタンで遷移した場合やページがマウントされた場合にプロジェクトを再取得
+    refreshProjects();
+
+    // popstate イベントリスナーを追加して戻るボタンを検出
+    const handlePopState = () => {
+      refreshProjects();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [refreshProjects]);
+
   // Check URL params for notifications
   useEffect(() => {
     const p = searchParams;

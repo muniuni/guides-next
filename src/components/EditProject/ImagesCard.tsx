@@ -8,7 +8,7 @@ import { ExistingImageItem, NewImageItem } from './ImageItems';
 
 export function ImagesCard({
   existingImages,
-  newFiles,
+  uploadingFiles,
   isSelectMode,
   selectedImages,
   handleImageSelect,
@@ -16,7 +16,6 @@ export function ImagesCard({
   exitSelectMode,
   setDeleteDialogOpen,
   handleFileChange,
-  removeNewFile,
 }: ImagesCardProps) {
   return (
     <Card sx={CARD_STYLES}>
@@ -102,8 +101,8 @@ export function ImagesCard({
                 onSelect={handleImageSelect}
               />
             ))}
-            {newFiles.map((file, i) => (
-              <NewImageItem key={i} file={file} index={i} onRemove={removeNewFile} />
+            {uploadingFiles.map(({ file, progress }, i) => (
+              <NewImageItem key={i} file={file} progress={progress} index={i} onRemove={() => {}} />
             ))}
           </Box>
         </Stack>

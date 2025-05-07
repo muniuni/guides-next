@@ -4,11 +4,12 @@ import React from 'react';
 import { Box } from '@mui/material';
 import ProjectContent from '@/components/ProjectContent';
 
-interface Params {
+interface PageParams {
   params: { id: string };
 }
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+export async function generateMetadata(context: PageParams): Promise<Metadata> {
+  const params = context.params;
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     select: { name: true },
@@ -18,7 +19,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-export default async function ProjectPage({ params }: Params) {
+export default async function ProjectPage(context: PageParams) {
+  const params = context.params;
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     select: { id: true, name: true, description: true, consentInfo: true },

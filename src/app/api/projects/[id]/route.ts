@@ -17,18 +17,16 @@ const s3 = new S3Client({
 
 const BUCKET = process.env.S3_BUCKET_NAME!;
 
-interface Params {
-  id: string;
-}
-
 /* ───────────────────────────── PUT ───────────────────────────── */
 
-export async function PUT(request: Request, { params }: { params: Params }) {
+export async function PUT(request: Request, context: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Next.js 15 では params を await する必要がある
+  const params = context.params;
   const projectId = String(params.id);
 
   // Check if the current user owns this project
@@ -57,8 +55,6 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   const imagesToDelete = JSON.parse((formData.get('imagesToDelete') as string) || '[]');
   const imageCount = parseInt(formData.get('imageCount') as string, 10) || 0;
   const imageDuration = parseInt(formData.get('imageDuration') as string, 10) || 0;
-
-  const newFiles = formData.getAll('newImages') as File[];
 
   /* 1. プロジェクト基本情報更新 */
   await prisma.project.update({
@@ -112,20 +108,23 @@ export async function PUT(request: Request, { params }: { params: Params }) {
     }
   }
 
-  /* 4. 新規画像のアップロード */
-  for (const file of newFiles) {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const key = `uploads/${Date.now()}-${file.name}`;
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: BUCKET,
-        Key: key,
-        Body: buffer,
-        ACL: 'public-read',
-        ContentType: file.type,
-      })
-    );
-    const url = `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+  /* 4. 新規画像の登録 */
+  // 新規画像は既にS3にアップロードされているので、URLのみをDBに登録
+  const existingImagesForUrl = await prisma.image.findMany({
+    where: { projectId },
+    select: { id: true, url: true },
+  });
+
+  const newImageUrls = existingImageIds
+    .filter((id: string) => id.startsWith('temp-'))
+    .map((id: string) => {
+      // 対応する画像URLを取得
+      const image = existingImagesForUrl.find((img) => img.id === id);
+      return image?.url;
+    })
+    .filter((url): url is string => url !== null && url !== undefined && url !== '');
+
+  for (const url of newImageUrls) {
     await prisma.image.create({ data: { url, projectId } });
   }
 
@@ -139,12 +138,14 @@ export async function PUT(request: Request, { params }: { params: Params }) {
 
 /* ─────────────────────────── DELETE ─────────────────────────── */
 
-export async function DELETE(_req: Request, { params }: { params: Params }) {
+export async function DELETE(_req: Request, context: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Next.js 15 では params を await する必要がある
+  const params = context.params;
   const projectId = String(params.id);
 
   try {

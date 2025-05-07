@@ -32,7 +32,9 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
 
   // 画像管理
   const [existingImages, setExistingImages] = useState<ImageRecord[]>(images);
-  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState<
+    { file: File; progress: number; id: string }[]
+  >([]);
   const [imagesToDelete, setImagesToDelete] = useState<Set<string>>(new Set());
 
   // 画像選択機能
@@ -53,7 +55,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   // 計算値
-  const totalImages = existingImages.length + newFiles.length - imagesToDelete.size;
+  const totalImages = existingImages.length + uploadingFiles.length - imagesToDelete.size;
   const isImageCountValid = parseInt(imageCountInfo.value) <= totalImages;
 
   // フッターの表示管理
@@ -81,9 +83,51 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
   };
 
   // 画像操作関数
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) setNewFiles((prev) => [...prev, ...Array.from(files)]);
+    if (!files) return;
+
+    for (const file of Array.from(files)) {
+      // 一時的なIDを生成
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      try {
+        // アップロード中のファイルを追加
+        setUploadingFiles((prev) => [...prev, { file, progress: 0, id: tempId }]);
+
+        // 署名付きURLを取得
+        const response = await fetch('/api/upload-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: file.name,
+            contentType: file.type,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to get upload URL');
+        const { uploadUrl, fileUrl } = await response.json();
+
+        // S3に直接アップロード
+        await fetch(uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: { 'Content-Type': file.type },
+        });
+
+        // アップロード成功後、既存画像リストに追加（URLが空文字でないことを確認）
+        if (fileUrl && fileUrl.trim() !== '') {
+          setExistingImages((prev) => [...prev, { id: tempId, url: fileUrl }]);
+        } else {
+          console.error('Empty URL received for uploaded file');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      } finally {
+        // アップロード中のファイルを削除
+        setUploadingFiles((prev) => prev.filter((f) => f.id !== tempId));
+      }
+    }
   };
 
   const handleDeleteSelected = () => {
@@ -96,8 +140,6 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
     exitSelectMode();
     setDeleteDialogOpen(false);
   };
-
-  const removeNewFile = (idx: number) => setNewFiles((prev) => prev.filter((_, i) => i !== idx));
 
   // フォーム送信
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -117,7 +159,6 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       formData.append('questions', JSON.stringify(filteredQuestions));
       formData.append('imagesToDelete', JSON.stringify(Array.from(imagesToDelete)));
       formData.append('existingImageIds', JSON.stringify(existingImages.map((img) => img.id)));
-      newFiles.forEach((file) => formData.append('newImages', file));
 
       const res = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
@@ -126,6 +167,20 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
 
       if (!res.ok) {
         throw new Error('Failed to update project');
+      }
+
+      // 新規画像の登録
+      const newImageUrls = existingImages
+        .filter((img) => img.id.startsWith('temp-'))
+        .map((img) => img.url)
+        .filter((url) => url !== null && url !== '');
+
+      for (const url of newImageUrls) {
+        await fetch('/api/images', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, projectId: id }),
+        });
       }
 
       router.push('/?updated=true');
@@ -172,7 +227,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
     // 画像の変更チェック
     const imagesChanged = () => {
       return (
-        newFiles.length > 0 || // 新規アップロード
+        uploadingFiles.length > 0 || // 新規アップロード
         imagesToDelete.size > 0 || // 削除予定の画像
         existingImages.length !== images.length // 既存画像の削除
       );
@@ -226,7 +281,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
           {/* Images Card */}
           <ImagesCard
             existingImages={existingImages}
-            newFiles={newFiles}
+            uploadingFiles={uploadingFiles}
             isSelectMode={isSelectMode}
             selectedImages={selectedImages}
             handleImageSelect={handleImageSelect}
@@ -234,7 +289,6 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
             exitSelectMode={exitSelectMode}
             setDeleteDialogOpen={setDeleteDialogOpen}
             handleFileChange={handleFileChange}
-            removeNewFile={removeNewFile}
           />
 
           {/* Action Buttons */}

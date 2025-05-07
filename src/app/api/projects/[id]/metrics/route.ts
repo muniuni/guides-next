@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-interface Params {
-  id: string; // project id in the URL
-}
-
 /**
  * GET /api/projects/[id]/metrics
  *
@@ -14,7 +10,9 @@ interface Params {
  *  - avgByQuestion… [{ questionId, question, avg }]
  *  - questionScoresPerImage … [{ imageId, questionId, avg }]
  */
-export async function GET(_req: Request, { params }: { params: Params }) {
+export async function GET(_req: Request, context: { params: { id: string } }) {
+  // Next.js 15 では params を await する必要がある
+  const params = context.params;
   const id = params.id;
   console.log('id', id);
 

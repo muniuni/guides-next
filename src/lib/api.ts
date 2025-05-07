@@ -5,8 +5,8 @@ export async function fetchProjects() {
     (typeof window === 'undefined' ? process.env.NEXT_API_BASE_URL : '');
 
   const res = await fetch(`${baseUrl}/api/projects`, {
-    next: { revalidate: 60 }, // Revalidate every 60 seconds
-    cache: 'force-cache',
+    next: { revalidate: 0 }, // キャッシュを使用せず常に最新データを取得
+    cache: 'no-store',
   });
 
   if (!res.ok) {

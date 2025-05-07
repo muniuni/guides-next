@@ -75,6 +75,29 @@ const ImageViewer = ({
 }) => {
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
+  // 空のURLが渡された場合に、代替表示を行う
+  if (!imageUrl || imageUrl.trim() === '') {
+    return (
+      <Box
+        ref={imageContainerRef}
+        sx={{
+          ...imageStyle,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#f0f0f0',
+        }}
+      >
+        <Typography variant="body1" color="text.secondary">
+          Image not available
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box
       ref={imageContainerRef}
@@ -127,8 +150,9 @@ const TimerProgress = ({
     <Box
       sx={{
         width: '100%',
-        mt: { xs: 1.5, sm: 3 },
-        mb: { xs: 0.5, sm: 2 },
+        // PC版ではマージンをより少なく
+        mt: { xs: 1.5, sm: 2, md: 1, lg: 1 },
+        mb: { xs: 0.5, sm: 1, md: 0.5, lg: 0.5 },
         display: 'flex',
         alignItems: 'center',
       }}
@@ -363,8 +387,11 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   // State
   // 画像をランダム順に表示 - 初期化時に1回だけシャッフル
   const imagesToShow = useMemo(() => {
+    // 無効なURLを持つ画像を除外
+    const validImages = project.images.filter((img) => img.url && img.url.trim() !== '');
+
     // 画像を完全にランダムにするため、毎回シャッフルする
-    const shuffledImages = shuffleArray(project.images);
+    const shuffledImages = shuffleArray(validImages);
 
     // 指定された数だけ取得
     return shuffledImages.slice(0, project.imageCount);
@@ -437,8 +464,11 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       // For preloading the next image if needed
       const nextIndex = currentIndex + 1;
       if (nextIndex < imagesToShow.length) {
-        const preloadImage = new window.Image();
-        preloadImage.src = imagesToShow[nextIndex].url;
+        const nextImageUrl = imagesToShow[nextIndex].url;
+        if (nextImageUrl && nextImageUrl.trim() !== '') {
+          const preloadImage = new window.Image();
+          preloadImage.src = nextImageUrl;
+        }
       }
     }
   }, [phase, currentIndex, imagesToShow]);
@@ -540,9 +570,20 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     // Get the available viewport height - use maximum possible screen space
     const viewportHeight = window.innerHeight;
     // Reduce margin/padding estimates to allow for more image space
-    const headerHeight = 80;
-    const timerHeight = 50;
-    const paddingHeight = 50;
+    const headerHeight = 80; // ヘッダー高さ
+    const timerHeight = 60; // プログレスバー高さを考慮
+    // PC版ではパディングを調整
+    const isLargeScreen = window.innerWidth >= 1200; // lg ブレークポイント
+    const isMediumScreen = window.innerWidth >= 900 && window.innerWidth < 1200; // md ブレークポイント
+    let paddingHeight;
+
+    if (isLargeScreen) {
+      paddingHeight = 100; // PC大画面ではプログレスバーのスペース確保
+    } else if (isMediumScreen) {
+      paddingHeight = 90; // PC通常画面
+    } else {
+      paddingHeight = 120; // モバイル・タブレット
+    }
 
     // Calculate the maximum available height - use as much space as possible
     const maxAvailableHeight = viewportHeight - headerHeight - timerHeight - paddingHeight;
@@ -572,6 +613,8 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
           height = width / imageAspectRatio;
         }
       }
+
+      // PC版では高さに上限を設けない（画面ギリギリに表示）
     }
     // For taller images - prioritize filling the height
     else {
@@ -584,6 +627,8 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         width = containerWidth;
         height = width / imageAspectRatio;
       }
+
+      // PC版では高さに上限を設けない（画面ギリギリに表示）
     }
 
     // Return precise dimensions (round down to avoid scrollbars)
@@ -591,7 +636,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       width: `${Math.floor(width)}px`,
       height: `${Math.floor(height)}px`,
       maxWidth: '100%',
-      maxHeight: '100%',
+      maxHeight: isLargeScreen || isMediumScreen ? '98%' : '100%', // PC版では余白をほぼなしに
       objectFit: 'contain' as const,
     };
   }, [currentImageSize]);
@@ -606,7 +651,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        p: { xs: 1, sm: 2, md: 2.5 },
+        p: { xs: 1, sm: 2, md: 1.5 }, // PC版では余白を少なく
         background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
         position: 'fixed',
         top: 0,
@@ -617,7 +662,13 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         pt: {
           xs: 'calc(56px + 0.75rem)',
           sm: 'calc(64px + 0.5rem)',
-          md: 'calc(64px + 0.75rem)',
+          md: 'calc(64px + 0.5rem)', // PC版では上部余白を少なく
+        },
+        pb: {
+          xs: '0.75rem',
+          sm: '1rem',
+          md: '0.5rem', // PC版では下部余白を少なく
+          lg: '0.5rem',
         },
       }}
     >
@@ -639,7 +690,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
           elevation={4}
           sx={{
             width: '100%',
-            p: { xs: 1, sm: 2, md: 2.5 },
+            p: { xs: 1, sm: 2, md: 2 },
             borderRadius: { xs: 2, sm: 3, md: 3 },
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(10px)',
@@ -649,7 +700,8 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
             overflow: 'visible',
             mt: { xs: 0, sm: 0 },
             position: 'relative',
-            minHeight: '80vh',
+            // PC版では最小高さを調整して画面ギリギリに表示
+            minHeight: { xs: '80vh', md: '85vh', lg: '88vh' },
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -703,7 +755,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                 >
                   <Stack
                     alignItems="center"
-                    spacing={{ xs: 1.5, sm: 2.5, md: 3 }}
+                    spacing={{ xs: 1.5, sm: 2, md: 1.5 }}
                     sx={{
                       flex: 1,
                       minHeight: 0,
@@ -726,18 +778,36 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                         height: 'auto',
                         maxHeight: {
                           xs: 'calc(90vh - 160px)',
-                          sm: 'calc(90vh - 120px)',
-                          md: 'calc(90vh - 100px)',
+                          sm: 'calc(90vh - 180px)',
+                          md: 'calc(92vh - 190px)', // プログレスバーとその余白（約70px）を考慮
+                          lg: 'calc(94vh - 200px)', // 大画面でも同様に
                         },
                         margin: '0 auto',
                       }}
                     >
-                      <ImageViewer
-                        imageUrl={imagesToShow[currentIndex].url}
-                        index={currentIndex}
-                        onImageLoad={handleImageLoad}
-                        imageStyle={calculateImageStyle()}
-                      />
+                      {imagesToShow[currentIndex] && imagesToShow[currentIndex].url ? (
+                        <ImageViewer
+                          imageUrl={imagesToShow[currentIndex].url}
+                          index={currentIndex}
+                          onImageLoad={handleImageLoad}
+                          imageStyle={calculateImageStyle()}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%',
+                            height: '200px',
+                            backgroundColor: '#f0f0f0',
+                          }}
+                        >
+                          <Typography variant="body1" color="text.secondary">
+                            Image not available
+                          </Typography>
+                        </Box>
+                      )}
                     </Card>
 
                     <TimerProgress timeLeft={timeLeft} totalDuration={project.imageDuration} />

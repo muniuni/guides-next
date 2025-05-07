@@ -3,9 +3,9 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 import { fetchProjects } from '@/lib/api';
 import ProjectsClient from '@/app/projects-client';
 
-// Next.js 15のデータフェッチ設定
+// Next.js 15のデータフェッチ設定 - 常に最新データを使用
 export const dynamic = 'force-dynamic';
-export const revalidate = 60;
+export const revalidate = 0;
 
 export default async function HomePage() {
   // try-catchでデータフェッチエラーを処理する

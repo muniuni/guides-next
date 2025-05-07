@@ -20,7 +20,16 @@ export interface Project {
 }
 
 export interface EditProjectFormProps {
-  initialProject: Project;
+  initialProject: {
+    id: string;
+    name: string;
+    description: string;
+    consentInfo: string;
+    imageCount: number;
+    imageDuration: number;
+    questions: Question[];
+    images: ImageRecord[];
+  };
 }
 
 // 数値フィールドの返り値型定義
@@ -66,7 +75,7 @@ export interface QuestionsCardProps {
 // 画像管理プロップスの型定義
 export interface ImagesCardProps {
   existingImages: ImageRecord[];
-  newFiles: File[];
+  uploadingFiles: { file: File; progress: number }[];
   isSelectMode: boolean;
   selectedImages: Set<string>;
   handleImageSelect: (imageId: string) => void;
@@ -74,7 +83,6 @@ export interface ImagesCardProps {
   exitSelectMode: () => void;
   setDeleteDialogOpen: (open: boolean) => void;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  removeNewFile: (idx: number) => void;
 }
 
 // 既存画像アイテムプロップスの型定義
@@ -82,12 +90,13 @@ export interface ExistingImageItemProps {
   image: ImageRecord;
   isSelectMode: boolean;
   isSelected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (imageId: string) => void;
 }
 
 // 新規画像アイテムプロップスの型定義
 export interface NewImageItemProps {
   file: File;
+  progress: number;
   index: number;
   onRemove: (index: number) => void;
 }

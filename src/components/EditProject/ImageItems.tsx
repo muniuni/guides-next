@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import Image from 'next/image';
-import { Paper, IconButton, Checkbox } from '@mui/material';
+import { Paper, IconButton, Checkbox, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ExistingImageItemProps, NewImageItemProps } from './types';
 
@@ -11,6 +11,11 @@ export function ExistingImageItem({
   isSelected,
   onSelect,
 }: ExistingImageItemProps) {
+  // 無効なURLを防止
+  if (!image.url || image.url.trim() === '') {
+    return null;
+  }
+
   return (
     <Paper
       elevation={0}
@@ -57,7 +62,7 @@ export function ExistingImageItem({
 }
 
 // 新規アップロード画像コンポーネント
-export function NewImageItem({ file, index, onRemove }: NewImageItemProps) {
+export function NewImageItem({ file, progress, index, onRemove }: NewImageItemProps) {
   // ファイルからオブジェクトURLを生成し、メモ化
   const objectUrl = useMemo(() => URL.createObjectURL(file), [file]);
 
@@ -90,6 +95,25 @@ export function NewImageItem({ file, index, onRemove }: NewImageItemProps) {
           }}
           unoptimized // ローカルオブジェクトURLには最適化を適用しない
         />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            bgcolor: 'rgba(0,0,0,0.1)',
+          }}
+        >
+          <Box
+            sx={{
+              height: '100%',
+              width: `${progress}%`,
+              bgcolor: 'primary.main',
+              transition: 'width 0.3s ease-in-out',
+            }}
+          />
+        </Box>
       </div>
       <IconButton
         size="small"
