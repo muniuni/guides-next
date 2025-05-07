@@ -2,65 +2,42 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import type { Image } from '@prisma/client';
-
-export const config = { api: { bodyParser: false } };
-
-// S3 クライアントの初期化
-const s3 = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
-
-const BUCKET = process.env.S3_BUCKET_NAME!;
 
 interface Params {
   id: string;
 }
 
 export async function POST(req: Request, { params }: { params: Params }): Promise<NextResponse> {
-  // 認証チェック
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const formData = await req.formData();
-  const files = formData.getAll('file') as File[];
+  try {
+    // JSON形式で送信された画像のURLを取得
+    const { url } = await req.json();
 
-  if (!files.length) {
-    return NextResponse.json({ error: 'No files provided' }, { status: 400 });
-  }
+    if (!url) {
+      return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+    }
 
-  const createdImages: Image[] = [];
-
-  // ファイルをS3へアップロード
-  for (const file of files) {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const key = `uploads/${Date.now()}-${file.name}`;
-
-    const command = new PutObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-      Body: buffer,
-      ACL: 'public-read',
-      ContentType: file.type,
-    });
-
-    await s3.send(command);
-
-    const url = `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
-
+    // Prismaを用いてDBに画像URLを登録
     const img = await prisma.image.create({
-      data: { url, project: { connect: { id: params.id } } },
+      data: {
+        url,
+        project: { connect: { id: params.id } },
+      },
     });
 
-    createdImages.push(img);
+    return NextResponse.json(img);
+  } catch (error) {
+    console.error('🚨 API Error details:', error);
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(createdImages);
 }

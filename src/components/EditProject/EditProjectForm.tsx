@@ -176,7 +176,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
         .filter((url) => url !== null && url !== '');
 
       for (const url of newImageUrls) {
-        await fetch('/api/images', {
+        await fetch(`/api/projects/${id}/images`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, projectId: id }),

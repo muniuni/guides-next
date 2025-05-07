@@ -21,8 +21,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id])
+  user              User    @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerAccountId])
 }
@@ -32,8 +31,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 model VerificationToken {
@@ -49,11 +47,11 @@ model User {
   email     String    @unique
   username  String    @unique
   password  String
-  projects  Project[] @relation("UserProjects")
-  accounts  Account[]
-  sessions  Session[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  accounts  Account[]
+  projects  Project[] @relation("UserProjects")
+  sessions  Session[]
 }
 
 model Project {
@@ -63,27 +61,27 @@ model Project {
   consentInfo   String
   imageCount    Int
   imageDuration Int
-  user          User       @relation("UserProjects", fields: [userId], references: [id])
   userId        String
-  questions     Question[] @relation("ProjectQuestions")
-  images        Image[]    @relation("ProjectImages")
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+  images        Image[]    @relation("ProjectImages")
+  user          User       @relation("UserProjects", fields: [userId], references: [id])
+  questions     Question[] @relation("ProjectQuestions")
 }
 
 model Question {
   id        String  @id @default(cuid())
   text      String
-  project   Project @relation("ProjectQuestions", fields: [projectId], references: [id])
   projectId String
+  project   Project @relation("ProjectQuestions", fields: [projectId], references: [id])
   scores    Score[]
 }
 
 model Image {
   id        String  @id @default(cuid())
   url       String
-  project   Project @relation("ProjectImages", fields: [projectId], references: [id])
   projectId String
+  project   Project @relation("ProjectImages", fields: [projectId], references: [id])
   scores    Score[]
 }
 
@@ -91,9 +89,9 @@ model Score {
   id         String   @id @default(cuid())
   value      Float
   sessionId  String
-  question   Question @relation(fields: [questionId], references: [id])
   questionId String
-  image      Image    @relation(fields: [imageId], references: [id])
   imageId    String
   createdAt  DateTime @default(now())
+  image      Image    @relation(fields: [imageId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
 }
