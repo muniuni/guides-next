@@ -74,6 +74,13 @@ const ImageViewer = ({
   imageStyle: React.CSSProperties;
 }) => {
   const imageContainerRef = useRef<HTMLDivElement>(null);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  // Handle image load event
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    onImageLoad(event);
+    setIsImageLoaded(true);
+  };
 
   // 空のURLが渡された場合に、代替表示を行う
   if (!imageUrl || imageUrl.trim() === '') {
@@ -118,6 +125,69 @@ const ImageViewer = ({
       onContextMenu={(e) => e.preventDefault()}
       onMouseDown={(e) => e.preventDefault()}
     >
+      {!isImageLoaded && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#f5f5f5',
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+          }}
+        >
+          <Box
+            sx={{
+              width: '100%',
+              height: '100%',
+              position: 'relative',
+              animation: 'pulse 1.5s ease-in-out 0.5s infinite',
+              '@keyframes pulse': {
+                '0%': {
+                  opacity: 0.6,
+                },
+                '50%': {
+                  opacity: 0.8,
+                },
+                '100%': {
+                  opacity: 0.6,
+                },
+              },
+            }}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '40%',
+                height: '40%',
+                backgroundColor: '#ebebeb',
+                borderRadius: 2,
+              }}
+            />
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: '20%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '60%',
+                height: '10%',
+                backgroundColor: '#ebebeb',
+                borderRadius: 2,
+              }}
+            />
+          </Box>
+        </Box>
+      )}
       <Image
         src={imageUrl}
         alt={`Image ${index + 1}`}
@@ -129,10 +199,13 @@ const ImageViewer = ({
           height: '100%',
           maxWidth: imageStyle.width || '100%',
           maxHeight: imageStyle.height || '100%',
+          opacity: isImageLoaded ? 1 : 0, // Hide image until loaded
+          transition: 'opacity 0.3s ease-in-out',
         }}
         priority
+        fetchPriority="high"
         sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 850px"
-        onLoad={onImageLoad}
+        onLoad={handleImageLoad}
       />
     </Box>
   );
@@ -517,7 +590,8 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   // Event Handlers
   const handleImageLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
     const img = event.target as HTMLImageElement;
-    // Always update the image size for the current image
+
+    // Set image dimensions
     setCurrentImageSize({
       width: img.naturalWidth,
       height: img.naturalHeight,
