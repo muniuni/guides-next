@@ -20,6 +20,7 @@ import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
 import { truncate, formatDate, timeAgo } from '@/lib/project-utils';
+import Link from 'next/link';
 
 import { Project } from '@/types/project';
 
@@ -163,30 +164,47 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
               whiteSpace: 'nowrap',
             }}
           >
-            <IconButton
-              onClick={handleEditClick}
-              disabled={!isOwner || loadingEdit}
-              size="small"
-              sx={{ position: 'relative' }}
-            >
-              {loadingEdit ? (
-                <CircularProgress size={20} thickness={5} />
-              ) : (
+            {isOwner && (
+              <Link href={`/projects/${project.id}/edit`} passHref prefetch>
+                <IconButton
+                  onClick={handleEditClick}
+                  disabled={loadingEdit}
+                  size="small"
+                  sx={{ position: 'relative' }}
+                  component="span"
+                >
+                  {loadingEdit ? (
+                    <CircularProgress size={20} thickness={5} />
+                  ) : (
+                    <CreateOutlinedIcon fontSize="small" />
+                  )}
+                </IconButton>
+              </Link>
+            )}
+            {!isOwner && (
+              <IconButton
+                disabled={true}
+                size="small"
+                sx={{ position: 'relative', visibility: 'hidden' }}
+              >
                 <CreateOutlinedIcon fontSize="small" />
-              )}
-            </IconButton>
-            <IconButton
-              onClick={handleMetricsClick}
-              disabled={loadingMetrics}
-              size="small"
-              sx={{ position: 'relative' }}
-            >
-              {loadingMetrics ? (
-                <CircularProgress size={20} thickness={5} />
-              ) : (
-                <AssessmentOutlinedIcon fontSize="small" />
-              )}
-            </IconButton>
+              </IconButton>
+            )}
+            <Link href={`/projects/${project.id}/metrics`} passHref prefetch>
+              <IconButton
+                onClick={handleMetricsClick}
+                disabled={loadingMetrics}
+                size="small"
+                sx={{ position: 'relative' }}
+                component="span"
+              >
+                {loadingMetrics ? (
+                  <CircularProgress size={20} thickness={5} />
+                ) : (
+                  <AssessmentOutlinedIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Link>
             <IconButton onClick={(e) => onMenuOpen(e, project.id)} size="small">
               <MoreHorizOutlinedIcon fontSize="small" />
             </IconButton>
@@ -208,25 +226,28 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button
-          variant="outlined"
-          fullWidth
-          disabled={loadingEvaluate}
-          onClick={handleEvaluateClick}
-          sx={{
-            textTransform: 'none',
-            position: 'relative',
-          }}
-        >
-          {loadingEvaluate ? (
-            <>
-              <CircularProgress size={20} thickness={5} sx={{ mr: 1 }} />
-              Loading...
-            </>
-          ) : (
-            'Start Evaluation'
-          )}
-        </Button>
+        <Link href={`/projects/${project.id}`} passHref prefetch style={{ width: '100%' }}>
+          <Button
+            variant="outlined"
+            fullWidth
+            disabled={loadingEvaluate}
+            onClick={handleEvaluateClick}
+            sx={{
+              textTransform: 'none',
+              position: 'relative',
+            }}
+            component="span"
+          >
+            {loadingEvaluate ? (
+              <>
+                <CircularProgress size={20} thickness={5} sx={{ mr: 1 }} />
+                Loading...
+              </>
+            ) : (
+              'Start Evaluation'
+            )}
+          </Button>
+        </Link>
       </CardActions>
     </Card>
   );
