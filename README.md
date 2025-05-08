@@ -82,10 +82,36 @@ npm run dev
 
 ブラウザで[http://localhost:3000](http://localhost:3000)にアクセスしてください。
 
-## ライセンス
+## デプロイ
 
-MIT License. 詳細は`LICENSE`ファイルを参照してください。
+Vercelへのデプロイ手順:
 
-## 参照
+1. GitHubリポジトリをVercelと連携
+2. Vercelプロジェクト設定で環境変数を登録
+3. 自動デプロイを有効化
 
-GUIDES（オリジナル）: [https://github.com/iiojun/guides](https://github.com/iiojun/guides)
+## APIエンドポイント
+
+| メソッド | パス                                | 説明                     |
+| -------- | ----------------------------------- | ------------------------ |
+| POST     | `/api/auth/signup`                  | ユーザー登録             |
+| GET      | `/api/auth/account`                 | ログインユーザー情報取得 |
+| GET/POST | `/api/auth/[...nextauth]`           | NextAuth.js認証          |
+| GET      | `/api/projects`                     | プロジェクト一覧取得     |
+| POST     | `/api/projects`                     | プロジェクト作成         |
+| GET      | `/api/projects/:id`                 | プロジェクト詳細取得     |
+| PUT      | `/api/projects/:id`                 | プロジェクト編集         |
+| DELETE   | `/api/projects/:id`                 | プロジェクト削除         |
+| GET      | `/api/projects/:id/images`          | 画像一覧取得             |
+| POST     | `/api/upload-url`                   | S3署名付きURL取得        |
+| POST     | `/api/projects/:id/images`          | 画像アップロード         |
+| DELETE   | `/api/projects/:id/images/:imageId` | 画像削除                 |
+| POST     | `/api/projects/:id/evaluate-data`   | 感性評価データ投稿       |
+| GET      | `/api/projects/:id/evaluate-data`   | 感性評価データ取得       |
+| GET      | `/api/projects/:id/export-csv`      | CSVエクスポート          |
+| GET      | `/api/projects/:id/metrics`         | メトリクス取得           |
+| POST     | `/api/scores`                       | スコア集計               |
+
+## Inspired By
+
+[GUIDES (オリジナル)](https://github.com/iiojun/guides)
