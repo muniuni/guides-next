@@ -22,7 +22,7 @@ import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
 import LinkIcon from '@mui/icons-material/Link';
 import CheckIcon from '@mui/icons-material/Check';
-import { truncate, formatDate, timeAgo } from '@/lib/project-utils';
+import { truncate, formatDate, safeTimeAgo } from '@/lib/project-utils';
 
 import { Project } from '@/types/project';
 
@@ -41,6 +41,7 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const [timeDisplay, setTimeDisplay] = useState('recently');
 
   // ローディング状態を追跡
   const [loadingEdit, setLoadingEdit] = useState(false);
@@ -58,6 +59,11 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
     setLoadingCopyLink(false);
     setShowCopySuccess(false);
   }, [pathname]);
+
+  // クライアントサイドでのみ時間差を計算
+  useEffect(() => {
+    setTimeDisplay(safeTimeAgo(project.updatedAt));
+  }, [project.updatedAt]);
 
   // 編集ページへの遷移処理
   const handleEditClick = (e: React.MouseEvent) => {
@@ -267,7 +273,7 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
         </Typography>
         <Typography variant="caption" display="block">
           <ScheduleOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
-          {timeAgo(project.updatedAt)}
+          {timeDisplay}
         </Typography>
       </CardContent>
       <CardActions sx={{ p: 2, gap: 0.1 }}>

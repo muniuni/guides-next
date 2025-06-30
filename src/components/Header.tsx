@@ -63,7 +63,7 @@ export default function Header() {
           zIndex: 1100,
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ minHeight: { xs: 56, sm: 64 }, px: { xs: 1, sm: 3 } }}>
           <Box
             component={Link}
             href="/"
@@ -207,36 +207,46 @@ export default function Header() {
               </>
             ) : (
               <>
-                <LanguageSwitcher />
-                <Button
-                  component={Link}
-                  href="/auth/login"
-                  variant="outlined"
-                  sx={{
-                    borderColor: '#000',
-                    color: '#000',
-                    backgroundColor: '#fff',
-                    mr: 1,
-                    ml: 1,
-                    borderRadius: 3,
-                  }}
-                >
-                  {t('login')}
-                </Button>
-                <Button
-                  component={Link}
-                  href="/auth/signup"
-                  variant="contained"
-                  sx={{
-                    backgroundColor: '#000',
-                    color: '#fff',
-                    borderRadius: 3,
-                    textWrap: 'nowrap',
-                    boxShadow: 0.1,
-                  }}
-                >
-                  {t('register')}
-                </Button>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
+                  <LanguageSwitcher />
+                  <Button
+                    component={Link}
+                    href="/auth/login"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      borderColor: '#000',
+                      color: '#000',
+                      backgroundColor: '#fff',
+                      borderRadius: 3,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      minWidth: { xs: 'auto', sm: 'auto' },
+                      px: { xs: 1.5, sm: 2 },
+                      py: { xs: 0.5, sm: 0.75 },
+                    }}
+                  >
+                    {t('login')}
+                  </Button>
+                  <Button
+                    component={Link}
+                    href="/auth/signup"
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      backgroundColor: '#000',
+                      color: '#fff',
+                      borderRadius: 3,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      minWidth: { xs: 'auto', sm: 'auto' },
+                      px: { xs: 1.5, sm: 2 },
+                      py: { xs: 0.5, sm: 0.75 },
+                      whiteSpace: 'nowrap',
+                      boxShadow: 0.1,
+                    }}
+                  >
+                    {t('register')}
+                  </Button>
+                </Box>
               </>
             ))}
         </Toolbar>

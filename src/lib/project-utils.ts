@@ -19,9 +19,12 @@ export const formatDate = (dateStr: string): string => {
 
 /**
  * Returns a human-readable relative time string like "5 days ago"
+ * This function should only be called on the client side to avoid hydration issues
  */
-export const timeAgo = (dateStr: string): string => {
-  const diff = Date.now() - new Date(dateStr).getTime();
+export const timeAgo = (dateStr: string, currentTime?: number): string => {
+  // Use provided currentTime or fallback to a safe value for SSR
+  const now = currentTime || Date.now();
+  const diff = now - new Date(dateStr).getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -33,4 +36,15 @@ export const timeAgo = (dateStr: string): string => {
   } else {
     return `${minutes} minutes ago`;
   }
+};
+
+/**
+ * Client-safe version of timeAgo that returns a fallback during SSR
+ */
+export const safeTimeAgo = (dateStr: string): string => {
+  if (typeof window === 'undefined') {
+    // During SSR, return a safe fallback
+    return 'recently';
+  }
+  return timeAgo(dateStr);
 };

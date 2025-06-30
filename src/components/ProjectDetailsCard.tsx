@@ -1,6 +1,7 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, Typography, Box, IconButton, Divider } from '@mui/material';
+import { useState, useEffect } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
@@ -42,6 +43,11 @@ const formatDate = (dateStr: string) => {
 
 export default function ProjectDetailsCard({ open, onClose, project }: ProjectDetailsCardProps) {
   const t = useTranslations('projects');
+  const [currentTime, setCurrentTime] = useState<number | null>(null);
+  
+  useEffect(() => {
+    setCurrentTime(Date.now());
+  }, []);
   
   if (!project) return null;
 
@@ -49,7 +55,10 @@ export default function ProjectDetailsCard({ open, onClose, project }: ProjectDe
   const questionCount = project.questions?.length || 0;
 
   const daysAgo = (dateStr: string) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
+    if (currentTime === null) {
+      return `0 ${t('daysAgo')}`; // フォールバック値
+    }
+    const diff = currentTime - new Date(dateStr).getTime();
     const day = Math.floor(diff / (1000 * 60 * 60 * 24));
     return `${day} ${t('daysAgo')}`;
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/config';
 import {
@@ -28,6 +28,11 @@ export default function LanguageSwitcher() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isPending, startTransition] = useTransition();
   const [isHovered, setIsHovered] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     if (isPending) return;
@@ -50,8 +55,32 @@ export default function LanguageSwitcher() {
     handleClose();
   };
 
-  const currentLanguage = languages.find(lang => lang.code === locale);
+  const currentLanguage = languages.find(lang => lang.code === locale) || languages[0];
   const open = Boolean(anchorEl);
+
+  if (!isClient) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          px: 1.5,
+          py: 0.75,
+          mr: { xs: 1, sm: 2 },
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: alpha('#000', 0.12),
+          minWidth: 76,
+          height: 32,
+        }}
+      >
+        <LanguageIcon sx={{ fontSize: 16, color: alpha('#000', 0.7) }} />
+        <Typography sx={{ fontSize: 13, fontWeight: 500 }}>EN</Typography>
+        <KeyboardArrowDownIcon sx={{ fontSize: 16, color: alpha('#000', 0.6) }} />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -66,7 +95,7 @@ export default function LanguageSwitcher() {
           gap: 1,
           px: 1.5,
           py: 0.75,
-          mr: 2,
+          mr: { xs: 1, sm: 2 },
           borderRadius: 2,
           border: '1px solid',
           borderColor: open ? 'primary.main' : alpha('#000', 0.12),
