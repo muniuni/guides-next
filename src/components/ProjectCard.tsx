@@ -19,6 +19,8 @@ import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
+import LinkIcon from '@mui/icons-material/Link';
+import CheckIcon from '@mui/icons-material/Check';
 import { truncate, formatDate, timeAgo } from '@/lib/project-utils';
 import Link from 'next/link';
 
@@ -43,6 +45,8 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [loadingMetrics, setLoadingMetrics] = useState(false);
   const [loadingEvaluate, setLoadingEvaluate] = useState(false);
+  const [loadingCopyLink, setLoadingCopyLink] = useState(false);
+  const [showCopySuccess, setShowCopySuccess] = useState(false);
 
   // パス名が変更された場合、ローディング状態をリセット
   useEffect(() => {
@@ -50,6 +54,8 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
     setLoadingEdit(false);
     setLoadingMetrics(false);
     setLoadingEvaluate(false);
+    setLoadingCopyLink(false);
+    setShowCopySuccess(false);
   }, [pathname]);
 
   // 編集ページへの遷移処理
@@ -81,6 +87,40 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
     startTransition(() => {
       router.push(`/projects/${project.id}`);
     });
+  };
+
+  // リンクコピー処理
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (loadingCopyLink || showCopySuccess) return;
+
+    setLoadingCopyLink(true);
+
+    const url = `${window.location.origin}/projects/${project.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    // Show loading for a short time, then success
+    setTimeout(() => {
+      setLoadingCopyLink(false);
+      setShowCopySuccess(true);
+
+      // Hide success icon after 2 seconds
+      setTimeout(() => {
+        setShowCopySuccess(false);
+      }, 2000);
+    }, 500);
   };
 
   // 遷移が完了したらローディング状態をリセット
@@ -225,8 +265,8 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
           {timeAgo(project.updatedAt)}
         </Typography>
       </CardContent>
-      <CardActions>
-        <Link href={`/projects/${project.id}`} passHref prefetch style={{ width: '100%' }}>
+      <CardActions sx={{ p: 2, gap: 0.1 }}>
+        <Link href={`/projects/${project.id}`} passHref prefetch style={{ flex: '9.5' }}>
           <Button
             variant="outlined"
             fullWidth
@@ -248,6 +288,27 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
             )}
           </Button>
         </Link>
+        <Button
+          variant="outlined"
+          onClick={handleCopyLink}
+          disabled={loadingCopyLink || showCopySuccess}
+          sx={{
+            flex: '0.5',
+            minWidth: 'auto',
+            textTransform: 'none',
+            position: 'relative',
+            px: 1,
+            height: '36px',
+          }}
+        >
+          {loadingCopyLink ? (
+            <CircularProgress size={20} thickness={5} />
+          ) : showCopySuccess ? (
+            <CheckIcon fontSize="small" />
+          ) : (
+            <LinkIcon fontSize="small" />
+          )}
+        </Button>
       </CardActions>
     </Card>
   );
