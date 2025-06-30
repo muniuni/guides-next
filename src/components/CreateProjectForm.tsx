@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Button, TextField, Stack, CircularProgress } from "@mui/material";
+import { useTranslations } from 'next-intl';
 
 interface CreateProjectFormProps {
   onSuccess: () => void;
@@ -11,6 +12,7 @@ export default function CreateProjectForm({
   onSuccess,
   onCancel,
 }: CreateProjectFormProps) {
+  const t = useTranslations('projects.create');
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export default function CreateProjectForm({
     if (res.ok) {
       onSuccess();
     } else {
-      alert("プロジェクト作成に失敗しました");
+      alert(t('creationFailed'));
     }
   };
 
@@ -37,7 +39,7 @@ export default function CreateProjectForm({
     <form onSubmit={handleSubmit} noValidate>
       <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
         <TextField
-          label="Project Name"
+          label={t('projectName')}
           value={name}
           required
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -46,7 +48,7 @@ export default function CreateProjectForm({
           fullWidth
         />
         <TextField
-          label="Description"
+          label={t('description')}
           value={description}
           multiline
           rows={3}
@@ -62,10 +64,10 @@ export default function CreateProjectForm({
           sx={{ pt: 1 }}
         >
           <Button variant="outlined" onClick={onCancel}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button type="submit" variant="contained" disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : "Create"}
+            {loading ? <CircularProgress size={24} /> : t('create')}
           </Button>
         </Stack>
       </Stack>

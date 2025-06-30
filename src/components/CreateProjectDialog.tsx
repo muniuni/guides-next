@@ -2,6 +2,7 @@
 import { Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CreateProjectForm from './CreateProjectForm';
+import { useTranslations } from 'next-intl';
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -14,6 +15,7 @@ export default function CreateProjectDialog({
   onClose,
   onSuccess,
 }: CreateProjectDialogProps) {
+  const t = useTranslations('projects.create');
   return (
     <Dialog
       open={open}
@@ -27,7 +29,7 @@ export default function CreateProjectDialog({
       }}
     >
       <DialogTitle sx={{ m: 0, p: 3, pb: 2 }}>
-        Create New Project
+        {t('title')}
         <IconButton
           aria-label="close"
           onClick={onClose}

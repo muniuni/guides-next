@@ -36,7 +36,16 @@
     "forgotPassword": "Forgot Password?",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
-    "logout": "Logout"
+    "logout": "Logout",
+    "loginTitle": "Login",
+    "signupTitle": "Sign Up",
+    "authenticationFailed": "Authentication failed",
+    "usernameRequired": "Username is required",
+    "usernameFormat": "Lowercase letters, numbers, hyphens and underscores only",
+    "unexpectedError": "An unexpected error occurred.",
+    "autoLoginFailed": "Auto-login failed. Please log in manually.",
+    "loggingIn": "Logging in...",
+    "signingUp": "Signing up..."
   },
   "projects": {
     "title": "Projects",
@@ -110,6 +119,15 @@
       "supportedFormats": "Supported formats: JPG, PNG, GIF",
       "maxFileSize": "Max file size: 10MB",
       "keepEditing": "Keep Editing"
+    },
+    "create": {
+      "title": "Create New Project",
+      "projectName": "Project Name",
+      "description": "Description",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creationFailed": "Project creation failed",
+      "creating": "Creating..."
     }
   },
   "evaluation": {

@@ -10,8 +10,10 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
+import { useTranslations } from 'next-intl';
 
 export default function LoginPage() {
+  const t = useTranslations('auth');
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +31,7 @@ export default function LoginPage() {
     });
     setLoading(false);
     if (res?.error) {
-      setError("認証に失敗しました");
+      setError(t('authenticationFailed'));
     } else {
       router.push("/?login=true");
     }
@@ -44,7 +46,7 @@ export default function LoginPage() {
       sx={{ maxWidth: 400, mx: "auto", mt: 8, p: 3 }}
     >
       <Typography variant="h4" mb={2}>
-        Login
+        {t('loginTitle')}
       </Typography>
 
       {error && (
@@ -54,7 +56,7 @@ export default function LoginPage() {
       )}
 
       <TextField
-        label="Email"
+        label={t('email')}
         name="email"
         type="email"
         value={email}
@@ -65,7 +67,7 @@ export default function LoginPage() {
       />
 
       <TextField
-        label="Password"
+        label={t('password')}
         name="password"
         type="password"
         value={password}
@@ -82,7 +84,7 @@ export default function LoginPage() {
         disabled={isDisabled}
         sx={{ mt: 2 }}
       >
-        {loading ? <CircularProgress size={24} /> : "Login"}
+        {loading ? <CircularProgress size={24} /> : t('loginButton')}
       </Button>
     </Box>
   );

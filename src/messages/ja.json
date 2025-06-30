@@ -31,12 +31,21 @@
     "email": "メールアドレス",
     "username": "ユーザー名",
     "password": "パスワード",
-    "loginButton": "サインイン",
-    "registerButton": "アカウント作成",
+    "loginButton": "ログイン",
+    "registerButton": "新規登録",
     "forgotPassword": "パスワードを忘れた方",
     "noAccount": "アカウントをお持ちでない方",
     "hasAccount": "既にアカウントをお持ちの方",
-    "logout": "ログアウト"
+    "logout": "ログアウト",
+    "loginTitle": "ログイン",
+    "signupTitle": "アカウント作成",
+    "authenticationFailed": "認証に失敗しました",
+    "usernameRequired": "ユーザー名が必要です",
+    "usernameFormat": "小文字、数字、ハイフン、アンダースコアのみ使用可能",
+    "unexpectedError": "予期しないエラーが発生しました。",
+    "autoLoginFailed": "自動ログインに失敗しました。手動でログインしてください。",
+    "loggingIn": "ログイン中...",
+    "signingUp": "アカウント作成中..."
   },
   "projects": {
     "title": "プロジェクト",
@@ -110,6 +119,15 @@
       "supportedFormats": "対応形式：JPG、PNG、GIF",
       "maxFileSize": "最大ファイルサイズ：10MB",
       "keepEditing": "編集を継続"
+    },
+    "create": {
+      "title": "新しいプロジェクトを作成",
+      "projectName": "プロジェクト名",
+      "description": "説明",
+      "cancel": "キャンセル",
+      "create": "作成",
+      "creationFailed": "プロジェクト作成に失敗しました",
+      "creating": "作成中..."
     }
   },
   "evaluation": {

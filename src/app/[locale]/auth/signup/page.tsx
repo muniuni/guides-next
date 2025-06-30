@@ -10,10 +10,12 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
+import { useTranslations } from 'next-intl';
 
 const USERNAME_REGEX = /^[a-z0-9_-]+$/;
 
 export default function SignUpPage() {
+  const t = useTranslations('auth');
   const router = useRouter();
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [errors, setErrors] = useState<{ username?: string }>({});
@@ -21,9 +23,9 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
 
   const validateUsername = (username: string) => {
-    if (!username) return "Username is required";
+    if (!username) return t('usernameRequired');
     if (!USERNAME_REGEX.test(username)) {
-      return "Lowercase letters, numbers, hyphens and underscores only";
+      return t('usernameFormat');
     }
     return "";
   };
@@ -58,7 +60,7 @@ export default function SignUpPage() {
     setLoading(false);
 
     if (!res.ok) {
-      setGlobalError(data.message || "An unexpected error occurred.");
+      setGlobalError(data.message || t('unexpectedError'));
       return;
     }
 
@@ -68,7 +70,7 @@ export default function SignUpPage() {
       password: form.password,
     });
     if (!loginResult || loginResult.error) {
-      setGlobalError("Auto-login failed. Please log in manually.");
+      setGlobalError(t('autoLoginFailed'));
       return;
     }
 
@@ -82,7 +84,7 @@ export default function SignUpPage() {
       sx={{ maxWidth: 400, mx: "auto", mt: 8, p: 3 }}
     >
       <Typography variant="h4" mb={2}>
-        Sign Up
+        {t('signupTitle')}
       </Typography>
 
       {globalError && (
@@ -92,7 +94,7 @@ export default function SignUpPage() {
       )}
 
       <TextField
-        label="Username"
+        label={t('username')}
         name="username"
         value={form.username}
         onChange={handleChange}
@@ -105,7 +107,7 @@ export default function SignUpPage() {
       />
 
       <TextField
-        label="Email"
+        label={t('email')}
         name="email"
         type="email"
         value={form.email}
@@ -116,7 +118,7 @@ export default function SignUpPage() {
       />
 
       <TextField
-        label="Password"
+        label={t('password')}
         name="password"
         type="password"
         value={form.password}
@@ -139,7 +141,7 @@ export default function SignUpPage() {
         }
         sx={{ mt: 2 }}
       >
-        {loading ? <CircularProgress size={24} /> : "Sign Up"}
+        {loading ? <CircularProgress size={24} /> : t('registerButton')}
       </Button>
     </Box>
   );
