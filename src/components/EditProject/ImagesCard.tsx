@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Button, Stack, Card, CardContent, CardHeader } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { useTranslations } from 'next-intl';
 import { ImagesCardProps } from './types';
 import { CARD_STYLES, CARD_HEADER_STYLES, CARD_CONTENT_STYLES, BUTTON_STYLES } from './styles';
 import { ExistingImageItem, NewImageItem } from './ImageItems';
@@ -17,10 +18,11 @@ export function ImagesCard({
   setDeleteDialogOpen,
   handleFileChange,
 }: ImagesCardProps) {
+  const t = useTranslations('projects.edit');
   return (
     <Card sx={CARD_STYLES}>
       <CardHeader
-        title="Images"
+        title={t('images')}
         titleTypographyProps={{ variant: 'h6' }}
         action={
           <Stack direction="row" spacing={0.5} sx={{ mt: 0.5 }}>
@@ -53,10 +55,10 @@ export function ImagesCard({
                     },
                   }}
                 >
-                  Delete Selected
+                  {t('deleteSelected')}
                 </Button>
                 <Button variant="outlined" onClick={exitSelectMode} size="small" sx={BUTTON_STYLES}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </>
             ) : (
@@ -67,10 +69,10 @@ export function ImagesCard({
                   size="small"
                   sx={BUTTON_STYLES}
                 >
-                  Select
+                  {t('selectMode')}
                 </Button>
                 <Button startIcon={<AddIcon />} component="label" size="small" sx={BUTTON_STYLES}>
-                  Upload Images
+                  {t('uploadImages')}
                   <input type="file" multiple hidden accept="image/*" onChange={handleFileChange} />
                 </Button>
               </>

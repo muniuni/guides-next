@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Button, Typography, Stack, CircularProgress } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { EditProjectFormProps, Question, ImageRecord } from './types';
 import { useNumberField, useImageSelection } from './hooks';
 import { GeneralInformationCard } from './GeneralInformationCard';
@@ -10,6 +11,7 @@ import { ImagesCard } from './ImagesCard';
 import { DeleteImagesDialog, DiscardChangesDialog } from './Dialogs';
 
 export default function EditProjectForm({ initialProject }: EditProjectFormProps) {
+  const t = useTranslations('projects.edit');
   const router = useRouter();
   const { id, name, description, consentInfo, imageCount, imageDuration, questions, images } =
     initialProject;
@@ -252,7 +254,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
         }}
       >
         <Typography variant="h4" mb={{ xs: 3, sm: 4 }}>
-          Edit Project
+          {t('title')}
         </Typography>
 
         <Stack spacing={{ xs: 3, sm: 4 }}>
@@ -325,7 +327,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
                     height: { xs: 48, sm: 40 },
                   }}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -336,7 +338,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
                   }}
                   disabled={loading || !hasChanges()}
                 >
-                  {loading ? <CircularProgress size={24} /> : 'Save Changes'}
+                  {loading ? <CircularProgress size={24} /> : t('saveChanges')}
                 </Button>
               </Stack>
             </Box>

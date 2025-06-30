@@ -7,6 +7,7 @@ import {
   DialogActions,
   CircularProgress,
 } from '@mui/material';
+import { useTranslations } from 'next-intl';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -60,13 +61,14 @@ export function DeleteImagesDialog({
   onConfirm,
   onCancel,
 }: DeleteImagesDialogProps) {
+  const t = useTranslations('projects.edit');
   return (
     <ConfirmDialog
       open={open}
-      title="Confirm Deletion"
-      content={`Are you sure you want to delete ${count} selected image${count !== 1 ? 's' : ''}?`}
-      confirmLabel="Delete"
-      cancelLabel="Cancel"
+      title={t('deleteImages')}
+      content={t('confirmDeleteImages', { count })}
+      confirmLabel={t('deleteSelected')}
+      cancelLabel={t('cancel')}
       confirmColor="error"
       loading={loading}
       onConfirm={onConfirm}
@@ -82,13 +84,14 @@ interface DiscardChangesDialogProps {
 }
 
 export function DiscardChangesDialog({ open, onConfirm, onCancel }: DiscardChangesDialogProps) {
+  const t = useTranslations('projects.edit');
   return (
     <ConfirmDialog
       open={open}
-      title="Discard Changes?"
-      content="You have unsaved changes. Are you sure you want to discard them?"
-      confirmLabel="Discard Changes"
-      cancelLabel="Keep Editing"
+      title={t('discardChanges')}
+      content={t('confirmDiscard')}
+      confirmLabel={t('discardChanges')}
+      cancelLabel={t('keepEditing')}
       confirmColor="error"
       onConfirm={onConfirm}
       onCancel={onCancel}

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import Image from 'next/image';
 import { Paper, IconButton, Checkbox, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useTranslations } from 'next-intl';
 import { ExistingImageItemProps, NewImageItemProps } from './types';
 
 // 既存画像コンポーネント
@@ -11,6 +12,7 @@ export function ExistingImageItem({
   isSelected,
   onSelect,
 }: ExistingImageItemProps) {
+  const t = useTranslations('projects.edit');
   // 無効なURLを防止
   if (!image.url || image.url.trim() === '') {
     return null;
@@ -48,7 +50,7 @@ export function ExistingImageItem({
       <div style={{ position: 'relative', width: '100%', height: '120px' }}>
         <Image
           src={image.url}
-          alt="Existing"
+          alt="画像"
           fill
           sizes="(max-width: 768px) 100vw, 300px"
           style={{
@@ -63,6 +65,7 @@ export function ExistingImageItem({
 
 // 新規アップロード画像コンポーネント
 export function NewImageItem({ file, progress, index, onRemove }: NewImageItemProps) {
+  const t = useTranslations('projects.edit');
   // ファイルからオブジェクトURLを生成し、メモ化
   const objectUrl = useMemo(() => URL.createObjectURL(file), [file]);
 
@@ -87,7 +90,7 @@ export function NewImageItem({ file, progress, index, onRemove }: NewImageItemPr
       <div style={{ position: 'relative', width: '100%', height: '120px' }}>
         <Image
           src={objectUrl}
-          alt="New"
+          alt="新しい画像"
           fill
           sizes="(max-width: 768px) 100vw, 300px"
           style={{

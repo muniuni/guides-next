@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   Paper,
 } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { GeneralInformationCardProps } from './types';
 import {
   CARD_STYLES,
@@ -37,20 +38,21 @@ export function GeneralInformationCard({
   isImageCountValid,
   totalImages,
 }: GeneralInformationCardProps) {
+  const t = useTranslations('projects.edit');
   const [descPreview, setDescPreview] = useState(false);
   const [consentPreview, setConsentPreview] = useState(false);
 
   return (
     <Card sx={CARD_STYLES}>
       <CardHeader
-        title="General Information"
+        title={t('generalInfo')}
         titleTypographyProps={{ variant: 'h6' }}
         sx={CARD_HEADER_STYLES}
       />
       <CardContent sx={CARD_CONTENT_STYLES}>
         <Stack spacing={3}>
           <TextField
-            label="Project Name"
+            label={t('projectName')}
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             fullWidth
@@ -62,7 +64,7 @@ export function GeneralInformationCard({
             <Box
               sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
             >
-              <Typography variant="subtitle1">Description</Typography>
+              <Typography variant="subtitle1">{t('projectDescription')}</Typography>
               <FormControlLabel
                 control={
                   <Switch
@@ -71,7 +73,7 @@ export function GeneralInformationCard({
                     size="small"
                   />
                 }
-                label={<Typography variant="body2">Preview</Typography>}
+                label={<Typography variant="body2">プレビュー</Typography>}
                 labelPlacement="start"
               />
             </Box>
@@ -84,7 +86,7 @@ export function GeneralInformationCard({
                 rows={8}
                 fullWidth
                 size="small"
-                placeholder="Enter project description"
+                placeholder={t('projectDescription')}
                 sx={{ '& .MuiInputBase-root': { fontSize: '0.9rem' } }}
               />
             ) : (
@@ -98,7 +100,7 @@ export function GeneralInformationCard({
                   bgcolor: 'background.paper',
                 }}
               >
-                <MarkdownContent content={projectDesc || '*No content yet*'} />
+                <MarkdownContent content={projectDesc || '*内容なし*'} />
               </Paper>
             )}
           </Box>
@@ -107,7 +109,7 @@ export function GeneralInformationCard({
             <Box
               sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
             >
-              <Typography variant="subtitle1">Consent Information</Typography>
+              <Typography variant="subtitle1">{t('consentInfo')}</Typography>
               <FormControlLabel
                 control={
                   <Switch
@@ -116,7 +118,7 @@ export function GeneralInformationCard({
                     size="small"
                   />
                 }
-                label={<Typography variant="body2">Preview</Typography>}
+                label={<Typography variant="body2">プレビュー</Typography>}
                 labelPlacement="start"
               />
             </Box>
@@ -129,7 +131,7 @@ export function GeneralInformationCard({
                 rows={8}
                 fullWidth
                 size="small"
-                placeholder="Enter consent information"
+                placeholder={t('consentInfo')}
                 sx={{ '& .MuiInputBase-root': { fontSize: '0.9rem' } }}
               />
             ) : (
@@ -143,7 +145,7 @@ export function GeneralInformationCard({
                   bgcolor: 'background.paper',
                 }}
               >
-                <MarkdownContent content={consentText || '*No content yet*'} />
+                <MarkdownContent content={consentText || '*内容なし*'} />
               </Paper>
             )}
           </Box>
@@ -151,7 +153,7 @@ export function GeneralInformationCard({
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <Box sx={{ width: { xs: '100%', sm: '50%' } }}>
               <TextField
-                label="Images to Display"
+                label={t('imageCount')}
                 type="number"
                 value={imageCountInfo.value}
                 onChange={imageCountInfo.handleChange}
@@ -163,14 +165,13 @@ export function GeneralInformationCard({
               />
               {!isImageCountValid && (
                 <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                  The number of images to display ({imageCountInfo.value}) exceeds the total number
-                  of available images ({totalImages})
+                  {t('imageCountError', { total: totalImages })}
                 </Typography>
               )}
             </Box>
             <Box sx={{ width: { xs: '100%', sm: '50%' } }}>
               <TextField
-                label="Image Display Duration (s)"
+                label={t('imageDuration')}
                 type="number"
                 value={imageDurationInfo.value}
                 onChange={imageDurationInfo.handleChange}

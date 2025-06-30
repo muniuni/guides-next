@@ -2,6 +2,7 @@ import React from 'react';
 import { TextField, Button, IconButton, Stack, Card, CardContent, CardHeader } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useTranslations } from 'next-intl';
 import { QuestionsCardProps } from './types';
 import {
   CARD_STYLES,
@@ -17,10 +18,11 @@ export function QuestionsCard({
   updateQuestion,
   removeQuestion,
 }: QuestionsCardProps) {
+  const t = useTranslations('projects.edit');
   return (
     <Card sx={CARD_STYLES}>
       <CardHeader
-        title="Questions"
+        title={t('questions')}
         titleTypographyProps={{ variant: 'h6' }}
         action={
           <Button
@@ -32,7 +34,7 @@ export function QuestionsCard({
               mt: 0.5,
             }}
           >
-            Add Question
+            {t('addQuestion')}
           </Button>
         }
         sx={CARD_HEADER_STYLES}
@@ -42,7 +44,7 @@ export function QuestionsCard({
           {questionList.map((q, i) => (
             <Stack key={i} direction="row" spacing={1} alignItems="center">
               <TextField
-                label={`Question ${i + 1}`}
+                label={`質問 ${i + 1}`}
                 value={q.text}
                 onChange={(e) => updateQuestion(i, e.target.value)}
                 fullWidth
