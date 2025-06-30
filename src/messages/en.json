@@ -121,7 +121,7 @@
       "keepEditing": "Keep Editing"
     },
     "create": {
-      "title": "Create New Project",
+      "title": "New Project",
       "projectName": "Project Name",
       "description": "Description",
       "cancel": "Cancel",

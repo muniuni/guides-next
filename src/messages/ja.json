@@ -131,7 +131,7 @@
     }
   },
   "evaluation": {
-    "title": "評価シーケンス",
+    "title": "評価",
     "instructions": "提供された質問に基づいて各画像を評価してください",
     "viewingTime": "表示時間",
     "seconds": "秒",
@@ -150,7 +150,7 @@
     "imageNotAvailable": "画像が利用できません",
     "noImagesRegistered": "画像が登録されていません。",
     "errorSubmitting": "送信エラーが発生しました。再度お試しください。",
-    "evaluationOf": "評価シーケンス ({current}/{total})",
+    "evaluationOf": "評価 ({current}/{total})",
     "consent": {
       "title": "インフォームドコンセント",
       "agree": "このプロジェクトへの参加に同意します",
