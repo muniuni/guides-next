@@ -1,6 +1,7 @@
 'use client';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTranslations } from 'next-intl';
 import { Box, TextField, Button, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -17,6 +18,7 @@ export default function ProjectSearchBar({
   onSearchChange,
   onCreateClick,
 }: ProjectSearchBarProps) {
+  const t = useTranslations('projects');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { data: session } = useSession();
@@ -25,7 +27,7 @@ export default function ProjectSearchBar({
     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: '100%' }}>
       <TextField
         size="small"
-        placeholder="Search projects"
+        placeholder={t('searchPlaceholder')}
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         sx={{ mr: 2 }}
@@ -45,7 +47,7 @@ export default function ProjectSearchBar({
           onClick={onCreateClick}
           sx={{ bgcolor: '#000', color: '#fff' }}
         >
-          {isMobile ? 'New' : 'New Project'}
+          {isMobile ? t('create') : t('createNew')}
         </Button>
       )}
     </Box>

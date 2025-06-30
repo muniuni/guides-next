@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/config";
 import { signIn } from "next-auth/react";
 import {
   Box,

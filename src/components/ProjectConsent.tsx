@@ -11,12 +11,14 @@ import {
   Stack,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface ProjectConsentProps {
   projectId: string;
 }
 
 export default function ProjectConsent({ projectId }: ProjectConsentProps) {
+  const t = useTranslations('evaluation');
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -86,7 +88,7 @@ export default function ProjectConsent({ projectId }: ProjectConsentProps) {
     <Box mt={4}>
       <FormControlLabel
         control={<Checkbox checked={agreed} onChange={handleCheckbox} />}
-        label="I agree to participate in this evaluation"
+        label={t('consent.agree')}
       />
       <Box mt={2} display="flex" alignItems="center">
         <Button
@@ -101,7 +103,7 @@ export default function ProjectConsent({ projectId }: ProjectConsentProps) {
             padding: '12px 24px',
           }}
         >
-          {loading ? 'Loading Images...' : 'Start Evaluation'}
+          {loading ? t('loadingImages') : t('startEvaluation')}
         </Button>
 
         {loading && (

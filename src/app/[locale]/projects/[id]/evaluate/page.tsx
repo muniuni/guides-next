@@ -4,6 +4,7 @@ import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { Box, CircularProgress } from '@mui/material';
 import { EvaluateClientProps } from '@/types/evaluate';
+import { getTranslations } from 'next-intl/server';
 
 // EvaluateClientを動的インポート
 const EvaluateClient = dynamic<EvaluateClientProps>(() => import('@/components/EvaluateClient'), {
@@ -17,11 +18,12 @@ const EvaluateClient = dynamic<EvaluateClientProps>(() => import('@/components/E
   ssr: true,
 });
 
-interface Params {
-  params: { id: string };
+interface PageParams {
+  params: Promise<{ id: string; locale: string }>;
 }
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+export async function generateMetadata(context: PageParams): Promise<Metadata> {
+  const params = await context.params;
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     select: { name: true },
@@ -29,7 +31,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return { title: project ? `Evaluate: ${project.name}` : 'Project Not Found' };
 }
 
-export default async function EvaluatePage({ params }: Params) {
+export default async function EvaluatePage(context: PageParams) {
+  const params = await context.params;
+  const t = await getTranslations('projects');
+  
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     include: {
@@ -41,8 +46,7 @@ export default async function EvaluatePage({ params }: Params) {
   if (!project) {
     return (
       <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-        <h1>Project not found</h1>
-        <p>指定されたプロジェクトIDが存在しません。</p>
+        <h1>{t('notFound')}</h1>
       </div>
     );
   }

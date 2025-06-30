@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Box,
   Card,
@@ -33,6 +34,7 @@ interface QuestionScorePanelProps {
 }
 
 export default function QuestionScorePanel({ data, isMobile = false }: QuestionScorePanelProps) {
+  const t = useTranslations('metrics');
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // 選択中の画像データ
@@ -72,7 +74,7 @@ export default function QuestionScorePanel({ data, isMobile = false }: QuestionS
             fontSize={isMobile ? 15 : 16}
             fontWeight={isMobile ? 500 : 400}
           >
-            Question Scores by Image
+            {t('questionScoresByImage')}
           </Typography>
 
           {data && data.length > 0 && (
@@ -86,14 +88,14 @@ export default function QuestionScorePanel({ data, isMobile = false }: QuestionS
               }}
             >
               <InputLabel id={`${isMobile ? 'mobile-' : ''}image-select-label`}>
-                Select Image
+                {t('selectImage')}
               </InputLabel>
               <Select
                 labelId={`${isMobile ? 'mobile-' : ''}image-select-label`}
                 id={`${isMobile ? 'mobile-' : ''}image-select`}
                 value={selectedImageIndex}
                 onChange={(e) => setSelectedImageIndex(Number(e.target.value))}
-                label="Select Image"
+                label={t('selectImage')}
                 sx={{ fontSize: 13 }}
               >
                 {data.map((img, index) => (
@@ -124,7 +126,7 @@ export default function QuestionScorePanel({ data, isMobile = false }: QuestionS
                 }}
               />
               <Typography variant="body2" color="text.secondary" fontSize={12}>
-                Position indicates average score between -1 and 1
+                {t('questionScoresSubtitle')}
               </Typography>
             </Box>
 
@@ -248,7 +250,7 @@ export default function QuestionScorePanel({ data, isMobile = false }: QuestionS
                       </Box>
                     ) : (
                       <Typography variant="body2" color="text.secondary" fontSize={12}>
-                        No data available
+                        {t('noData')}
                       </Typography>
                     )}
                   </Box>
@@ -259,7 +261,7 @@ export default function QuestionScorePanel({ data, isMobile = false }: QuestionS
         ) : (
           <Box flex={1} display="flex" alignItems="center" justifyContent="center">
             <Alert severity="info" sx={{ width: '100%', fontSize: 13 }}>
-              No question score data available for images.
+              {t('noQuestionData')}
             </Alert>
           </Box>
         )}

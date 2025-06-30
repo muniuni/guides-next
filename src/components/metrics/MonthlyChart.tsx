@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Box, Card, CardContent, Typography, Divider } from '@mui/material';
 import {
   BarChart,
@@ -20,6 +21,8 @@ interface MonthlyChartProps {
 }
 
 export default function MonthlyChart({ data, isMobile = false }: MonthlyChartProps) {
+  const t = useTranslations('metrics');
+  
   return (
     <Card
       elevation={0}
@@ -36,10 +39,10 @@ export default function MonthlyChart({ data, isMobile = false }: MonthlyChartPro
           fontSize={isMobile ? 15 : 16}
           fontWeight={isMobile ? 500 : 400}
         >
-          Monthly Respondents
+          {t('monthlyRespondents')}
         </Typography>
         <Typography variant="body2" color="text.secondary" fontSize={isMobile ? 12 : 13} mb={1}>
-          Last 6 months of unique respondent activity
+          {t('monthlySubtitle')}
         </Typography>
         <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
         <Box height={{ xs: 220, sm: 320, md: 400 }}>

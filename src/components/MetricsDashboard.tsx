@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, lazy, Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Box,
   Card,
@@ -65,6 +66,7 @@ const ChartLoader = () => (
 );
 
 export default function MetricsDashboard({ data, projectId }: MetricsDashboardProps) {
+  const t = useTranslations('metrics');
   const theme = useTheme();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState('1');
@@ -196,7 +198,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
     return (
       <Box sx={{ p: 2, maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5">Metrics Dashboard</Typography>
+          <Typography variant="h5">{t('title')}</Typography>
           {projectId && (
             <Button
               variant="outlined"
@@ -205,7 +207,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
               onClick={handleExportCSV}
               sx={{ fontSize: 13, textTransform: 'none' }}
             >
-              Export CSV
+              {t('exportCSV')}
             </Button>
           )}
         </Box>
@@ -215,26 +217,26 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
           <Box sx={{ mb: 2, overflowX: 'auto', pb: 1 }}>
             <Box sx={{ display: 'flex', gap: 1.5, width: 'max-content', minWidth: '100%' }}>
               <SummaryCard
-                title="Respondents"
+                title={t('respondents')}
                 value={uniqueRespondents !== undefined ? uniqueRespondents : 'N/A'}
                 icon={<PeopleOutlineIcon sx={{ fontSize: 18 }} />}
-                tooltip="This is an approximate count calculated from session IDs"
+                tooltip={t('approximateCount')}
                 isMobile={true}
               />
               <SummaryCard
-                title="Total Scores"
+                title={t('totalScores')}
                 value={totalScores}
                 icon={<BarChartIcon sx={{ fontSize: 18 }} />}
                 isMobile={true}
               />
               <SummaryCard
-                title="Total Images"
+                title={t('totalImages')}
                 value={totalImages}
                 icon={<ImageIcon sx={{ fontSize: 18 }} />}
                 isMobile={true}
               />
               <SummaryCard
-                title="Total Questions"
+                title={t('totalQuestions')}
                 value={totalQuestions}
                 icon={<QuizIcon sx={{ fontSize: 18 }} />}
                 isMobile={true}
@@ -265,7 +267,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
         }}
       >
         <Typography variant="h4" fontSize={{ xs: 22, sm: 28 }}>
-          Metrics Dashboard
+          {t('title')}
         </Typography>
         {projectId && (
           <Button
@@ -274,7 +276,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
             onClick={handleExportCSV}
             sx={{ textTransform: 'none' }}
           >
-            Export CSV
+            {t('exportCSV')}
           </Button>
         )}
       </Box>
@@ -294,14 +296,14 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
           }}
         >
           <SummaryCard
-            title="Respondents"
+            title={t('respondents')}
             value={uniqueRespondents !== undefined ? uniqueRespondents : 'N/A'}
             icon={<PeopleOutlineIcon />}
-            tooltip="This is an approximate count calculated from session IDs"
+            tooltip={t('approximateCount')}
           />
-          <SummaryCard title="Records" value={totalScores} icon={<BarChartIcon />} />
-          <SummaryCard title="Total Images" value={totalImages} icon={<ImageIcon />} />
-          <SummaryCard title="Total Questions" value={totalQuestions} icon={<QuizIcon />} />
+          <SummaryCard title={t('records')} value={totalScores} icon={<BarChartIcon />} />
+          <SummaryCard title={t('totalImages')} value={totalImages} icon={<ImageIcon />} />
+          <SummaryCard title={t('totalQuestions')} value={totalQuestions} icon={<QuizIcon />} />
         </Box>
 
         {/* チャート */}

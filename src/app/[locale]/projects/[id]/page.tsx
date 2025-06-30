@@ -1,15 +1,16 @@
 import prisma from '@/lib/prisma';
 import { Metadata } from 'next';
 import React from 'react';
+import { getTranslations } from 'next-intl/server';
 import { Box } from '@mui/material';
 import ProjectContent from '@/components/ProjectContent';
 
 interface PageParams {
-  params: { id: string };
+  params: Promise<{ id: string; locale: string }>;
 }
 
 export async function generateMetadata(context: PageParams): Promise<Metadata> {
-  const params = context.params;
+  const params = await context.params;
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     select: { name: true },
@@ -20,7 +21,9 @@ export async function generateMetadata(context: PageParams): Promise<Metadata> {
 }
 
 export default async function ProjectPage(context: PageParams) {
-  const params = context.params;
+  const params = await context.params;
+  const t = await getTranslations('projects');
+  
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     select: { id: true, name: true, description: true, consentInfo: true },
@@ -30,7 +33,7 @@ export default async function ProjectPage(context: PageParams) {
     return (
       <Box textAlign="center" mt={8}>
         <Box color="error.main" fontSize="h5.fontSize">
-          Project not found
+          {t('notFound')}
         </Box>
       </Box>
     );

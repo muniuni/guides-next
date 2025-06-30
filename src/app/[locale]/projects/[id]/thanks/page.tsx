@@ -1,16 +1,18 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { Box, Typography, Button, Paper } from '@mui/material';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
-interface Params {
-  params: { id: string };
+interface PageParams {
+  params: Promise<{ id: string; locale: string }>;
 }
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+export async function generateMetadata(context: PageParams): Promise<Metadata> {
+  const params = await context.params;
+  const t = await getTranslations('evaluation.thanks');
   return {
-    title: 'Thank You',
-    description: 'Your evaluation has been submitted.',
+    title: t('title'),
+    description: t('message'),
   };
 }
 
@@ -95,32 +97,33 @@ const buttonStyles = {
 /**
  * ThanksPage component displays a thank you message after form submission
  */
-export default function ThanksPage({ params }: Params) {
+export default async function ThanksPage(context: PageParams) {
+  const params = await context.params;
+  const t = await getTranslations('evaluation.thanks');
   const { id } = params;
 
   return (
     <Box sx={layoutStyles.container}>
       <Paper elevation={4} sx={layoutStyles.paper}>
         <Typography variant="h4" gutterBottom sx={textStyles.title}>
-          Thank You!
+          {t('title')}
         </Typography>
 
         <Typography variant="body1" gutterBottom sx={textStyles.description}>
-          Your responses have been successfully submitted.
+          {t('message')}
         </Typography>
 
         <Box sx={buttonStyles.container}>
           <Button
             variant="contained"
-            component={Link}
             href={`/projects/${id}`}
             sx={buttonStyles.primary}
           >
-            Back to Project
+            {t('backToProject')}
           </Button>
 
-          <Button variant="outlined" component={Link} href="/" sx={buttonStyles.secondary}>
-            Home
+          <Button variant="outlined" href="/" sx={buttonStyles.secondary}>
+            {t('home')}
           </Button>
         </Box>
       </Paper>

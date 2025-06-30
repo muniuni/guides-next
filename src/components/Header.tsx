@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useTranslations, useLocale } from 'next-intl';
+import { Link, useRouter } from '@/i18n/config';
 import {
   AppBar,
   Toolbar,
@@ -21,8 +21,12 @@ import { mutate } from 'swr';
 import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Avatar from '@mui/material/Avatar';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header() {
+  const t = useTranslations('auth');
+  const tNav = useTranslations('navigation');
+  const locale = useLocale();
   const router = useRouter();
   const { data: session, status } = useSession();
   const isLoading = status === 'loading';
@@ -118,6 +122,7 @@ export default function Header() {
           {!isLoading &&
             (isLoggedIn ? (
               <>
+                <LanguageSwitcher />
                 <IconButton
                   edge="end"
                   size="small"
@@ -180,7 +185,7 @@ export default function Header() {
                   <Divider />
                   <MenuItem component={Link} href="/auth/account" onClick={closeMenu}>
                     <PermIdentityOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
-                    Account settings
+                    {tNav('account')}
                   </MenuItem>
                   <MenuItem component={Link} href="/about" onClick={closeMenu} disabled={true}>
                     <InfoOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
@@ -190,18 +195,19 @@ export default function Header() {
                   <MenuItem
                     onClick={() => {
                       closeMenu();
-                      signOut({ callbackUrl: '/' });
+                      signOut({ callbackUrl: `/${locale}` });
                     }}
                   >
                     <ListItemIcon>
                       <LogoutIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
-                      Log out
+                      {t('logout')}
                     </ListItemIcon>
                   </MenuItem>
                 </Menu>
               </>
             ) : (
               <>
+                <LanguageSwitcher />
                 <Button
                   component={Link}
                   href="/auth/login"
@@ -211,10 +217,11 @@ export default function Header() {
                     color: '#000',
                     backgroundColor: '#fff',
                     mr: 1,
+                    ml: 1,
                     borderRadius: 3,
                   }}
                 >
-                  Login
+                  {t('login')}
                 </Button>
                 <Button
                   component={Link}
@@ -228,7 +235,7 @@ export default function Header() {
                     boxShadow: 0.1,
                   }}
                 >
-                  Sign up
+                  {t('register')}
                 </Button>
               </>
             ))}

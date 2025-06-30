@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: "jwt" },
   pages: {
-    signIn: "/auth/login",
+    signIn: "/en/auth/login", // Fallback to English, but we'll handle locale redirects in the component
   },
   callbacks: {
     async jwt({ token, user }) {

@@ -13,11 +13,11 @@ import {
   Stack,
   Divider,
   Card,
-  useTheme,
 } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 // Types
 interface Question {
@@ -99,7 +99,7 @@ const ImageViewer = ({
         }}
       >
         <Typography variant="body1" color="text.secondary">
-          Image not available
+          {t('imageNotAvailable')}
         </Typography>
       </Box>
     );
@@ -269,6 +269,7 @@ const SliderForm = ({
   onSubmit: (vals: { questionId: string; value: number }[]) => void;
   disabled?: boolean;
 }) => {
+  const t = useTranslations('evaluation');
   const [values, setValues] = useState(questions.map((q) => ({ questionId: q.id, value: 0 })));
 
   const handleChange = useCallback((index: number, val: number) => {
@@ -401,13 +402,14 @@ const SliderForm = ({
           maxWidth: { md: '450px' },
         }}
       >
-        {disabled ? 'Submitting…' : 'Next'}
+        {disabled ? t('submitting') : t('next')}
       </Button>
     </Box>
   );
 };
 
 export default function EvaluateClient({ project }: EvaluateClientProps) {
+  const t = useTranslations('evaluation');
   const router = useRouter();
   const sessionId = useMemo(() => uuidv4(), []);
   const [currentImageSize, setCurrentImageSize] = useState<ImageSize | null>(null);
@@ -485,7 +487,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     startTime: null,
     currentTime: Date.now(),
   });
-  const [isCurrentImageLoaded, setIsCurrentImageLoaded] = useState(false);
+  const [, setIsCurrentImageLoaded] = useState(false);
 
   // Start timer when image loads
   const startTimer = useCallback(() => {
@@ -499,7 +501,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
 
   // Stop timer
   const stopTimer = useCallback(() => {
-    setTimerState(prev => ({
+    setTimerState((prev) => ({
       ...prev,
       isRunning: false,
     }));
@@ -520,21 +522,22 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
 
     let rafId: number;
     const tick = () => {
-      setTimerState(prev => ({
+      setTimerState((prev) => ({
         ...prev,
         currentTime: Date.now(),
       }));
       rafId = requestAnimationFrame(tick);
     };
-    
+
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
   }, [timerState.isRunning, timerState.startTime]);
 
   // Calculate elapsed time and time left
-  const elapsed = timerState.isRunning && timerState.startTime 
-    ? (timerState.currentTime - timerState.startTime) / 1000 
-    : 0;
+  const elapsed =
+    timerState.isRunning && timerState.startTime
+      ? (timerState.currentTime - timerState.startTime) / 1000
+      : 0;
   const timeLeft = Math.max(project.imageDuration - elapsed, 0);
 
   // Auto-transition to sliders when timer ends
@@ -566,15 +569,18 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   }, [currentImageSize]);
 
   // Preload next image function
-  const preloadNextImage = useCallback((nextIndex: number) => {
-    if (nextIndex < imagesToShow.length) {
-      const nextImageUrl = imagesToShow[nextIndex].url;
-      if (nextImageUrl && nextImageUrl.trim() !== '') {
-        const preloadImage = new window.Image();
-        preloadImage.src = nextImageUrl;
+  const preloadNextImage = useCallback(
+    (nextIndex: number) => {
+      if (nextIndex < imagesToShow.length) {
+        const nextImageUrl = imagesToShow[nextIndex].url;
+        if (nextImageUrl && nextImageUrl.trim() !== '') {
+          const preloadImage = new window.Image();
+          preloadImage.src = nextImageUrl;
+        }
       }
-    }
-  }, [imagesToShow]);
+    },
+    [imagesToShow]
+  );
 
   // Preload first image on component mount
   useEffect(() => {
@@ -624,26 +630,29 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   if (!imagesToShow.length)
     return (
       <Alert severity="error" sx={{ mt: 4 }}>
-        No images registered.
+        {t('noImagesRegistered')}
       </Alert>
     );
 
   // Event Handlers
-  const handleImageLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = event.target as HTMLImageElement;
+  const handleImageLoad = useCallback(
+    (event: React.SyntheticEvent<HTMLImageElement>) => {
+      const img = event.target as HTMLImageElement;
 
-    // Set image dimensions
-    setCurrentImageSize({
-      width: img.naturalWidth,
-      height: img.naturalHeight,
-    });
-    
-    // Mark image as loaded and start timer
-    setIsCurrentImageLoaded(true);
-    if (phase === PHASE.SHOW_IMAGE) {
-      startTimer();
-    }
-  }, [phase, startTimer]);
+      // Set image dimensions
+      setCurrentImageSize({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      });
+
+      // Mark image as loaded and start timer
+      setIsCurrentImageLoaded(true);
+      if (phase === PHASE.SHOW_IMAGE) {
+        startTimer();
+      }
+    },
+    [phase, startTimer]
+  );
 
   const handleAnswerSubmit = useCallback(
     (vals: { questionId: string; value: number }[]) => {
@@ -658,7 +667,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         const nextIndex = currentIndex + 1;
         // Preload the next image before transitioning
         preloadNextImage(nextIndex);
-        
+
         // Stop current timer and reset
         stopTimer();
         setCurrentIndex(nextIndex);
@@ -681,8 +690,8 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       });
       if (!res.ok) throw new Error('Failed to submit scores');
       router.push(`/projects/${project.id}/thanks`);
-    } catch (e) {
-      setError('Error submitting. Please try again.');
+    } catch {
+      setError(t('errorSubmitting'));
     } finally {
       setSubmitting(false);
     }
@@ -815,7 +824,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                 fontSize: { xs: '1.25rem', sm: '1.6rem', md: '1.85rem' },
               }}
             >
-              Evaluation ({currentIndex + 1}/{imagesToShow.length})
+              {t('evaluationOf', { current: currentIndex + 1, total: imagesToShow.length })}
             </Typography>
             <Divider sx={{ mb: { xs: 1, sm: 2, md: 2.5 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
           </Box>
@@ -894,15 +903,15 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                           }}
                         >
                           <Typography variant="body1" color="text.secondary">
-                            Image not available
+                            {t('imageNotAvailable')}
                           </Typography>
                         </Box>
                       )}
                     </Card>
 
-                    <TimerProgress 
-                      timeLeft={timerState.isRunning ? timeLeft : project.imageDuration} 
-                      totalDuration={project.imageDuration} 
+                    <TimerProgress
+                      timeLeft={timerState.isRunning ? timeLeft : project.imageDuration}
+                      totalDuration={project.imageDuration}
                     />
                   </Stack>
                 </motion.div>

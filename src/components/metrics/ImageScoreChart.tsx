@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Card, CardContent, Typography, Divider } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import {
   BarChart,
   Bar,
@@ -24,6 +25,8 @@ interface ImageScoreChartProps {
 }
 
 export default function ImageScoreChart({ data, isMobile = false }: ImageScoreChartProps) {
+  const t = useTranslations('metrics');
+
   return (
     <Card
       elevation={0}
@@ -48,7 +51,7 @@ export default function ImageScoreChart({ data, isMobile = false }: ImageScoreCh
           fontSize={isMobile ? 15 : 16}
           fontWeight={isMobile ? 500 : 400}
         >
-          Scores per Image
+          {t('scoresPerImage')}
         </Typography>
         <Typography
           variant="body2"
@@ -57,7 +60,7 @@ export default function ImageScoreChart({ data, isMobile = false }: ImageScoreCh
           paragraph={!isMobile}
           mb={isMobile ? 1 : undefined}
         >
-          Distribution of scores across images
+          {t('scoresPerImageSubtitle')}
         </Typography>
         <Divider sx={{ mb: 2 }} />
         <Box sx={{ flex: 1, display: 'flex' }}>

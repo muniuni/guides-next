@@ -1,8 +1,9 @@
 'use client';
-import NextLink from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useTransition, useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/config';
 import {
   Box,
   Typography,
@@ -11,8 +12,8 @@ import {
   CardActions,
   IconButton,
   Button,
-  Link as MUILink,
   CircularProgress,
+  Tooltip,
 } from '@mui/material';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
@@ -22,7 +23,6 @@ import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
 import LinkIcon from '@mui/icons-material/Link';
 import CheckIcon from '@mui/icons-material/Check';
 import { truncate, formatDate, timeAgo } from '@/lib/project-utils';
-import Link from 'next/link';
 
 import { Project } from '@/types/project';
 
@@ -34,6 +34,7 @@ interface ProjectCardProps {
 const MAX_DESCRIPTION_LENGTH = 45;
 
 export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
+  const t = useTranslations('projects');
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const isOwner = project.userId === userId;
@@ -151,7 +152,7 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
               ? 'none'
               : 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
           '&::after': {
-            content: project.images && project.images.length > 0 ? 'none' : '"No Image"',
+            content: project.images && project.images.length > 0 ? 'none' : `"${t('noImage')}"`,
             position: 'absolute',
             top: '50%',
             left: '50%',
@@ -206,19 +207,21 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
           >
             {isOwner && (
               <Link href={`/projects/${project.id}/edit`} passHref prefetch>
-                <IconButton
-                  onClick={handleEditClick}
-                  disabled={loadingEdit}
-                  size="small"
-                  sx={{ position: 'relative' }}
-                  component="span"
-                >
-                  {loadingEdit ? (
-                    <CircularProgress size={20} thickness={5} />
-                  ) : (
-                    <CreateOutlinedIcon fontSize="small" />
-                  )}
-                </IconButton>
+                <Tooltip title={t('editProject')}>
+                  <IconButton
+                    onClick={handleEditClick}
+                    disabled={loadingEdit}
+                    size="small"
+                    sx={{ position: 'relative' }}
+                    component="span"
+                  >
+                    {loadingEdit ? (
+                      <CircularProgress size={20} thickness={5} />
+                    ) : (
+                      <CreateOutlinedIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </Tooltip>
               </Link>
             )}
             {!isOwner && (
@@ -231,19 +234,21 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
               </IconButton>
             )}
             <Link href={`/projects/${project.id}/metrics`} passHref prefetch>
-              <IconButton
-                onClick={handleMetricsClick}
-                disabled={loadingMetrics}
-                size="small"
-                sx={{ position: 'relative' }}
-                component="span"
-              >
-                {loadingMetrics ? (
-                  <CircularProgress size={20} thickness={5} />
-                ) : (
-                  <AssessmentOutlinedIcon fontSize="small" />
-                )}
-              </IconButton>
+              <Tooltip title={t('viewMetrics')}>
+                <IconButton
+                  onClick={handleMetricsClick}
+                  disabled={loadingMetrics}
+                  size="small"
+                  sx={{ position: 'relative' }}
+                  component="span"
+                >
+                  {loadingMetrics ? (
+                    <CircularProgress size={20} thickness={5} />
+                  ) : (
+                    <AssessmentOutlinedIcon fontSize="small" />
+                  )}
+                </IconButton>
+              </Tooltip>
             </Link>
             <IconButton onClick={(e) => onMenuOpen(e, project.id)} size="small">
               <MoreHorizOutlinedIcon fontSize="small" />
@@ -281,34 +286,36 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
             {loadingEvaluate ? (
               <>
                 <CircularProgress size={20} thickness={5} sx={{ mr: 1 }} />
-                Loading...
+                {t('loading')}
               </>
             ) : (
-              'Start Evaluation'
+              t('startEvaluation')
             )}
           </Button>
         </Link>
-        <Button
-          variant="outlined"
-          onClick={handleCopyLink}
-          disabled={loadingCopyLink || showCopySuccess}
-          sx={{
-            flex: '0.5',
-            minWidth: 'auto',
-            textTransform: 'none',
-            position: 'relative',
-            px: 1,
-            height: '36px',
-          }}
-        >
-          {loadingCopyLink ? (
-            <CircularProgress size={20} thickness={5} />
-          ) : showCopySuccess ? (
-            <CheckIcon fontSize="small" />
-          ) : (
-            <LinkIcon fontSize="small" />
-          )}
-        </Button>
+        <Tooltip title={t('copyLink')}>
+          <Button
+            variant="outlined"
+            onClick={handleCopyLink}
+            disabled={loadingCopyLink || showCopySuccess}
+            sx={{
+              flex: '0.5',
+              minWidth: 'auto',
+              textTransform: 'none',
+              position: 'relative',
+              px: 1,
+              height: '36px',
+            }}
+          >
+            {loadingCopyLink ? (
+              <CircularProgress size={20} thickness={5} />
+            ) : showCopySuccess ? (
+              <CheckIcon fontSize="small" />
+            ) : (
+              <LinkIcon fontSize="small" />
+            )}
+          </Button>
+        </Tooltip>
       </CardActions>
     </Card>
   );

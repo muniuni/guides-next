@@ -1,3 +1,5 @@
+'use client';
+import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, Typography, Box, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
@@ -38,17 +40,19 @@ const formatDate = (dateStr: string) => {
   return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
 };
 
-const daysAgo = (dateStr: string) => {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const day = Math.floor(diff / (1000 * 60 * 60 * 24));
-  return `${day} days ago`;
-};
-
 export default function ProjectDetailsCard({ open, onClose, project }: ProjectDetailsCardProps) {
+  const t = useTranslations('projects');
+  
   if (!project) return null;
 
   const imageCount = project.images?.length || 0;
   const questionCount = project.questions?.length || 0;
+
+  const daysAgo = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const day = Math.floor(diff / (1000 * 60 * 60 * 24));
+    return `${day} ${t('daysAgo')}`;
+  };
 
   return (
     <Dialog
@@ -65,7 +69,7 @@ export default function ProjectDetailsCard({ open, onClose, project }: ProjectDe
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h5" component="h2">
-          Project Details
+          {t('projectDetails')}
         </Typography>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
@@ -86,27 +90,27 @@ export default function ProjectDetailsCard({ open, onClose, project }: ProjectDe
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <PermIdentityOutlinedIcon sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2">Created by {project.user.username}</Typography>
+            <Typography variant="body2">{t('createdBy')} {project.user.username}</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <CalendarTodayOutlinedIcon sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2">Created on {formatDate(project.createdAt)}</Typography>
+            <Typography variant="body2">{t('createdOn')} {formatDate(project.createdAt)}</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <ScheduleOutlinedIcon sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2">Last updated {daysAgo(project.updatedAt)}</Typography>
+            <Typography variant="body2">{t('lastUpdated')} {daysAgo(project.updatedAt)}</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <ImageOutlinedIcon sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2">{imageCount} images enrolled</Typography>
+            <Typography variant="body2">{imageCount} {t('imagesEnrolled')}</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <HelpOutlineOutlinedIcon sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2">{questionCount} questions</Typography>
+            <Typography variant="body2">{questionCount} {t('questionsCount')}</Typography>
           </Box>
         </Box>
       </DialogContent>

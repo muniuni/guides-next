@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Menu,
   MenuItem,
@@ -36,6 +37,8 @@ export default function ProjectContextMenu({
   onClose,
   onDeleteSuccess,
 }: ProjectContextMenuProps) {
+  const t = useTranslations('projects');
+  const tCommon = useTranslations('common');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -104,7 +107,7 @@ export default function ProjectContextMenu({
           <ListItemIcon>
             <InfoOutlinedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Details</ListItemText>
+          <ListItemText>{t('details')}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={handleDeleteClick}
@@ -114,17 +117,17 @@ export default function ProjectContextMenu({
           <ListItemIcon>
             <DeleteOutlineOutlinedIcon fontSize="small" sx={{ color: 'error.main' }} />
           </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
+          <ListItemText>{t('delete')}</ListItemText>
         </MenuItem>
       </Menu>
 
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>Are you sure you want to delete this project?</DialogContent>
+        <DialogTitle>{t('confirmDeletion')}</DialogTitle>
+        <DialogContent>{t('confirmDeleteMessage')}</DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{tCommon('cancel')}</Button>
           <Button onClick={confirmDelete} color="error">
-            {loading ? <CircularProgress size={24} /> : 'DELETE'}
+            {loading ? <CircularProgress size={24} /> : t('delete')}
           </Button>
         </DialogActions>
       </Dialog>

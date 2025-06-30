@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/config';
+import { useTranslations } from 'next-intl';
 import { Box, Tabs, Tab } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { mutate } from 'swr';
@@ -19,6 +21,7 @@ interface ProjectsClientProps {
 }
 
 export default function ProjectsClient({ initialProjects }: ProjectsClientProps) {
+  const t = useTranslations('projects');
   const { data: session } = useSession();
   const userId = session?.user?.id || null;
   const [projects, setProjects] = useState(initialProjects);
@@ -161,7 +164,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
     <>
       <Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)} sx={{ mb: 2 }}>
         <Tab label={`All (${allCount})`} />
-        <Tab label={`My Projects (${myCount})`} />
+        <Tab label={`${t('myProjects')} (${myCount})`} />
       </Tabs>
 
       <ProjectSearchBar
