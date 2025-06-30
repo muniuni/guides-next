@@ -109,13 +109,13 @@ const ImageViewer = ({
     <Box
       ref={imageContainerRef}
       sx={{
-        ...imageStyle,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',
         width: '100%',
         height: '100%',
+        overflow: 'hidden',
         WebkitTouchCallout: 'none',
         WebkitUserSelect: 'none',
         MozTouchCallout: 'none',
@@ -195,10 +195,10 @@ const ImageViewer = ({
         height={parseInt(imageStyle.height as string) || 300}
         style={{
           objectFit: 'contain',
-          width: '100%',
-          height: '100%',
-          maxWidth: imageStyle.width || '100%',
-          maxHeight: imageStyle.height || '100%',
+          width: imageStyle.width || 'auto',
+          height: imageStyle.height || 'auto',
+          maxWidth: '100%',
+          maxHeight: '100%',
           opacity: isImageLoaded ? 1 : 0, // Hide image until loaded
           transition: 'opacity 0.3s ease-in-out',
         }}
@@ -343,7 +343,8 @@ const SliderForm = ({
             valueLabelDisplay="auto"
             disabled={disabled}
             sx={{
-              width: '100%',
+              width: { xs: 'calc(100% - 32px)', sm: 'calc(100% - 48px)', md: 'calc(100% - 64px)' }, // Reduce width to account for margins
+              mx: { xs: 2, sm: 3, md: 4 }, // Add horizontal margins
               '& .MuiSlider-thumb': {
                 width: { xs: 20, sm: 26, md: 32 },
                 height: { xs: 20, sm: 26, md: 32 },
@@ -475,76 +476,116 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [now, setNow] = useState(Date.now());
+  const [timerState, setTimerState] = useState<{
+    isRunning: boolean;
+    startTime: number | null;
+    currentTime: number;
+  }>({
+    isRunning: false,
+    startTime: null,
+    currentTime: Date.now(),
+  });
+  const [isCurrentImageLoaded, setIsCurrentImageLoaded] = useState(false);
 
-  // Timer Management
+  // Start timer when image loads
+  const startTimer = useCallback(() => {
+    const now = Date.now();
+    setTimerState({
+      isRunning: true,
+      startTime: now,
+      currentTime: now,
+    });
+  }, []);
+
+  // Stop timer
+  const stopTimer = useCallback(() => {
+    setTimerState(prev => ({
+      ...prev,
+      isRunning: false,
+    }));
+  }, []);
+
+  // Reset timer
+  const resetTimer = useCallback(() => {
+    setTimerState({
+      isRunning: false,
+      startTime: null,
+      currentTime: Date.now(),
+    });
+  }, []);
+
+  // Timer tick effect
   useEffect(() => {
-    if (phase === PHASE.SHOW_IMAGE) {
-      const t0 = Date.now();
-      setStartTime(t0);
-      setNow(t0);
-    }
-  }, [phase]);
+    if (!timerState.isRunning || timerState.startTime === null) return;
 
-  useEffect(() => {
-    if (phase === PHASE.SHOW_IMAGE && startTime !== null) {
-      let rafId: number;
-      const tick = () => {
-        setNow(Date.now());
-        rafId = requestAnimationFrame(tick);
-      };
-      tick();
-      return () => cancelAnimationFrame(rafId);
-    }
-  }, [phase, startTime]);
+    let rafId: number;
+    const tick = () => {
+      setTimerState(prev => ({
+        ...prev,
+        currentTime: Date.now(),
+      }));
+      rafId = requestAnimationFrame(tick);
+    };
+    
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [timerState.isRunning, timerState.startTime]);
 
-  const elapsed = startTime !== null ? (now - startTime) / 1000 : 0;
+  // Calculate elapsed time and time left
+  const elapsed = timerState.isRunning && timerState.startTime 
+    ? (timerState.currentTime - timerState.startTime) / 1000 
+    : 0;
   const timeLeft = Math.max(project.imageDuration - elapsed, 0);
 
+  // Auto-transition to sliders when timer ends
   useEffect(() => {
-    if (phase === PHASE.SHOW_IMAGE && timeLeft <= 0) setPhase(PHASE.SHOW_SLIDERS);
-  }, [phase, timeLeft]);
+    if (phase === PHASE.SHOW_IMAGE && timerState.isRunning && timeLeft <= 0) {
+      stopTimer();
+      setPhase(PHASE.SHOW_SLIDERS);
+    }
+  }, [phase, timerState.isRunning, timeLeft, stopTimer]);
 
-  // Reset currentImageSize when currentIndex changes
+  // Reset states when currentIndex changes
   useEffect(() => {
     setCurrentImageSize(null);
-  }, [currentIndex]);
+    setIsCurrentImageLoaded(false);
+    resetTimer();
+  }, [currentIndex, resetTimer]);
 
   // Handle window resize - recalculate optimal image size when window dimensions change
   useEffect(() => {
     const handleResize = () => {
-      // Force recalculation of image dimensions by temporarily clearing currentImageSize
-      setCurrentImageSize((prev) => {
-        if (prev) {
-          // Preserve the original dimensions for recalculation
-          const dimensions = { ...prev };
-          // Reset and then immediately restore with new calculations
-          setTimeout(() => setCurrentImageSize(dimensions), 0);
-          return null;
-        }
-        return prev;
-      });
+      // Simple force re-render to recalculate image style
+      if (currentImageSize) {
+        setCurrentImageSize({ ...currentImageSize });
+      }
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [currentImageSize]);
 
-  // Image Preloading
-  useEffect(() => {
-    if (phase === PHASE.SHOW_IMAGE) {
-      // For preloading the next image if needed
-      const nextIndex = currentIndex + 1;
-      if (nextIndex < imagesToShow.length) {
-        const nextImageUrl = imagesToShow[nextIndex].url;
-        if (nextImageUrl && nextImageUrl.trim() !== '') {
-          const preloadImage = new window.Image();
-          preloadImage.src = nextImageUrl;
-        }
+  // Preload next image function
+  const preloadNextImage = useCallback((nextIndex: number) => {
+    if (nextIndex < imagesToShow.length) {
+      const nextImageUrl = imagesToShow[nextIndex].url;
+      if (nextImageUrl && nextImageUrl.trim() !== '') {
+        const preloadImage = new window.Image();
+        preloadImage.src = nextImageUrl;
       }
     }
-  }, [phase, currentIndex, imagesToShow]);
+  }, [imagesToShow]);
+
+  // Preload first image on component mount
+  useEffect(() => {
+    if (imagesToShow.length > 0) {
+      const firstImageUrl = imagesToShow[0].url;
+      if (firstImageUrl && firstImageUrl.trim() !== '') {
+        const preloadImage = new window.Image();
+        preloadImage.src = firstImageUrl;
+      }
+    }
+  }, [imagesToShow]);
 
   // Scroll Management
   useEffect(() => {
@@ -596,7 +637,13 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       width: img.naturalWidth,
       height: img.naturalHeight,
     });
-  }, []);
+    
+    // Mark image as loaded and start timer
+    setIsCurrentImageLoaded(true);
+    if (phase === PHASE.SHOW_IMAGE) {
+      startTimer();
+    }
+  }, [phase, startTimer]);
 
   const handleAnswerSubmit = useCallback(
     (vals: { questionId: string; value: number }[]) => {
@@ -608,17 +655,20 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       setAnswers((prev) => [...prev, ...batch]);
 
       if (currentIndex + 1 < imagesToShow.length) {
-        setCurrentIndex((i) => i + 1);
-        const nowTs = Date.now();
-        setStartTime(nowTs);
-        setNow(nowTs);
+        const nextIndex = currentIndex + 1;
+        // Preload the next image before transitioning
+        preloadNextImage(nextIndex);
+        
+        // Stop current timer and reset
+        stopTimer();
+        setCurrentIndex(nextIndex);
         setPhase(PHASE.SHOW_IMAGE);
         scrollToTop();
       } else {
         submitAllScores([...answers, ...batch]);
       }
     },
-    [answers, currentIndex, imagesToShow, scrollToTop]
+    [answers, currentIndex, imagesToShow, scrollToTop, preloadNextImage, stopTimer]
   );
 
   const submitAllScores = async (all: Answer[]) => {
@@ -641,76 +691,42 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const calculateImageStyle = useCallback(() => {
     if (!currentImageSize || !containerRef.current) return {};
 
-    // Get the available viewport height - use maximum possible screen space
-    const viewportHeight = window.innerHeight;
-    // Reduce margin/padding estimates to allow for more image space
-    const headerHeight = 80; // ヘッダー高さ
-    const timerHeight = 60; // プログレスバー高さを考慮
-    // PC版ではパディングを調整
-    const isLargeScreen = window.innerWidth >= 1200; // lg ブレークポイント
-    const isMediumScreen = window.innerWidth >= 900 && window.innerWidth < 1200; // md ブレークポイント
-    let paddingHeight;
+    // Get the actual container dimensions
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const containerWidth = containerRect.width;
+    const containerHeight = containerRect.height;
 
-    if (isLargeScreen) {
-      paddingHeight = 100; // PC大画面ではプログレスバーのスペース確保
-    } else if (isMediumScreen) {
-      paddingHeight = 90; // PC通常画面
-    } else {
-      paddingHeight = 120; // モバイル・タブレット
-    }
-
-    // Calculate the maximum available height - use as much space as possible
-    const maxAvailableHeight = viewportHeight - headerHeight - timerHeight - paddingHeight;
-
-    // Get container width - maximum width available
-    const containerWidth = containerRef.current.clientWidth;
+    // Add some padding to ensure image doesn't touch the edges
+    const padding = 16; // 8px padding on each side
+    const maxWidth = containerWidth - padding;
+    const maxHeight = containerHeight - padding;
 
     // Get image aspect ratio
     const imageAspectRatio = currentImageSize.width / currentImageSize.height;
 
     let width, height;
 
-    // For wider images - prioritize filling the width
-    if (imageAspectRatio > 1) {
-      // Use full container width
-      width = containerWidth;
-      height = width / imageAspectRatio;
-
-      // If height can grow more, scale it up to fill maximum height
-      if (height < maxAvailableHeight) {
-        height = maxAvailableHeight;
-        width = height * imageAspectRatio;
-
-        // If new width exceeds container, scale back down
-        if (width > containerWidth) {
-          width = containerWidth;
-          height = width / imageAspectRatio;
-        }
-      }
-
-      // PC版では高さに上限を設けない（画面ギリギリに表示）
-    }
-    // For taller images - prioritize filling the height
-    else {
-      // Use maximum height first
-      height = maxAvailableHeight;
+    // Calculate dimensions to fit within container while maintaining aspect ratio
+    if (maxWidth / maxHeight > imageAspectRatio) {
+      // Container is wider than image aspect ratio - limit by height
+      height = maxHeight;
       width = height * imageAspectRatio;
-
-      // If width exceeds container, scale down to fit
-      if (width > containerWidth) {
-        width = containerWidth;
-        height = width / imageAspectRatio;
-      }
-
-      // PC版では高さに上限を設けない（画面ギリギリに表示）
+    } else {
+      // Container is taller than image aspect ratio - limit by width
+      width = maxWidth;
+      height = width / imageAspectRatio;
     }
 
-    // Return precise dimensions (round down to avoid scrollbars)
+    // Ensure dimensions don't exceed container
+    width = Math.min(width, maxWidth);
+    height = Math.min(height, maxHeight);
+
+    // Return precise dimensions
     return {
       width: `${Math.floor(width)}px`,
       height: `${Math.floor(height)}px`,
       maxWidth: '100%',
-      maxHeight: isLargeScreen || isMediumScreen ? '98%' : '100%', // PC版では余白をほぼなしに
+      maxHeight: '100%',
       objectFit: 'contain' as const,
     };
   }, [currentImageSize]);
@@ -884,7 +900,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                       )}
                     </Card>
 
-                    <TimerProgress timeLeft={timeLeft} totalDuration={project.imageDuration} />
+                    <TimerProgress 
+                      timeLeft={timerState.isRunning ? timeLeft : project.imageDuration} 
+                      totalDuration={project.imageDuration} 
+                    />
                   </Stack>
                 </motion.div>
               ) : (
