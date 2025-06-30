@@ -26,11 +26,11 @@ export async function GET(_req: Request, context: { params: { id: string } }) {
     },
   });
 
-  /* 2. monthly total score counts ----------------------------------------- */
+  /* 2. monthly unique respondents counts ---------------------------------- */
   // `groupBy` cannot bucket by month, so we use raw SQL (PostgreSQL syntax)
   const monthly = await prisma.$queryRaw<{ month: string; count: number }[]>`SELECT
      TO_CHAR(DATE_TRUNC('month', s."createdAt"), 'YYYY-MM') AS month,
-     COUNT(*)::int                                         AS count
+     COUNT(DISTINCT s."sessionId")::int                    AS count
   FROM   "Score"  s
   JOIN   "Image"  i ON i.id = s."imageId"
   WHERE  i."projectId" = ${id}
@@ -86,11 +86,17 @@ export async function GET(_req: Request, context: { params: { id: string } }) {
     select: { sessionId: true },
   });
 
+  /* 6. Total scores count ------------------------------------------------- */
+  const totalScores = await prisma.score.count({
+    where: { imageId: { in: imageIds as any } },
+  });
+
   return NextResponse.json({
     perImage,
     monthly,
     avgByQuestion,
     questionScoresPerImage: formattedQuestionScores,
     uniqueRespondents: uniqueRespondents.length,
+    totalScores,
   });
 }

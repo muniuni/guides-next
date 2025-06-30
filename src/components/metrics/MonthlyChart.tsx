@@ -13,7 +13,6 @@ import {
   LabelList,
 } from 'recharts';
 import { Monthly } from '@/types/metrics';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface MonthlyChartProps {
   data: Monthly[];
@@ -37,10 +36,10 @@ export default function MonthlyChart({ data, isMobile = false }: MonthlyChartPro
           fontSize={isMobile ? 15 : 16}
           fontWeight={isMobile ? 500 : 400}
         >
-          Monthly Total Scores
+          Monthly Respondents
         </Typography>
         <Typography variant="body2" color="text.secondary" fontSize={isMobile ? 12 : 13} mb={1}>
-          Last 6 months of scoring activity
+          Last 6 months of unique respondent activity
         </Typography>
         <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
         <Box height={{ xs: 220, sm: 320, md: 400 }}>

@@ -26,6 +26,7 @@ export interface ApiResponse {
   monthly: Monthly[];
   avgByQuestion: AvgByQuestion[];
   uniqueRespondents?: number;
+  totalScores?: number;
   questionScoresPerImage?: QuestionScorePerImage[];
 }
 

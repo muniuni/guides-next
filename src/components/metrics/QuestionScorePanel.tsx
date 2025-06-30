@@ -149,7 +149,7 @@ export default function QuestionScorePanel({ data, isMobile = false }: QuestionS
                     <Typography
                       variant="body2"
                       sx={{
-                        mb: 0.5,
+                        mb: 5,
                         fontSize: 13,
                         fontWeight: 500,
                       }}
@@ -157,7 +157,7 @@ export default function QuestionScorePanel({ data, isMobile = false }: QuestionS
                       {question.question}
                     </Typography>
                     {question.avg !== null ? (
-                      <Box sx={{ position: 'relative', height: 18, mb: 1 }}>
+                      <Box sx={{ position: 'relative', height: 18, mb: 2 }}>
                         {/* スケールライン */}
                         <Box
                           sx={{

@@ -175,7 +175,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
 
     // 集計指標を計算
     const uniqueRespondents = data.uniqueRespondents;
-    const totalScores = monthlyData.reduce((sum, month) => sum + month.count, 0);
+    const totalScores = data.totalScores ?? 0;
     const totalImages = perImageData.length;
     const totalQuestions = avgByQuestionData.length;
 
@@ -299,7 +299,7 @@ export default function MetricsDashboard({ data, projectId }: MetricsDashboardPr
             icon={<PeopleOutlineIcon />}
             tooltip="This is an approximate count calculated from session IDs"
           />
-          <SummaryCard title="Total Scores" value={totalScores} icon={<BarChartIcon />} />
+          <SummaryCard title="Records" value={totalScores} icon={<BarChartIcon />} />
           <SummaryCard title="Total Images" value={totalImages} icon={<ImageIcon />} />
           <SummaryCard title="Total Questions" value={totalQuestions} icon={<QuizIcon />} />
         </Box>
