@@ -64,12 +64,14 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
 
   // クライアントサイドでのみ時間差を計算
   useEffect(() => {
-    setTimeDisplay(safeTimeAgo(project.updatedAt, {
-      daysAgo: t('daysAgo'),
-      hoursAgo: t('hoursAgo'),
-      minutesAgo: t('minutesAgo'),
-      recently: t('recently')
-    }));
+    setTimeDisplay(
+      safeTimeAgo(project.updatedAt, {
+        daysAgo: t('daysAgo'),
+        hoursAgo: t('hoursAgo'),
+        minutesAgo: t('minutesAgo'),
+        recently: t('recently'),
+      })
+    );
   }, [project.updatedAt, t]);
 
   // 編集ページへの遷移処理
@@ -274,16 +276,16 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
         <Typography variant="body2" sx={{ mt: 1 }}>
           {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
         </Typography>
-        <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+        <Typography variant="caption" display="block" sx={{ mt: 1.2 }}>
           <CalendarTodayOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
           {formatDate(project.createdAt)}
         </Typography>
-        <Typography variant="caption" display="block">
+        <Typography variant="caption" display="block" sx={{ mt: 0 }}>
           <ScheduleOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
           {timeDisplay}
         </Typography>
       </CardContent>
-      <CardActions sx={{ p: 2, gap: 0.1 }}>
+      <CardActions sx={{ p: 2, gap: 0.1, pt: 0.5 }}>
         <Link href={`/projects/${project.id}`} passHref prefetch style={{ flex: '9.5' }}>
           <Button
             variant="outlined"
@@ -330,31 +332,41 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
           </Button>
         </Tooltip>
       </CardActions>
-      
+
       {/* 実施期間表示 */}
       {(project.startDate || project.endDate) && (
-        <Box sx={{ p: 2, pt: 0 }}>
+        <Box sx={{ p: 2, pt: 1, pl: 2.3 }}>
           {(() => {
             const status = getDurationStatus(project.startDate, project.endDate);
             const startDisplay = formatDateForDisplay(project.startDate);
             const endDisplay = formatDateForDisplay(project.endDate);
-            const periodText = endDisplay 
+            const periodText = endDisplay
               ? tDuration('period', { start: startDisplay, end: endDisplay })
-              : startDisplay 
+              : startDisplay
                 ? `${startDisplay}〜${tDuration('noEndDate')}`
                 : tDuration('noEndDate');
-            
+
             return (
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  display: 'block',
-                  color: status.isActive ? 'success.main' : 'text.primary',
-                  fontWeight: 'medium'
-                }}
-              >
-                {status.isActive ? tDuration('active') : tDuration('inactive')}：{periodText}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: status.isActive ? 'success.main' : 'grey.400',
+                    flexShrink: 0,
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: status.isActive ? 'success.main' : 'grey.600',
+                    fontWeight: 'medium',
+                  }}
+                >
+                  {periodText}
+                </Typography>
+              </Box>
             );
           })()}
         </Box>
