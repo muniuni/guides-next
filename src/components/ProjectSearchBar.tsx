@@ -47,7 +47,7 @@ export default function ProjectSearchBar({
           onClick={onCreateClick}
           sx={{ bgcolor: '#000', color: '#fff' }}
         >
-          {isMobile ? t('create') : t('createNew')}
+          {isMobile ? t('createMobile') : t('createNew')}
         </Button>
       )}
     </Box>

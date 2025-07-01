@@ -50,16 +50,7 @@
   "projects": {
     "title": "Projects",
     "searchPlaceholder": "Search projects",
-    "create": {
-      "title": "New Project",
-      "projectName": "Project Name",
-      "description": "Description",
-      "cancel": "Cancel",
-      "create": "Create",
-      "creationFailed": "Project creation failed",
-      "creating": "Creating..."
-    },
-    "create": "New",
+    "createMobile": "New",
     "createNew": "New Project",
     "myProjects": "My Projects",
     "noProjects": "No projects found",
@@ -101,6 +92,15 @@
       "active": "Active",
       "archived": "Archived",
       "draft": "Draft"
+    },
+    "create": {
+      "title": "New Project",
+      "projectName": "Project Name",
+      "description": "Description",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creationFailed": "Project creation failed",
+      "creating": "Creating..."
     },
     "edit": {
       "title": "Edit Project",
