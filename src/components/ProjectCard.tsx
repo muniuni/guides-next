@@ -337,7 +337,7 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
 
       {/* 実施期間表示 */}
       {(project.startDate || project.endDate) && (
-        <Box sx={{ p: 2, pt: 0, pl: 2.3 }}>
+        <Box sx={{ p: 2, pt: 0.2, pl: 2.3, pb: 2 }}>
           {(() => {
             const status = getDurationStatus(project.startDate, project.endDate);
             const startDisplay = formatDateForDisplay(project.startDate);

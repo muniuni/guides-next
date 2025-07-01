@@ -42,13 +42,13 @@ export default function ProjectContent({ project }: ProjectContentProps) {
             textAlign: 'center',
             p: 2,
             borderRadius: 2,
-            border: 2,
+            border: 1,
             borderColor: durationStatus.isActive ? 'success.main' : 'error.main',
             backgroundColor: 'transparent',
             color: durationStatus.isActive ? 'success.main' : 'error.main'
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
             {durationStatus.isActive ? tDuration('active') : tDuration('inactive')}：{periodText}
           </Typography>
         </Box>
