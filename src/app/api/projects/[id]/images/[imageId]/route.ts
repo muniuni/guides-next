@@ -51,7 +51,7 @@ export async function DELETE(
   );
 
   // DB レコード削除
-  await prisma.image.delete({ where: { id: params.imageId } });
+  await prisma.image.delete({ where: { id: resolvedParams.imageId } });
 
   return NextResponse.json({ ok: true });
 }

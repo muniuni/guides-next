@@ -192,5 +192,24 @@
     "switchTo": "Switch to {language}",
     "english": "English",
     "japanese": "日本語"
+  },
+  "notifications": {
+    "projectUpdated": "Project updated!",
+    "loginSuccess": "Logged in successfully",
+    "accountCreated": "Account created!",
+    "accountUpdated": "Account information updated",
+    "projectDeleted": "Project deleted successfully",
+    "projectCreated": "Project created!",
+    "updateFailed": "Update failed",
+    "accountUpdateSuccess": "Account updated successfully",
+    "creationFailed": "Project creation failed",
+    "unexpectedError": "An unexpected error occurred"
+  },
+  "forms": {
+    "username": "Username", 
+    "email": "Email",
+    "newPassword": "New Password",
+    "leaveBlankToKeep": "Leave blank to keep current password",
+    "accountSettings": "Account Settings"
   }
 }

@@ -3,6 +3,7 @@ import { Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CreateProjectForm from './CreateProjectForm';
 import { useTranslations } from 'next-intl';
+import { useModernAlert } from './ModernAlert';
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -16,6 +17,11 @@ export default function CreateProjectDialog({
   onSuccess,
 }: CreateProjectDialogProps) {
   const t = useTranslations('projects.create');
+  const { showAlert, AlertComponent } = useModernAlert();
+
+  const handleError = (message: string) => {
+    showAlert(message, 'error');
+  };
   return (
     <Dialog
       open={open}
@@ -39,8 +45,9 @@ export default function CreateProjectDialog({
         </IconButton>
       </DialogTitle>
       <DialogContent dividers sx={{ p: 3 }}>
-        <CreateProjectForm onSuccess={onSuccess} onCancel={onClose} />
+        <CreateProjectForm onSuccess={onSuccess} onCancel={onClose} onError={handleError} />
       </DialogContent>
+      {AlertComponent}
     </Dialog>
   );
 }

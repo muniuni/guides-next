@@ -2,9 +2,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TextField, Button, Container, Typography, Stack } from "@mui/material";
+import { useTranslations } from 'next-intl';
+import { useModernAlert } from '@/components/ModernAlert';
 
 export default function CreateProjectPage() {
   const router = useRouter();
+  const tNotifications = useTranslations('notifications');
+  const { showAlert, AlertComponent } = useModernAlert();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [consentInfo, setConsentInfo] = useState("");
@@ -27,7 +31,7 @@ export default function CreateProjectPage() {
     if (res.ok) {
       router.push("/");
     } else {
-      alert("プロジェクト作成に失敗しました");
+      showAlert(tNotifications('creationFailed'), 'error');
     }
   };
 
@@ -56,6 +60,7 @@ export default function CreateProjectPage() {
           </Button>
         </Stack>
       </form>
+      {AlertComponent}
     </Container>
   );
 }

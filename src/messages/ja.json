@@ -192,5 +192,24 @@
     "switchTo": "{language}に切り替え",
     "english": "English",
     "japanese": "日本語"
+  },
+  "notifications": {
+    "projectUpdated": "プロジェクトが更新されました！",
+    "loginSuccess": "ログインしました",
+    "accountCreated": "アカウントが作成されました！",
+    "accountUpdated": "アカウント情報が更新されました",
+    "projectDeleted": "プロジェクトが削除されました",
+    "projectCreated": "プロジェクトが作成されました！",
+    "updateFailed": "更新に失敗しました",
+    "accountUpdateSuccess": "アカウントが更新されました",
+    "creationFailed": "プロジェクト作成に失敗しました",
+    "unexpectedError": "予期しないエラーが発生しました"
+  },
+  "forms": {
+    "username": "ユーザー名",
+    "email": "メールアドレス", 
+    "newPassword": "新しいパスワード",
+    "leaveBlankToKeep": "現在のパスワードを保持する場合は空白のままにしてください",
+    "accountSettings": "アカウント設定"
   }
 }

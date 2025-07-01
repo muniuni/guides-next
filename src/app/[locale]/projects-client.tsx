@@ -10,7 +10,7 @@ import ProjectList from '@/components/ProjectList';
 import ProjectSearchBar from '@/components/ProjectSearchBar';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
 import ProjectContextMenu from '@/components/ProjectContextMenu';
-import NotificationSnackbar from '@/components/NotificationSnackbar';
+import ModernAlert from '@/components/ModernAlert';
 
 import { Project } from '@/types/project';
 
@@ -20,6 +20,7 @@ interface ProjectsClientProps {
 
 export default function ProjectsClient({ initialProjects }: ProjectsClientProps) {
   const t = useTranslations('projects');
+  const tNotifications = useTranslations('notifications');
   const { data: session } = useSession();
   const userId = session?.user?.id || null;
   const [projects, setProjects] = useState(initialProjects);
@@ -41,7 +42,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'success' as 'success' | 'info' | 'error',
+    severity: 'success' as 'success' | 'info' | 'error' | 'warning',
   });
 
   const searchParams = useSearchParams();
@@ -83,7 +84,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
     if (p.get('updated')) {
       setSnackbar({
         open: true,
-        message: 'Project updated!',
+        message: tNotifications('projectUpdated'),
         severity: 'success',
       });
       router.replace('/', { scroll: false });
@@ -91,21 +92,21 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
     } else if (p.get('login')) {
       setSnackbar({
         open: true,
-        message: 'Logged in successfully',
+        message: tNotifications('loginSuccess'),
         severity: 'success',
       });
       router.replace('/', { scroll: false });
     } else if (p.get('signup')) {
       setSnackbar({
         open: true,
-        message: 'Account created!',
+        message: tNotifications('accountCreated'),
         severity: 'success',
       });
       router.replace('/', { scroll: false });
     } else if (p.get('accountUpdated')) {
       setSnackbar({
         open: true,
-        message: 'Account information updated',
+        message: tNotifications('accountUpdated'),
         severity: 'success',
       });
       router.replace('/', { scroll: false });
@@ -130,7 +131,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
 
     setSnackbar({
       open: true,
-      message: 'Project deleted successfully',
+      message: tNotifications('projectDeleted'),
       severity: 'success',
     });
   }, []);
@@ -146,7 +147,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
       await refreshProjects();
       setSnackbar({
         open: true,
-        message: 'Project added!',
+        message: tNotifications('projectCreated'),
         severity: 'success',
       });
     } catch (error) {
@@ -195,7 +196,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
         onSuccess={handleCreateSuccess}
       />
 
-      <NotificationSnackbar
+      <ModernAlert
         open={snackbar.open}
         message={snackbar.message}
         severity={snackbar.severity}

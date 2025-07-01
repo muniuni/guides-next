@@ -6,13 +6,16 @@ import { useTranslations } from 'next-intl';
 interface CreateProjectFormProps {
   onSuccess: () => void;
   onCancel: () => void;
+  onError: (message: string) => void;
 }
 
 export default function CreateProjectForm({
   onSuccess,
   onCancel,
+  onError,
 }: CreateProjectFormProps) {
   const t = useTranslations('projects.create');
+  const tNotifications = useTranslations('notifications');
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -31,7 +34,7 @@ export default function CreateProjectForm({
     if (res.ok) {
       onSuccess();
     } else {
-      alert(t('creationFailed'));
+      onError(tNotifications('creationFailed'));
     }
   };
 

@@ -13,8 +13,11 @@ import {
   AlertColor,
   Stack,
 } from "@mui/material";
+import { useTranslations } from 'next-intl';
 
 export default function AccountSettingsPage() {
+  const tNotifications = useTranslations('notifications');
+  const tForms = useTranslations('forms');
   const { data: session, status } = useSession();
   const router = useRouter();
   const loadingSession = status === "loading";
@@ -61,13 +64,13 @@ export default function AccountSettingsPage() {
     setSubmitting(false);
 
     if (!res.ok) {
-      setGlobalError(data.message || "Update failed");
+      setGlobalError(data.message || tNotifications('updateFailed'));
       return;
     }
 
     setSnackbar({
       open: true,
-      message: "Account updated successfully",
+      message: tNotifications('accountUpdateSuccess'),
       severity: "success",
     });
 
@@ -95,7 +98,7 @@ export default function AccountSettingsPage() {
       sx={{ maxWidth: 500, mx: "auto", mt: 4, p: 3 }}
     >
       <Typography variant="h4" mb={2}>
-        Account Settings
+        {tForms('accountSettings')}
       </Typography>
 
       {globalError && (
@@ -105,7 +108,7 @@ export default function AccountSettingsPage() {
       )}
 
       <TextField
-        label="Username"
+        label={tForms('username')}
         name="username"
         value={form.username}
         onChange={handleChange}
@@ -115,7 +118,7 @@ export default function AccountSettingsPage() {
       />
 
       <TextField
-        label="Email"
+        label={tForms('email')}
         name="email"
         type="email"
         value={form.email}
@@ -126,12 +129,12 @@ export default function AccountSettingsPage() {
       />
 
       <TextField
-        label="New Password"
+        label={tForms('newPassword')}
         name="password"
         type="password"
         value={form.password}
         onChange={handleChange}
-        helperText="Leave blank to keep current password"
+        helperText={tForms('leaveBlankToKeep')}
         fullWidth
         margin="normal"
       />
