@@ -1,12 +1,6 @@
-export interface Question {
-  id: string | null;
-  text: string;
-}
+import { Question, Image } from '@/types/project';
 
-export interface ImageRecord {
-  id: string;
-  url: string;
-}
+export interface ImageRecord extends Image {}
 
 export interface Project {
   id: string;

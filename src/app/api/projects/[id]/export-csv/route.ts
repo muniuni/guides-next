@@ -10,8 +10,9 @@ interface Params {
  *
  * Returns Score data as CSV for the specified project
  */
-export async function GET(_req: Request, { params }: { params: Params }) {
-  const id = params.id;
+export async function GET(_req: Request, { params }: { params: Promise<Params> }) {
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
 
   try {
     // Get all images for this project to filter scores

@@ -19,14 +19,14 @@ const BUCKET = process.env.S3_BUCKET_NAME!;
 
 /* ───────────────────────────── PUT ───────────────────────────── */
 
-export async function PUT(request: Request, context: { params: { id: string } }) {
+export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // Next.js 15 では params を await する必要がある
-  const params = context.params;
+  const params = await context.params;
   const projectId = String(params.id);
 
   // Check if the current user owns this project
@@ -138,14 +138,14 @@ export async function PUT(request: Request, context: { params: { id: string } })
 
 /* ─────────────────────────── DELETE ─────────────────────────── */
 
-export async function DELETE(_req: Request, context: { params: { id: string } }) {
+export async function DELETE(_req: Request, context: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // Next.js 15 では params を await する必要がある
-  const params = context.params;
+  const params = await context.params;
   const projectId = String(params.id);
 
   try {

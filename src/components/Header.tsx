@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Link, useRouter } from '@/i18n/config';
+import { Link } from '@/i18n/config';
 import {
   AppBar,
   Toolbar,
@@ -13,13 +13,12 @@ import {
   MenuItem,
   Divider,
   ListItemIcon,
+  Avatar,
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useSession, signOut } from 'next-auth/react';
-import { mutate } from 'swr';
 import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import Avatar from '@mui/material/Avatar';
 import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header() {

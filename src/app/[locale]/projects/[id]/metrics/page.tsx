@@ -19,10 +19,10 @@ const MetricsDashboard = dynamic(() => import('@/components/MetricsDashboard'), 
 });
 
 // 動的メタデータを設定できるようにする
-export async function generateMetadata(context: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata(context: { params: Promise<{ id: string }> }): Promise<Metadata> {
   try {
     // Next.js 15 では params を await する必要がある
-    const params = context.params;
+    const params = await context.params;
     const res = await fetch(`${process.env.NEXT_API_BASE_URL || ''}/api/projects/${params.id}`, {
       next: { revalidate: 3600 }, // キャッシュを1時間に設定
     });
@@ -42,13 +42,13 @@ export async function generateMetadata(context: { params: { id: string } }): Pro
 }
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function MetricsPage(context: Props) {
   try {
     // Next.js 15 では params を await する必要がある
-    const params = context.params;
+    const params = await context.params;
     // API URLの構築をより堅牢に
     const apiUrl = process.env.NEXT_API_BASE_URL || '';
     const finalUrl = `${apiUrl}/api/projects/${params.id}/metrics`;

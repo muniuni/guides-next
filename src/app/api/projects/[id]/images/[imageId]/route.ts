@@ -15,7 +15,7 @@ const s3 = new S3Client({
 const BUCKET = process.env.S3_BUCKET_NAME!;
 
 interface RouteContext {
-  params: { imageId: string };
+  params: Promise<{ imageId: string }>;
 }
 
 export async function DELETE(
@@ -28,8 +28,9 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const resolvedParams = await params;
   // DB から画像レコード取得
-  const img = await prisma.image.findUnique({ where: { id: params.imageId } });
+  const img = await prisma.image.findUnique({ where: { id: resolvedParams.imageId } });
   if (!img) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

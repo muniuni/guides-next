@@ -10,9 +10,10 @@ interface Params {
  *
  * Returns project data needed for evaluation, including all images
  */
-export async function GET(_req: Request, { params }: { params: Params }) {
+export async function GET(_req: Request, { params }: { params: Promise<Params> }) {
   try {
-    const projectId = params.id;
+    const resolvedParams = await params;
+    const projectId = resolvedParams.id;
 
     const project = await prisma.project.findUnique({
       where: { id: projectId },

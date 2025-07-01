@@ -7,13 +7,14 @@ interface Params {
   id: string;
 }
 
-export async function POST(req: Request, { params }: { params: Params }): Promise<NextResponse> {
+export async function POST(req: Request, { params }: { params: Promise<Params> }): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
+    const resolvedParams = await params;
     // JSON形式で送信された画像のURLを取得
     const { url } = await req.json();
 
@@ -25,7 +26,7 @@ export async function POST(req: Request, { params }: { params: Params }): Promis
     const img = await prisma.image.create({
       data: {
         url,
-        project: { connect: { id: params.id } },
+        project: { connect: { id: resolvedParams.id } },
       },
     });
 

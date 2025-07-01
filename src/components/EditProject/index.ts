@@ -1,10 +1,5 @@
-export * from './GeneralInformationCard';
-export * from './QuestionsCard';
-export * from './ImagesCard';
-export * from './ImageItems';
-export * from './Dialogs';
-export * from './hooks';
-export * from './styles';
-export * from './types';
-
+// Main component
 export { default } from './EditProjectForm';
+
+// Types (commonly needed by external components)
+export type { EditProjectFormProps } from './types';

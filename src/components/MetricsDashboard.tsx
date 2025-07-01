@@ -4,33 +4,16 @@ import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Box,
-  Card,
-  CardContent,
-  Container,
   Typography,
   useTheme,
-  Divider,
-  Avatar,
   Stack,
   Button,
-  Tabs,
-  Tab,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Alert,
-  Tooltip as MUITooltip,
   CircularProgress,
 } from '@mui/material';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ImageIcon from '@mui/icons-material/Image';
 import QuizIcon from '@mui/icons-material/Quiz';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
@@ -42,7 +25,7 @@ const QuestionScorePanel = lazy(() => import('./metrics/QuestionScorePanel'));
 const MobileMetricsTabs = lazy(() => import('./metrics/MobileMetricsTabs'));
 
 // 型定義のインポート
-import { ApiResponse, MetricsDashboardProps } from '@/types/metrics';
+import { MetricsDashboardProps } from '@/types/metrics';
 
 // Suspenseのフォールバックコンポーネント
 const ChartLoader = () => (

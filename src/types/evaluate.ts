@@ -1,12 +1,6 @@
-export interface Question {
-  id: string;
-  text: string;
-}
+import { Question, Image } from './project';
 
-export interface ImageItem {
-  id: string;
-  url: string;
-}
+export interface ImageItem extends Image {}
 
 export interface ProjectProps {
   id: string;

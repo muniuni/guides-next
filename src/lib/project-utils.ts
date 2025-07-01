@@ -17,37 +17,10 @@ export const formatDate = (dateStr: string): string => {
   return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
 };
 
-/**
- * Returns a human-readable relative time string like "5 days ago"
- * This function should only be called on the client side to avoid hydration issues
- */
-export const timeAgo = (
-  dateStr: string, 
-  currentTime?: number,
-  translations?: {
-    daysAgo: string;
-    hoursAgo: string;
-    minutesAgo: string;
-  }
-): string => {
-  // Use provided currentTime or fallback to a safe value for SSR
-  const now = currentTime || Date.now();
-  const diff = now - new Date(dateStr).getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-  if (days > 0) {
-    return translations ? `${days} ${translations.daysAgo}` : `${days} days ago`;
-  } else if (hours > 0) {
-    return translations ? `${hours} ${translations.hoursAgo}` : `${hours} hours ago`;
-  } else {
-    return translations ? `${minutes} ${translations.minutesAgo}` : `${minutes} minutes ago`;
-  }
-};
 
 /**
- * Client-safe version of timeAgo that returns a fallback during SSR
+ * Client-safe version that returns a human-readable relative time string
+ * Returns fallback during SSR to prevent hydration issues
  */
 export const safeTimeAgo = (
   dateStr: string,
@@ -62,5 +35,18 @@ export const safeTimeAgo = (
     // During SSR, return a safe fallback
     return translations?.recently || 'recently';
   }
-  return timeAgo(dateStr, undefined, translations);
+  
+  const now = Date.now();
+  const diff = now - new Date(dateStr).getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  if (days > 0) {
+    return translations ? `${days} ${translations.daysAgo}` : `${days} days ago`;
+  } else if (hours > 0) {
+    return translations ? `${hours} ${translations.hoursAgo}` : `${hours} hours ago`;
+  } else {
+    return translations ? `${minutes} ${translations.minutesAgo}` : `${minutes} minutes ago`;
+  }
 };

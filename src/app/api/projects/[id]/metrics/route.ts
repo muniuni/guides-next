@@ -10,9 +10,9 @@ import prisma from '@/lib/prisma';
  *  - avgByQuestion… [{ questionId, question, avg }]
  *  - questionScoresPerImage … [{ imageId, questionId, avg }]
  */
-export async function GET(_req: Request, context: { params: { id: string } }) {
+export async function GET(_req: Request, context: { params: Promise<{ id: string }> }) {
   // Next.js 15 では params を await する必要がある
-  const params = context.params;
+  const params = await context.params;
   const id = params.id;
   console.log('id', id);
 
