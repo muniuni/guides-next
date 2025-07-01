@@ -40,8 +40,8 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
   const isOwner = project.userId === userId;
   const router = useRouter();
   const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
-  const [timeDisplay, setTimeDisplay] = useState('recently');
+  const [timeDisplay, setTimeDisplay] = useState(t('recently'));
+  const [, startTransition] = useTransition();
 
   // ローディング状態を追跡
   const [loadingEdit, setLoadingEdit] = useState(false);
@@ -62,8 +62,13 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
 
   // クライアントサイドでのみ時間差を計算
   useEffect(() => {
-    setTimeDisplay(safeTimeAgo(project.updatedAt));
-  }, [project.updatedAt]);
+    setTimeDisplay(safeTimeAgo(project.updatedAt, {
+      daysAgo: t('daysAgo'),
+      hoursAgo: t('hoursAgo'),
+      minutesAgo: t('minutesAgo'),
+      recently: t('recently')
+    }));
+  }, [project.updatedAt, t]);
 
   // 編集ページへの遷移処理
   const handleEditClick = (e: React.MouseEvent) => {

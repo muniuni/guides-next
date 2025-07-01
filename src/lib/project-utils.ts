@@ -21,7 +21,15 @@ export const formatDate = (dateStr: string): string => {
  * Returns a human-readable relative time string like "5 days ago"
  * This function should only be called on the client side to avoid hydration issues
  */
-export const timeAgo = (dateStr: string, currentTime?: number): string => {
+export const timeAgo = (
+  dateStr: string, 
+  currentTime?: number,
+  translations?: {
+    daysAgo: string;
+    hoursAgo: string;
+    minutesAgo: string;
+  }
+): string => {
   // Use provided currentTime or fallback to a safe value for SSR
   const now = currentTime || Date.now();
   const diff = now - new Date(dateStr).getTime();
@@ -30,21 +38,29 @@ export const timeAgo = (dateStr: string, currentTime?: number): string => {
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
   if (days > 0) {
-    return `${days} days ago`;
+    return translations ? `${days} ${translations.daysAgo}` : `${days} days ago`;
   } else if (hours > 0) {
-    return `${hours} hours ago`;
+    return translations ? `${hours} ${translations.hoursAgo}` : `${hours} hours ago`;
   } else {
-    return `${minutes} minutes ago`;
+    return translations ? `${minutes} ${translations.minutesAgo}` : `${minutes} minutes ago`;
   }
 };
 
 /**
  * Client-safe version of timeAgo that returns a fallback during SSR
  */
-export const safeTimeAgo = (dateStr: string): string => {
+export const safeTimeAgo = (
+  dateStr: string,
+  translations?: {
+    daysAgo: string;
+    hoursAgo: string;
+    minutesAgo: string;
+    recently: string;
+  }
+): string => {
   if (typeof window === 'undefined') {
     // During SSR, return a safe fallback
-    return 'recently';
+    return translations?.recently || 'recently';
   }
-  return timeAgo(dateStr);
+  return timeAgo(dateStr, undefined, translations);
 };

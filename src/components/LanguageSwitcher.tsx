@@ -3,22 +3,14 @@
 import { useState, useTransition, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/config';
-import {
-  ButtonBase,
-  Menu,
-  MenuItem,
-  Typography,
-  Box,
-  alpha,
-  Fade,
-} from '@mui/material';
+import { ButtonBase, Menu, MenuItem, Typography, Box, alpha, Fade } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CheckIcon from '@mui/icons-material/Check';
 import LanguageIcon from '@mui/icons-material/Language';
 
 const languages = [
   { code: 'en', name: 'English', shortName: 'EN', flag: '🇺🇸' },
-  { code: 'ja', name: '日本語', shortName: 'JA', flag: '🇯🇵' }
+  { code: 'ja', name: '日本語', shortName: 'JA', flag: '🇯🇵' },
 ];
 
 export default function LanguageSwitcher() {
@@ -48,14 +40,14 @@ export default function LanguageSwitcher() {
       handleClose();
       return;
     }
-    
+
     startTransition(() => {
       router.replace(pathname, { locale: newLocale });
     });
     handleClose();
   };
 
-  const currentLanguage = languages.find(lang => lang.code === locale) || languages[0];
+  const currentLanguage = languages.find((lang) => lang.code === locale) || languages[0];
   const open = Boolean(anchorEl);
 
   if (!isClient) {
@@ -71,13 +63,17 @@ export default function LanguageSwitcher() {
           borderRadius: 2,
           border: '1px solid',
           borderColor: alpha('#000', 0.12),
-          minWidth: 76,
+          minWidth: { xs: 20, sm: 76 },
           height: 32,
         }}
       >
         <LanguageIcon sx={{ fontSize: 16, color: alpha('#000', 0.7) }} />
-        <Typography sx={{ fontSize: 13, fontWeight: 500 }}>EN</Typography>
-        <KeyboardArrowDownIcon sx={{ fontSize: 16, color: alpha('#000', 0.6) }} />
+        <Typography sx={{ fontSize: 13, fontWeight: 500, display: { xs: 'none', sm: 'block' } }}>
+          EN
+        </Typography>
+        <KeyboardArrowDownIcon
+          sx={{ fontSize: 16, color: alpha('#000', 0.6), display: { xs: 'none', sm: 'block' } }}
+        />
       </Box>
     );
   }
@@ -99,14 +95,14 @@ export default function LanguageSwitcher() {
           borderRadius: 2,
           border: '1px solid',
           borderColor: open ? 'primary.main' : alpha('#000', 0.12),
-          backgroundColor: open 
+          backgroundColor: open
             ? alpha('#000', 0.04)
-            : isHovered 
+            : isHovered
               ? alpha('#000', 0.02)
               : 'transparent',
           transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           opacity: isPending ? 0.6 : 1,
-          minWidth: 76,
+          minWidth: { xs: 10, sm: 76 },
           height: 32,
           '&:hover': {
             borderColor: alpha('#000', 0.24),
@@ -124,32 +120,34 @@ export default function LanguageSwitcher() {
         aria-haspopup="menu"
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-          <LanguageIcon 
-            sx={{ 
+          <LanguageIcon
+            sx={{
               fontSize: 16,
               color: alpha('#000', 0.7),
-            }} 
+            }}
           />
-          <Typography 
-            component="span" 
-            sx={{ 
-              fontSize: 13, 
+          <Typography
+            component="span"
+            sx={{
+              fontSize: 13,
               fontWeight: 500,
               color: 'text.primary',
               lineHeight: 1,
               letterSpacing: '0.02em',
+              display: { xs: 'none', sm: 'block' },
             }}
           >
             {currentLanguage?.shortName}
           </Typography>
         </Box>
-        <KeyboardArrowDownIcon 
-          sx={{ 
+        <KeyboardArrowDownIcon
+          sx={{
             fontSize: 16,
             color: alpha('#000', 0.6),
             transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-          }} 
+            display: { xs: 'none', sm: 'block' },
+          }}
         />
       </ButtonBase>
 
@@ -204,21 +202,21 @@ export default function LanguageSwitcher() {
                 minHeight: 40,
                 backgroundColor: isSelected ? alpha('#000', 0.04) : 'transparent',
                 '&:hover': {
-                  backgroundColor: isSelected 
-                    ? alpha('#000', 0.08) 
-                    : alpha('#000', 0.04),
+                  backgroundColor: isSelected ? alpha('#000', 0.08) : alpha('#000', 0.04),
                 },
               }}
             >
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                width: '100%',
-              }}>
-                <Typography 
-                  component="span" 
-                  sx={{ 
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                }}
+              >
+                <Typography
+                  component="span"
+                  sx={{
                     fontSize: 14,
                     fontWeight: isSelected ? 500 : 400,
                     color: 'text.primary',
@@ -228,12 +226,12 @@ export default function LanguageSwitcher() {
                   {language.name}
                 </Typography>
                 {isSelected && (
-                  <CheckIcon 
-                    sx={{ 
-                      fontSize: 16, 
+                  <CheckIcon
+                    sx={{
+                      fontSize: 16,
                       color: 'primary.main',
                       ml: 1,
-                    }} 
+                    }}
                   />
                 )}
               </Box>

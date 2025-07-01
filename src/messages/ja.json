@@ -50,6 +50,15 @@
   "projects": {
     "title": "プロジェクト",
     "searchPlaceholder": "検索",
+    "create": {
+      "title": "プロジェクト新規作成",
+      "projectName": "プロジェクト名",
+      "description": "説明",
+      "cancel": "キャンセル",
+      "create": "作成",
+      "creationFailed": "プロジェクト作成に失敗しました",
+      "creating": "作成中..."
+    },
     "createNew": "新規作成",
     "myProjects": "マイプロジェクト",
     "noProjects": "プロジェクトが見つかりません",
@@ -84,6 +93,9 @@
     "imagesEnrolled": "枚の画像",
     "questionsCount": "個の質問",
     "daysAgo": "日前",
+    "hoursAgo": "時間前",
+    "minutesAgo": "分前",
+    "recently": "最近",
     "status": {
       "active": "アクティブ",
       "archived": "アーカイブ済み",
@@ -119,15 +131,6 @@
       "supportedFormats": "対応形式：JPG、PNG、GIF",
       "maxFileSize": "最大ファイルサイズ：10MB",
       "keepEditing": "編集を継続"
-    },
-    "create": {
-      "title": "新しいプロジェクトを作成",
-      "projectName": "プロジェクト名",
-      "description": "説明",
-      "cancel": "キャンセル",
-      "create": "作成",
-      "creationFailed": "プロジェクト作成に失敗しました",
-      "creating": "作成中..."
     }
   },
   "evaluation": {
@@ -157,8 +160,8 @@
       "decline": "参加を辞退"
     },
     "thanks": {
-      "title": "ご参加いただきありがとうございました",
-      "message": "あなたの回答は正常に送信されました。ウィンドウを閉じて終了してください。",
+      "title": "ありがとうございました",
+      "message": "回答は正常に送信されました。ウィンドウを閉じて終了してください。",
       "backToProject": "プロジェクトに戻る",
       "home": "ホーム"
     }

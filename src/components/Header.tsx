@@ -14,7 +14,6 @@ import {
   Divider,
   ListItemIcon,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useSession, signOut } from 'next-auth/react';
 import { mutate } from 'swr';
@@ -27,23 +26,13 @@ export default function Header() {
   const t = useTranslations('auth');
   const tNav = useTranslations('navigation');
   const locale = useLocale();
-  const router = useRouter();
   const { data: session, status } = useSession();
   const isLoading = status === 'loading';
   const isLoggedIn = status === 'authenticated';
-  const [open, setOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const closeMenu = () => setAnchorEl(null);
-
-  const handleOpen = () => setOpen(false);
-  const handleClose = () => setOpen(false);
-
-  const handleSuccess = async () => {
-    setOpen(false);
-    await mutate('/api/projects');
-  };
 
   const getInitial = (username: string) => {
     return username.charAt(0).toUpperCase();
@@ -223,6 +212,8 @@ export default function Header() {
                       minWidth: { xs: 'auto', sm: 'auto' },
                       px: { xs: 1.5, sm: 2 },
                       py: { xs: 0.5, sm: 0.75 },
+                      whiteSpace: 'nowrap',
+                      boxShadow: 0.1,
                     }}
                   >
                     {t('login')}
@@ -235,7 +226,7 @@ export default function Header() {
                     sx={{
                       backgroundColor: '#000',
                       color: '#fff',
-                      borderRadius: 3,
+                      borderRadius: 2.6,
                       fontSize: { xs: '0.75rem', sm: '0.875rem' },
                       minWidth: { xs: 'auto', sm: 'auto' },
                       px: { xs: 1.5, sm: 2 },

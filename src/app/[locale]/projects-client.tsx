@@ -6,8 +6,6 @@ import { useRouter } from '@/i18n/config';
 import { useTranslations } from 'next-intl';
 import { Box, Tabs, Tab } from '@mui/material';
 import { useSession } from 'next-auth/react';
-import { mutate } from 'swr';
-
 import ProjectList from '@/components/ProjectList';
 import ProjectSearchBar from '@/components/ProjectSearchBar';
 import CreateProjectDialog from '@/components/CreateProjectDialog';
