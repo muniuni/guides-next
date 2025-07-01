@@ -26,7 +26,7 @@ export default async function ProjectPage(context: PageParams) {
   
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { id: true, name: true, description: true, consentInfo: true },
+    select: { id: true, name: true, description: true, consentInfo: true, startDate: true, endDate: true },
   });
 
   if (!project) {

@@ -211,5 +211,15 @@
     "newPassword": "新しいパスワード",
     "leaveBlankToKeep": "現在のパスワードを保持する場合は空白のままにしてください",
     "accountSettings": "アカウント設定"
+  },
+  "duration": {
+    "title": "実施期間",
+    "startDate": "開始日",
+    "endDate": "終了日",
+    "active": "実施期間中",
+    "inactive": "実施期間外",
+    "outsideMessage": "実施期間外です",
+    "period": "{start}～{end}",
+    "noEndDate": "終了日未設定"
   }
 }

@@ -15,6 +15,8 @@ export interface Project {
   imageCount?: number;
   imageDuration?: number;
   consentInfo?: string;
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface Image {

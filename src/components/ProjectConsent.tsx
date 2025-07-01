@@ -15,10 +15,12 @@ import { useTranslations } from 'next-intl';
 
 interface ProjectConsentProps {
   projectId: string;
+  isActive: boolean;
 }
 
-export default function ProjectConsent({ projectId }: ProjectConsentProps) {
+export default function ProjectConsent({ projectId, isActive }: ProjectConsentProps) {
   const t = useTranslations('evaluation');
+  const tDuration = useTranslations('duration');
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -93,7 +95,7 @@ export default function ProjectConsent({ projectId }: ProjectConsentProps) {
       <Box mt={2} display="flex" alignItems="center">
         <Button
           variant="contained"
-          disabled={!agreed || loading}
+          disabled={!agreed || loading || !isActive}
           onClick={handleStart}
           sx={{
             minWidth: '180px',
@@ -101,10 +103,24 @@ export default function ProjectConsent({ projectId }: ProjectConsentProps) {
             fontSize: '1rem',
             fontWeight: 'bold',
             padding: '12px 24px',
+            bgcolor: !isActive ? 'grey.400' : undefined,
+            '&:hover': {
+              bgcolor: !isActive ? 'grey.400' : undefined,
+            },
           }}
         >
           {loading ? t('loadingImages') : t('startEvaluation')}
         </Button>
+        
+        {!isActive && (
+          <Typography 
+            variant="body2" 
+            color="error.main" 
+            sx={{ ml: 2, fontWeight: 'medium' }}
+          >
+            {tDuration('outsideMessage')}
+          </Typography>
+        )}
 
         {loading && (
           <Stack direction="row" spacing={1.5} alignItems="center" ml={2}>

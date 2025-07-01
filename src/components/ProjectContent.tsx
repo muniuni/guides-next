@@ -1,8 +1,10 @@
 'use client';
 import React from 'react';
 import { Box, Typography, Divider, Stack, Paper } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import MarkdownContent from '@/components/MarkdownContent';
 import ProjectConsent from '@/components/ProjectConsent';
+import { getDurationStatus, formatDateForDisplay } from '@/lib/duration-utils';
 
 interface ProjectContentProps {
   project: {
@@ -10,39 +12,75 @@ interface ProjectContentProps {
     name: string;
     description: string;
     consentInfo: string;
+    startDate?: string | null;
+    endDate?: string | null;
   };
 }
 
 export default function ProjectContent({ project }: ProjectContentProps) {
+  const tDuration = useTranslations('duration');
+  
+  // Duration status logic
+  const durationStatus = getDurationStatus(project.startDate, project.endDate);
+  const startDisplay = formatDateForDisplay(project.startDate);
+  const endDisplay = formatDateForDisplay(project.endDate);
+  const hasDuration = project.startDate || project.endDate;
+  
+  const periodText = endDisplay 
+    ? tDuration('period', { start: startDisplay, end: endDisplay })
+    : startDisplay 
+      ? `${startDisplay}〜${tDuration('noEndDate')}`
+      : tDuration('noEndDate');
+
   return (
-    <Paper
-      elevation={4}
-      sx={{
-        width: '100%',
-        maxWidth: { xs: '100%', sm: 800, md: 1200 },
-        p: { xs: 3, sm: 4, md: 6 },
-        borderRadius: { xs: 2, sm: 3, md: 4 },
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
-        mt: { xs: 0, sm: 0, md: 0 },
-        mb: { xs: 4, sm: 6, md: 8 },
-      }}
-    >
-      <Typography
-        variant="h4"
-        component="h1"
-        gutterBottom
+    <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 800, md: 1200 } }}>
+      {/* 実施期間ステータス表示 */}
+      {hasDuration && (
+        <Box 
+          sx={{ 
+            mb: 2, 
+            textAlign: 'center',
+            p: 2,
+            borderRadius: 2,
+            border: 2,
+            borderColor: durationStatus.isActive ? 'success.main' : 'error.main',
+            backgroundColor: 'transparent',
+            color: durationStatus.isActive ? 'success.main' : 'error.main'
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+            {durationStatus.isActive ? tDuration('active') : tDuration('inactive')}：{periodText}
+          </Typography>
+        </Box>
+      )}
+      
+      <Paper
+        elevation={4}
         sx={{
-          fontWeight: 'bold',
-          color: '#000000',
-          mb: { xs: 2, sm: 3, md: 4 },
-          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
-          textAlign: 'center',
+          width: '100%',
+          p: { xs: 3, sm: 4, md: 6 },
+          borderRadius: { xs: 2, sm: 3, md: 4 },
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
+          mt: { xs: 0, sm: 0, md: 0 },
+          mb: { xs: 4, sm: 6, md: 8 },
         }}
       >
-        {project.name}
-      </Typography>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: 'bold',
+            color: '#000000',
+            mb: { xs: 2, sm: 3, md: 4 },
+            fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+            textAlign: 'center',
+          }}
+        >
+          {project.name}
+        </Typography>
       <Divider sx={{ mb: { xs: 2, sm: 3, md: 4 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
 
       <Stack spacing={{ xs: 3, sm: 4, md: 6 }}>
@@ -84,9 +122,10 @@ export default function ProjectContent({ project }: ProjectContentProps) {
         </Box>
 
         <Box>
-          <ProjectConsent projectId={project.id} />
+          <ProjectConsent projectId={project.id} isActive={durationStatus.isActive} />
         </Box>
       </Stack>
-    </Paper>
+      </Paper>
+    </Box>
   );
 }

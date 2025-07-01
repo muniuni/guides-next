@@ -37,8 +37,13 @@ export function GeneralInformationCard({
   imageDurationInfo,
   isImageCountValid,
   totalImages,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
 }: GeneralInformationCardProps) {
   const t = useTranslations('projects.edit');
+  const tDuration = useTranslations('duration');
   const [descPreview, setDescPreview] = useState(false);
   const [consentPreview, setConsentPreview] = useState(false);
 
@@ -182,6 +187,43 @@ export function GeneralInformationCard({
               />
             </Box>
           </Stack>
+
+          {/* 実施期間セクション */}
+          <Box>
+            <Typography variant="subtitle1" sx={{ mb: 2 }}>
+              {tDuration('title')}
+            </Typography>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <Box sx={{ width: { xs: '100%', sm: '50%' } }}>
+                <TextField
+                  label={tDuration('startDate')}
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  fullWidth
+                  size="small"
+                  sx={INPUT_HEIGHT_STYLES}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Box>
+              <Box sx={{ width: { xs: '100%', sm: '50%' } }}>
+                <TextField
+                  label={tDuration('endDate')}
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  fullWidth
+                  size="small"
+                  sx={INPUT_HEIGHT_STYLES}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Box>
+            </Stack>
+          </Box>
         </Stack>
       </CardContent>
     </Card>

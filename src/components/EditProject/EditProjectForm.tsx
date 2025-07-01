@@ -9,17 +9,22 @@ import { GeneralInformationCard } from './GeneralInformationCard';
 import { QuestionsCard } from './QuestionsCard';
 import { ImagesCard } from './ImagesCard';
 import { DeleteImagesDialog, DiscardChangesDialog } from './Dialogs';
+import { formatDateForInput, parseInputDate } from '@/lib/duration-utils';
 
 export default function EditProjectForm({ initialProject }: EditProjectFormProps) {
   const t = useTranslations('projects.edit');
   const router = useRouter();
-  const { id, name, description, consentInfo, imageCount, imageDuration, questions, images } =
+  const { id, name, description, consentInfo, imageCount, imageDuration, questions, images, startDate, endDate } =
     initialProject;
 
   // 基本情報ステート
   const [projectName, setProjectName] = useState<string>(name);
   const [projectDesc, setProjectDesc] = useState<string>(description);
   const [consentText, setConsentText] = useState<string>(consentInfo);
+  
+  // 実施期間ステート
+  const [projectStartDate, setProjectStartDate] = useState<string>(formatDateForInput(startDate));
+  const [projectEndDate, setProjectEndDate] = useState<string>(formatDateForInput(endDate));
 
   // カスタムフックでの数値入力管理
   const imageCountInfo = useNumberField(imageCount);
@@ -161,6 +166,8 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       formData.append('questions', JSON.stringify(filteredQuestions));
       formData.append('imagesToDelete', JSON.stringify(Array.from(imagesToDelete)));
       formData.append('existingImageIds', JSON.stringify(existingImages.map((img) => img.id)));
+      formData.append('startDate', parseInputDate(projectStartDate) || '');
+      formData.append('endDate', parseInputDate(projectEndDate) || '');
 
       const res = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
@@ -215,7 +222,9 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       projectDesc !== description ||
       consentText !== consentInfo ||
       imageCountInfo.value !== imageCount.toString() ||
-      imageDurationInfo.value !== imageDuration.toString();
+      imageDurationInfo.value !== imageDuration.toString() ||
+      projectStartDate !== formatDateForInput(startDate) ||
+      projectEndDate !== formatDateForInput(endDate);
 
     // 質問リストの変更チェック
     const questionsChanged = () => {
@@ -270,6 +279,10 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
             imageDurationInfo={imageDurationInfo}
             isImageCountValid={isImageCountValid}
             totalImages={totalImages}
+            startDate={projectStartDate}
+            setStartDate={setProjectStartDate}
+            endDate={projectEndDate}
+            setEndDate={setProjectEndDate}
           />
 
           {/* Questions Card */}

@@ -23,6 +23,7 @@ import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
 import LinkIcon from '@mui/icons-material/Link';
 import CheckIcon from '@mui/icons-material/Check';
 import { truncate, formatDate, safeTimeAgo } from '@/lib/project-utils';
+import { getDurationStatus, formatDateForDisplay } from '@/lib/duration-utils';
 
 import { Project } from '@/types/project';
 
@@ -35,6 +36,7 @@ const MAX_DESCRIPTION_LENGTH = 45;
 
 export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
   const t = useTranslations('projects');
+  const tDuration = useTranslations('duration');
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const isOwner = project.userId === userId;
@@ -328,6 +330,35 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
           </Button>
         </Tooltip>
       </CardActions>
+      
+      {/* 実施期間表示 */}
+      {(project.startDate || project.endDate) && (
+        <Box sx={{ p: 2, pt: 0 }}>
+          {(() => {
+            const status = getDurationStatus(project.startDate, project.endDate);
+            const startDisplay = formatDateForDisplay(project.startDate);
+            const endDisplay = formatDateForDisplay(project.endDate);
+            const periodText = endDisplay 
+              ? tDuration('period', { start: startDisplay, end: endDisplay })
+              : startDisplay 
+                ? `${startDisplay}〜${tDuration('noEndDate')}`
+                : tDuration('noEndDate');
+            
+            return (
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  display: 'block',
+                  color: status.isActive ? 'success.main' : 'text.primary',
+                  fontWeight: 'medium'
+                }}
+              >
+                {status.isActive ? tDuration('active') : tDuration('inactive')}：{periodText}
+              </Typography>
+            );
+          })()}
+        </Box>
+      )}
     </Card>
   );
 }

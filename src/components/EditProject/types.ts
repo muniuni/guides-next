@@ -23,6 +23,8 @@ export interface EditProjectFormProps {
     imageDuration: number;
     questions: Question[];
     images: ImageRecord[];
+    startDate?: string | null;
+    endDate?: string | null;
   };
 }
 
@@ -56,6 +58,10 @@ export interface GeneralInformationCardProps {
   imageDurationInfo: NumberFieldReturn;
   isImageCountValid: boolean;
   totalImages: number;
+  startDate: string;
+  setStartDate: (value: string) => void;
+  endDate: string;
+  setEndDate: (value: string) => void;
 }
 
 // 質問フォームプロップスの型定義

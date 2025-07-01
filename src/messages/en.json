@@ -211,5 +211,15 @@
     "newPassword": "New Password",
     "leaveBlankToKeep": "Leave blank to keep current password",
     "accountSettings": "Account Settings"
+  },
+  "duration": {
+    "title": "Duration Period",
+    "startDate": "Start Date",
+    "endDate": "End Date", 
+    "active": "Active Period",
+    "inactive": "Inactive Period",
+    "outsideMessage": "Outside active period",
+    "period": "{start} - {end}",
+    "noEndDate": "No end date set"
   }
 }

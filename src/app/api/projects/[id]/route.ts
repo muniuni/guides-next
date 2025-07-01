@@ -55,6 +55,10 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
   const imagesToDelete = JSON.parse((formData.get('imagesToDelete') as string) || '[]');
   const imageCount = parseInt(formData.get('imageCount') as string, 10) || 0;
   const imageDuration = parseInt(formData.get('imageDuration') as string, 10) || 0;
+  const startDateStr = formData.get('startDate') as string;
+  const endDateStr = formData.get('endDate') as string;
+  const startDate = startDateStr && startDateStr !== '' ? new Date(startDateStr) : null;
+  const endDate = endDateStr && endDateStr !== '' ? new Date(endDateStr) : null;
 
   /* 1. プロジェクト基本情報更新 */
   await prisma.project.update({
@@ -65,6 +69,8 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
       consentInfo,
       imageCount,
       imageDuration,
+      startDate,
+      endDate,
     },
   });
 
