@@ -59,6 +59,7 @@
       "creationFailed": "プロジェクト作成に失敗しました",
       "creating": "作成中..."
     },
+    "create": "新規",
     "createNew": "新規作成",
     "myProjects": "マイプロジェクト",
     "noProjects": "プロジェクトが見つかりません",
@@ -207,7 +208,7 @@
   },
   "forms": {
     "username": "ユーザー名",
-    "email": "メールアドレス", 
+    "email": "メールアドレス",
     "newPassword": "新しいパスワード",
     "leaveBlankToKeep": "現在のパスワードを保持する場合は空白のままにしてください",
     "accountSettings": "アカウント設定"

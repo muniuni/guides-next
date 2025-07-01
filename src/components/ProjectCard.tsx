@@ -200,7 +200,7 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
           />
         )}
       </Box>
-      <CardContent sx={{ flexGrow: 1 }}>
+      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <Box
           sx={{
             display: 'flex',
@@ -273,19 +273,21 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
         <Typography variant="body2" color="text.secondary" gutterBottom sx={{ ml: 0.5 }}>
           By {project.user.username}
         </Typography>
-        <Typography variant="body2" sx={{ mt: 1 }}>
+        <Typography variant="body2" sx={{ mt: 1, flexGrow: 1 }}>
           {truncate(project.description, MAX_DESCRIPTION_LENGTH)}
         </Typography>
-        <Typography variant="caption" display="block" sx={{ mt: 1.2 }}>
-          <CalendarTodayOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
-          {formatDate(project.createdAt)}
-        </Typography>
-        <Typography variant="caption" display="block" sx={{ mt: 0 }}>
-          <ScheduleOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
-          {timeDisplay}
-        </Typography>
+        <Box sx={{ mt: 'auto', pt: 1 }}>
+          <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+            <CalendarTodayOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
+            {formatDate(project.createdAt)}
+          </Typography>
+          <Typography variant="caption" display="block" sx={{ mt: 0 }}>
+            <ScheduleOutlinedIcon sx={{ fontSize: 12, verticalAlign: 'middle', mr: 0.5 }} />
+            {timeDisplay}
+          </Typography>
+        </Box>
       </CardContent>
-      <CardActions sx={{ p: 2, gap: 0.1, pt: 0.5 }}>
+      <CardActions sx={{ p: 2, gap: 0.1, pt: 0.5, pb: 1.5 }}>
         <Link href={`/projects/${project.id}`} passHref prefetch style={{ flex: '9.5' }}>
           <Button
             variant="outlined"
@@ -335,7 +337,7 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
 
       {/* 実施期間表示 */}
       {(project.startDate || project.endDate) && (
-        <Box sx={{ p: 2, pt: 1, pl: 2.3 }}>
+        <Box sx={{ p: 2, pt: 0, pl: 2.3 }}>
           {(() => {
             const status = getDurationStatus(project.startDate, project.endDate);
             const startDisplay = formatDateForDisplay(project.startDate);

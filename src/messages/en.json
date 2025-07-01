@@ -59,6 +59,7 @@
       "creationFailed": "Project creation failed",
       "creating": "Creating..."
     },
+    "create": "New",
     "createNew": "New Project",
     "myProjects": "My Projects",
     "noProjects": "No projects found",
@@ -206,7 +207,7 @@
     "unexpectedError": "An unexpected error occurred"
   },
   "forms": {
-    "username": "Username", 
+    "username": "Username",
     "email": "Email",
     "newPassword": "New Password",
     "leaveBlankToKeep": "Leave blank to keep current password",
@@ -215,7 +216,7 @@
   "duration": {
     "title": "Duration Period",
     "startDate": "Start Date",
-    "endDate": "End Date", 
+    "endDate": "End Date",
     "active": "Active Period",
     "inactive": "Inactive Period",
     "outsideMessage": "Outside active period",
