@@ -89,6 +89,15 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
     setQuestionList((prev) => prev.map((q, i) => (i === index ? { ...q, text } : q)));
   };
 
+  const reorderQuestions = (oldIndex: number, newIndex: number) => {
+    setQuestionList((prev) => {
+      const result = [...prev];
+      const [removed] = result.splice(oldIndex, 1);
+      result.splice(newIndex, 0, removed);
+      return result;
+    });
+  };
+
   // 画像操作関数
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -291,6 +300,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
             addQuestion={addQuestion}
             updateQuestion={updateQuestion}
             removeQuestion={removeQuestion}
+            reorderQuestions={reorderQuestions}
           />
 
           {/* Images Card */}

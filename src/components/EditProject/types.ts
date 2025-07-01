@@ -70,6 +70,7 @@ export interface QuestionsCardProps {
   addQuestion: () => void;
   updateQuestion: (index: number, text: string) => void;
   removeQuestion: (index: number) => void;
+  reorderQuestions: (oldIndex: number, newIndex: number) => void;
 }
 
 // 画像管理プロップスの型定義
