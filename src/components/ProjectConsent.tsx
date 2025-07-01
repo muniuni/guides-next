@@ -87,7 +87,7 @@ export default function ProjectConsent({ projectId, isActive }: ProjectConsentPr
   };
 
   return (
-    <Box mt={4}>
+    <Box mt={4} px={{ xs: 0, sm: 0 }}>
       <FormControlLabel
         control={<Checkbox checked={agreed} onChange={handleCheckbox} />}
         label={t('consent.agree')}

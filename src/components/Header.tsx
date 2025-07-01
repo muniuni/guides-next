@@ -51,7 +51,7 @@ export default function Header() {
           zIndex: 1100,
         }}
       >
-        <Toolbar sx={{ minHeight: { xs: 56, sm: 64 }, px: { xs: 1, sm: 3 } }}>
+        <Toolbar sx={{ minHeight: { xs: 56, sm: 64 }, px: { xs: 2, sm: 3 } }}>
           <Box
             component={Link}
             href="/"
@@ -68,8 +68,8 @@ export default function Header() {
             <Box
               className="dot1"
               sx={{
-                width: 8,
-                height: 8,
+                width: { xs: 6, sm: 8 },
+                height: { xs: 6, sm: 8 },
                 bgcolor: 'primary.main',
                 borderRadius: '50%',
                 mr: 0.5,
@@ -79,8 +79,8 @@ export default function Header() {
             <Box
               className="dot2"
               sx={{
-                width: 8,
-                height: 8,
+                width: { xs: 6, sm: 8 },
+                height: { xs: 6, sm: 8 },
                 bgcolor: 'secondary.main',
                 borderRadius: '50%',
                 mr: 0.5,
@@ -90,8 +90,8 @@ export default function Header() {
             <Box
               className="dot3"
               sx={{
-                width: 8,
-                height: 8,
+                width: { xs: 6, sm: 8 },
+                height: { xs: 6, sm: 8 },
                 bgcolor: 'error.main',
                 borderRadius: '50%',
                 mr: 1,
@@ -101,7 +101,12 @@ export default function Header() {
             <Typography
               variant="h6"
               component="span"
-              sx={{ color: '#000', fontWeight: 'bold', ml: 0.2 }}
+              sx={{ 
+                color: '#000', 
+                fontWeight: 'bold', 
+                ml: 0.2,
+                fontSize: { xs: '1.1rem', sm: '1.25rem' }
+              }}
             >
               n-GUIDES
             </Typography>

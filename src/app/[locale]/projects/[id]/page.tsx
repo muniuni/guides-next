@@ -48,9 +48,9 @@ export default async function ProjectPage(context: PageParams) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        p: { xs: 2, sm: 3, md: 4 },
+        p: { xs: 1, sm: 3, md: 4 },
         background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
-        pt: { xs: '48px', sm: '56px', md: '56px' },
+        pt: { xs: '20px', sm: '56px', md: '56px' },
         overflow: 'auto',
       }}
     >

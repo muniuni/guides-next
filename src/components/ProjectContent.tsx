@@ -33,14 +33,14 @@ export default function ProjectContent({ project }: ProjectContentProps) {
       : tDuration('noEndDate');
 
   return (
-    <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 800, md: 1200 } }}>
+    <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 800, md: 1200 }, mt: { xs: 0, sm: 0 } }}>
       {/* 実施期間ステータス表示 */}
       {hasDuration && (
         <Box 
           sx={{ 
-            mb: 2, 
+            mb: { xs: 1, sm: 2 }, 
             textAlign: 'center',
-            p: 2,
+            p: { xs: 1, sm: 2 },
             borderRadius: 2,
             border: 1,
             borderColor: durationStatus.isActive ? 'success.main' : 'error.main',
@@ -48,7 +48,7 @@ export default function ProjectContent({ project }: ProjectContentProps) {
             color: durationStatus.isActive ? 'success.main' : 'error.main'
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+          <Typography variant={{ xs: 'body1', sm: 'h6' }} sx={{ fontWeight: 'medium' }}>
             {durationStatus.isActive ? tDuration('active') : tDuration('inactive')}：{periodText}
           </Typography>
         </Box>
@@ -58,7 +58,7 @@ export default function ProjectContent({ project }: ProjectContentProps) {
         elevation={4}
         sx={{
           width: '100%',
-          p: { xs: 3, sm: 4, md: 6 },
+          p: { xs: 2, sm: 4, md: 6 },
           borderRadius: { xs: 2, sm: 3, md: 4 },
           background: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(10px)',
