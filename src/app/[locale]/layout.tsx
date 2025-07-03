@@ -12,6 +12,8 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  title: 'n-GUIDES',
+  description: 'n-GUIDESは、あなたの感性評価プロジェクトを支援する統合型プラットフォームです。',
   openGraph: {
     title: 'n-GUIDES',
     description: 'n-GUIDESは、あなたの感性評価プロジェクトを支援する統合型プラットフォームです。',
