@@ -13,10 +13,26 @@ export async function generateMetadata(context: PageParams): Promise<Metadata> {
   const params = await context.params;
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { name: true },
+    select: { name: true, description: true },
   });
+  
+  const title = project ? project.name : 'Project';
+  const description = project?.description || 'n-GUIDESは、あなたの感性評価プロジェクトを支援する統合型プラットフォームです。';
+  
   return {
-    title: project ? project.name : 'Project',
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: '/ogp/thumbnail.png',
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
   };
 }
 
@@ -39,6 +55,12 @@ export default async function ProjectPage(context: PageParams) {
     );
   }
 
+  const projectWithStringDates = {
+    ...project,
+    startDate: project.startDate?.toISOString() || null,
+    endDate: project.endDate?.toISOString() || null,
+  };
+
   return (
     <Box
       sx={{
@@ -54,7 +76,7 @@ export default async function ProjectPage(context: PageParams) {
         overflow: 'auto',
       }}
     >
-      <ProjectContent project={project} />
+      <ProjectContent project={projectWithStringDates} />
     </Box>
   );
 }
