@@ -1,8 +1,34 @@
 /**
- * Truncates text to a specified maximum length and adds ellipsis if needed
+ * Strips Markdown formatting from text
  */
-export const truncate = (text: string, max: number): string =>
-  text.length > max ? text.slice(0, max) + '...' : text;
+export const stripMarkdown = (text: string): string => {
+  return text
+    // Remove headers
+    .replace(/^#{1,6}\s+/gm, '')
+    // Remove bold/italic
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/_(.*?)_/g, '$1')
+    // Remove links
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    // Remove code blocks
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`([^`]*)`/g, '$1')
+    // Remove line breaks and extra spaces
+    .replace(/\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+/**
+ * Truncates text to a specified maximum length and adds ellipsis if needed
+ * Also strips Markdown formatting before truncating
+ */
+export const truncate = (text: string, max: number): string => {
+  const cleanText = stripMarkdown(text);
+  return cleanText.length > max ? cleanText.slice(0, max) + '...' : cleanText;
+};
 
 /**
  * Formats a date string into a readable date/time format

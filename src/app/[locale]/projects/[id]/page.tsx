@@ -9,6 +9,26 @@ interface PageParams {
   params: Promise<{ id: string; locale: string }>;
 }
 
+function stripMarkdown(text: string): string {
+  return text
+    // Remove headers
+    .replace(/^#{1,6}\s+/gm, '')
+    // Remove bold/italic
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/_(.*?)_/g, '$1')
+    // Remove links
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    // Remove code blocks
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`([^`]*)`/g, '$1')
+    // Remove line breaks and extra spaces
+    .replace(/\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export async function generateMetadata(context: PageParams): Promise<Metadata> {
   const params = await context.params;
   const project = await prisma.project.findUnique({
@@ -17,7 +37,8 @@ export async function generateMetadata(context: PageParams): Promise<Metadata> {
   });
   
   const title = project ? project.name : 'Project';
-  const description = project?.description || 'n-GUIDESは、あなたの感性評価プロジェクトを支援する統合型プラットフォームです。';
+  const rawDescription = project?.description || 'n-GUIDESは、あなたの感性評価プロジェクトを支援する統合型プラットフォームです。';
+  const description = stripMarkdown(rawDescription);
   
   return {
     title,
