@@ -12,8 +12,17 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'n-GUIDES',
-  description: 'Image perception evaluation platform',
+  openGraph: {
+    title: 'n-GUIDES',
+    description: 'n-GUIDESは、あなたの感性評価プロジェクトを支援する統合型プラットフォームです。',
+    images: [
+      {
+        url: '/ogp/thumbnail.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
 };
 
 export function generateStaticParams() {
