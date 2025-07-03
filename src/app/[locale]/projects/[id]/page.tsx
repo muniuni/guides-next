@@ -10,23 +10,25 @@ interface PageParams {
 }
 
 function stripMarkdown(text: string): string {
-  return text
-    // Remove headers
-    .replace(/^#{1,6}\s+/gm, '')
-    // Remove bold/italic
-    .replace(/\*\*(.*?)\*\*/g, '$1')
-    .replace(/\*(.*?)\*/g, '$1')
-    .replace(/__(.*?)__/g, '$1')
-    .replace(/_(.*?)_/g, '$1')
-    // Remove links
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    // Remove code blocks
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/`([^`]*)`/g, '$1')
-    // Remove line breaks and extra spaces
-    .replace(/\n/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return (
+    text
+      // Remove headers
+      .replace(/^#{1,6}\s+/gm, '')
+      // Remove bold/italic
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/__(.*?)__/g, '$1')
+      .replace(/_(.*?)_/g, '$1')
+      // Remove links
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      // Remove code blocks
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/`([^`]*)`/g, '$1')
+      // Remove line breaks and extra spaces
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
 export async function generateMetadata(context: PageParams): Promise<Metadata> {
@@ -35,11 +37,13 @@ export async function generateMetadata(context: PageParams): Promise<Metadata> {
     where: { id: params.id },
     select: { name: true, description: true },
   });
-  
-  const title = project ? project.name : 'Project';
-  const rawDescription = project?.description || 'n-GUIDESは、あなたの感性評価プロジェクトを支援する統合型プラットフォームです。';
+
+  const title = project ? `${project.name} | n-GUIDES` : 'n-GUIDES';
+  const rawDescription =
+    project?.description ||
+    'n-GUIDESは、あなたの感性評価プロジェクトを支援する統合型プラットフォームです。';
   const description = stripMarkdown(rawDescription);
-  
+
   return {
     title,
     description,
@@ -60,10 +64,17 @@ export async function generateMetadata(context: PageParams): Promise<Metadata> {
 export default async function ProjectPage(context: PageParams) {
   const params = await context.params;
   const t = await getTranslations('projects');
-  
+
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { id: true, name: true, description: true, consentInfo: true, startDate: true, endDate: true },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      consentInfo: true,
+      startDate: true,
+      endDate: true,
+    },
   });
 
   if (!project) {
