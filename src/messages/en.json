@@ -133,7 +133,18 @@
       "maxFileSize": "Max file size: 10MB",
       "keepEditing": "Keep Editing",
       "otherSettings": "Other Settings",
-      "allowMultipleAnswers": "Allow multiple answers from the same person"
+      "allowMultipleAnswers": "Allow multiple answers from the same person",
+      "preview": "Preview",
+      "evaluationMethod": "Evaluation Method",
+      "sliderMethod": "Slider Evaluation",
+      "radioMethod": "7-point Scale Evaluation",
+      "sliderDescription": "Use a slider to input continuous values from -1 to 1.",
+      "radioDescription": "Use 7 radio buttons to input graded values from -3 to 3.",
+      "questionLabel": "Question {index}",
+      "leftLabel": "Left Label (e.g. Strongly Disagree)",
+      "rightLabel": "Right Label (e.g. Strongly Agree)",
+      "leftLabelPlaceholder": "Strongly Disagree",
+      "rightLabelPlaceholder": "Strongly Agree"
     }
   },
   "evaluation": {

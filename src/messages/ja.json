@@ -133,7 +133,18 @@
       "maxFileSize": "最大ファイルサイズ：10MB",
       "keepEditing": "編集を継続",
       "otherSettings": "その他設定",
-      "allowMultipleAnswers": "同一人物からの複数回答を許可する"
+      "allowMultipleAnswers": "同一人物からの複数回答を許可する",
+      "preview": "プレビュー",
+      "evaluationMethod": "評価方法",
+      "sliderMethod": "スライダー評価",
+      "radioMethod": "7段階評価",
+      "sliderDescription": "スライダーを使用して、-1から1までの連続的な値を入力します。",
+      "radioDescription": "7つのラジオボタンを使用して、-3から3までの段階的な値を入力します。",
+      "questionLabel": "質問 {index}",
+      "leftLabel": "左ラベル (例: 全くそう思わない)",
+      "rightLabel": "右ラベル (例: 非常にそう思う)",
+      "leftLabelPlaceholder": "全くそう思わない",
+      "rightLabelPlaceholder": "非常にそう思う"
     }
   },
   "evaluation": {

@@ -1,4 +1,5 @@
 import { Question, Image } from '@/types/project';
+export type { Question };
 
 export interface ImageRecord extends Image {}
 

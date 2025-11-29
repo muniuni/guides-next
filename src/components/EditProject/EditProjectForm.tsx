@@ -185,7 +185,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
         .filter((q) => q.text.trim() !== '' || (q.leftLabel && q.leftLabel.trim() !== '') || (q.rightLabel && q.rightLabel.trim() !== ''))
         .map((q, index) => ({
           ...q,
-          text: q.text.trim() === '' ? `質問 ${index + 1}` : q.text
+          text: q.text.trim() === '' ? t('questionLabel', { index: index + 1 }) : q.text
         }));
 
       const formData = new FormData();

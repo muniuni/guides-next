@@ -86,7 +86,7 @@ export function GeneralInformationCard({
                     size="small"
                   />
                 }
-                label={<Typography variant="body2">プレビュー</Typography>}
+                label={<Typography variant="body2">{t('preview')}</Typography>}
                 labelPlacement="start"
               />
             </Box>
@@ -131,7 +131,7 @@ export function GeneralInformationCard({
                     size="small"
                   />
                 }
-                label={<Typography variant="body2">プレビュー</Typography>}
+                label={<Typography variant="body2">{t('preview')}</Typography>}
                 labelPlacement="start"
               />
             </Box>
@@ -250,7 +250,7 @@ export function GeneralInformationCard({
 
             <FormControl component="fieldset" sx={{ mt: 2, display: 'block' }}>
               <FormLabel component="legend" sx={{ mb: 1, fontSize: '1rem', color: 'text.primary' }}>
-                評価方法
+                {t('evaluationMethod')}
               </FormLabel>
               <RadioGroup
                 row
@@ -260,15 +260,15 @@ export function GeneralInformationCard({
                 <FormControlLabel
                   value="slider"
                   control={<Radio />}
-                  label="スライダー評価"
+                  label={t('sliderMethod')}
                   sx={{ mr: 4 }}
                 />
-                <FormControlLabel value="radio" control={<Radio />} label="7段階評価" />
+                <FormControlLabel value="radio" control={<Radio />} label={t('radioMethod')} />
               </RadioGroup>
               <FormHelperText>
                 {evaluationMethod === 'slider'
-                  ? 'スライダーを使用して、-1から1までの連続的な値を入力します。'
-                  : '7つのラジオボタンを使用して、-3から3までの段階的な値を入力します。'}
+                  ? t('sliderDescription')
+                  : t('radioDescription')}
               </FormHelperText>
             </FormControl>
           </Box>

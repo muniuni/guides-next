@@ -40,6 +40,7 @@ interface SortableQuestionItemProps {
 }
 
 function SortableQuestionItem({ question, index, updateQuestion, removeQuestion }: SortableQuestionItemProps) {
+  const t = useTranslations('projects.edit');
   const {
     attributes,
     listeners,
@@ -92,7 +93,7 @@ function SortableQuestionItem({ question, index, updateQuestion, removeQuestion 
           <DragIndicatorIcon fontSize="small" sx={{ color: 'text.secondary' }} />
         </IconButton>
         <TextField
-          label={`質問 ${index + 1}`}
+          label={t('questionLabel', { index: index + 1 })}
           value={question.text}
           onChange={(e) => updateQuestion(index, { text: e.target.value })}
           fullWidth
@@ -109,20 +110,20 @@ function SortableQuestionItem({ question, index, updateQuestion, removeQuestion 
 
       <Stack direction="row" spacing={2} pl={5}>
         <TextField
-          label="左ラベル (例: 全くそう思わない)"
+          label={t('leftLabel')}
           value={question.leftLabel || ''}
           onChange={(e) => updateQuestion(index, { leftLabel: e.target.value })}
           fullWidth
           size="small"
-          placeholder="全くそう思わない"
+          placeholder={t('leftLabelPlaceholder')}
         />
         <TextField
-          label="右ラベル (例: 非常にそう思う)"
+          label={t('rightLabel')}
           value={question.rightLabel || ''}
           onChange={(e) => updateQuestion(index, { rightLabel: e.target.value })}
           fullWidth
           size="small"
-          placeholder="非常にそう思う"
+          placeholder={t('rightLabelPlaceholder')}
         />
       </Stack>
     </Stack>

@@ -328,10 +328,10 @@ const SliderForm = ({
             </Typography>
             <Box sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.44rem', fontWeight: 500 }}>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}>
                   {q.leftLabel || t('stronglyDisagree')}
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.44rem', fontWeight: 500 }}>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}>
                   {q.rightLabel || t('stronglyAgree')}
                 </Typography>
               </Box>
@@ -540,10 +540,10 @@ const RadioForm = ({
             </Typography>
             <Box sx={{ px: { xs: 0, sm: 2, md: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: { md: '650px' }, mb: 1 }}>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.44rem', fontWeight: 500 }}>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}>
                   {q.leftLabel || t('stronglyDisagree')}
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.44rem', fontWeight: 500 }}>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}>
                   {q.rightLabel || t('stronglyAgree')}
                 </Typography>
               </Box>
