@@ -17,6 +17,7 @@ export interface Project {
   consentInfo?: string;
   startDate?: string | null;
   endDate?: string | null;
+  allowMultipleAnswers?: boolean;
 }
 
 export interface Image {

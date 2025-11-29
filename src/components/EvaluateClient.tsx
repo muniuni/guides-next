@@ -36,6 +36,7 @@ interface ProjectProps {
   imageDuration: number;
   questions: Question[];
   images: ImageItem[];
+  allowMultipleAnswers?: boolean;
 }
 
 interface EvaluateClientProps {
@@ -73,6 +74,7 @@ const ImageViewer = ({
   onImageLoad: (event: React.SyntheticEvent<HTMLImageElement>) => void;
   imageStyle: React.CSSProperties;
 }) => {
+  const t = useTranslations('evaluation');
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -95,10 +97,11 @@ const ImageViewer = ({
           position: 'relative',
           width: '100%',
           height: '100%',
-          backgroundColor: '#f0f0f0',
+          backgroundColor: '#f8f9fa',
+          borderRadius: 4,
         }}
       >
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
           {t('imageNotAvailable')}
         </Typography>
       </Box>
@@ -121,6 +124,7 @@ const ImageViewer = ({
         MozTouchCallout: 'none',
         MozUserSelect: 'none',
         userSelect: 'none',
+        borderRadius: 4,
       }}
       onContextMenu={(e) => e.preventDefault()}
       onMouseDown={(e) => e.preventDefault()}
@@ -136,7 +140,7 @@ const ImageViewer = ({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#f5f5f5',
+            backgroundColor: '#f8f9fa',
             width: '100%',
             height: '100%',
             overflow: 'hidden',
@@ -149,15 +153,9 @@ const ImageViewer = ({
               position: 'relative',
               animation: 'pulse 1.5s ease-in-out 0.5s infinite',
               '@keyframes pulse': {
-                '0%': {
-                  opacity: 0.6,
-                },
-                '50%': {
-                  opacity: 0.8,
-                },
-                '100%': {
-                  opacity: 0.6,
-                },
+                '0%': { opacity: 0.6 },
+                '50%': { opacity: 0.8 },
+                '100%': { opacity: 0.6 },
               },
             }}
           >
@@ -169,20 +167,8 @@ const ImageViewer = ({
                 transform: 'translate(-50%, -50%)',
                 width: '40%',
                 height: '40%',
-                backgroundColor: '#ebebeb',
-                borderRadius: 2,
-              }}
-            />
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: '20%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '60%',
-                height: '10%',
-                backgroundColor: '#ebebeb',
-                borderRadius: 2,
+                backgroundColor: '#e9ecef',
+                borderRadius: 4,
               }}
             />
           </Box>
@@ -199,8 +185,9 @@ const ImageViewer = ({
           height: imageStyle.height || 'auto',
           maxWidth: '100%',
           maxHeight: '100%',
-          opacity: isImageLoaded ? 1 : 0, // Hide image until loaded
-          transition: 'opacity 0.3s ease-in-out',
+          opacity: isImageLoaded ? 1 : 0,
+          transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+          filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))',
         }}
         priority
         fetchPriority="high"
@@ -219,41 +206,60 @@ const TimerProgress = ({
   timeLeft: number;
   totalDuration: number;
 }) => {
+  // Calculate percentage
+  const percentage = Math.max(0, Math.min(100, (timeLeft / totalDuration) * 100));
+
   return (
     <Box
       sx={{
         width: '100%',
-        // PC版ではマージンをより少なく
-        mt: { xs: 1.5, sm: 2, md: 1, lg: 1 },
-        mb: { xs: 0.5, sm: 1, md: 0.5, lg: 0.5 },
+        mt: { xs: 2, sm: 3 },
+        mb: { xs: 1, sm: 1.5 },
         display: 'flex',
         alignItems: 'center',
+        gap: 2,
       }}
     >
-      <LinearProgress
-        variant="determinate"
-        value={(timeLeft / totalDuration) * 100}
+      {/* Custom Progress Bar Container */}
+      <Box
         sx={{
           flexGrow: 1,
-          height: { xs: 6, sm: 10, md: 12 },
-          borderRadius: { xs: 2, sm: 3, md: 4 },
-          backgroundColor: 'rgba(0,0,0,0.1)',
-          '& .MuiLinearProgress-bar': {
-            borderRadius: { xs: 2, sm: 3, md: 4 },
-            background: '#000000',
-          },
+          height: { xs: 8, sm: 10 },
+          borderRadius: 10,
+          backgroundColor: 'rgba(0,0,0,0.05)',
+          overflow: 'hidden',
+          position: 'relative',
         }}
-      />
+      >
+        {/* Progress Bar Fill */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: `${percentage}%`,
+            background: 'linear-gradient(90deg, #333333 0%, #000000 100%)',
+            borderRadius: 'inherit',
+            willChange: 'width',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          }}
+        />
+      </Box>
       <Typography
         variant="h6"
         sx={{
-          minWidth: { xs: 40, sm: 48, md: 56 },
+          minWidth: { xs: 45, sm: 55 },
           textAlign: 'right',
-          fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
-          color: 'rgba(0,0,0,0.6)',
+          fontSize: { xs: '0.9rem', sm: '1.1rem' },
+          fontWeight: 600,
+          color: 'text.primary',
+          fontFeatureSettings: '"tnum"',
+          fontVariantNumeric: 'tabular-nums',
         }}
       >
-        {Math.ceil(timeLeft)}s
+        {Math.ceil(timeLeft)}
+        <span style={{ fontSize: '0.7em', marginLeft: '2px', opacity: 0.7 }}>s</span>
       </Typography>
     </Box>
   );
@@ -287,96 +293,135 @@ const SliderForm = ({
       onSubmit={handleSubmit}
       sx={{
         width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: { xs: 1, sm: 1.5, md: 2 },
-        pb: { xs: 1, sm: 1.5, md: 2 },
-        maxWidth: { md: '850px' },
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+        gap: { xs: 3, sm: 4 },
+        pb: { xs: 4, sm: 6 },
+        maxWidth: { md: '1200px' },
         mx: 'auto',
-        overflow: 'auto',
-        // Hide scrollbar for all browsers
-        '&::-webkit-scrollbar': {
-          display: 'none',
-        },
-        msOverflowStyle: 'none',
-        scrollbarWidth: 'none',
       }}
     >
       {questions.map((q, i) => (
-        <Card
+        <motion.div
           key={q.id}
-          sx={{
-            width: '100%',
-            p: { xs: 1, sm: 2, md: 2.5 },
-            borderRadius: { xs: 2, sm: 3 },
-            background: 'rgba(255, 255, 255, 0.9)',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-            mb: i === questions.length - 1 ? { xs: 3, sm: 3.5, md: 4 } : 0,
-          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1, duration: 0.5 }}
+          style={{ width: '100%', height: '100%' }}
         >
-          <Typography
-            variant="h4"
-            align="center"
-            gutterBottom
+          <Card
+            elevation={0}
             sx={{
-              fontWeight: 'bold',
-              color: '#000000',
-              mb: { xs: 0.5, sm: 1, md: 1.25 },
-              fontSize: { xs: '1rem', sm: '1.35rem', md: '1.65rem' },
-              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 },
+              width: '100%',
+              height: '100%',
+              p: { xs: 3, sm: 4, md: 5 },
+              borderRadius: { xs: 3, sm: 4 },
+              background: '#ffffff',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.04)',
+              border: '1px solid rgba(0,0,0,0.03)',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 15px 50px rgba(0, 0, 0, 0.06)',
+              },
             }}
           >
-            {q.text}
-          </Typography>
-          <Slider
-            marks={[
-              { value: -1, label: '-1' },
-              { value: 0, label: '0' },
-              { value: 1, label: '1' },
-            ]}
-            track={false}
-            value={values[i].value}
-            onChange={(_, v) => handleChange(i, v as number)}
-            min={-1}
-            max={1}
-            step={0.01}
-            valueLabelDisplay="auto"
-            disabled={disabled}
-            sx={{
-              width: { xs: 'calc(100% - 32px)', sm: 'calc(100% - 48px)', md: 'calc(100% - 64px)' }, // Reduce width to account for margins
-              mx: { xs: 2, sm: 3, md: 4 }, // Add horizontal margins
-              '& .MuiSlider-thumb': {
-                width: { xs: 20, sm: 26, md: 32 },
-                height: { xs: 20, sm: 26, md: 32 },
-                background: '#000000',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-              },
-              '& .MuiSlider-track': {
-                background: '#000000',
-                height: { xs: 3, sm: 4, md: 5 },
-              },
-              '& .MuiSlider-rail': {
-                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                height: { xs: 3, sm: 4, md: 5 },
-              },
-              '& .MuiSlider-mark': {
-                width: { xs: 4, sm: 6, md: 7 },
-                height: { xs: 4, sm: 6, md: 7 },
-                borderRadius: '50%',
-                backgroundColor: '#000000',
-              },
-              '& .MuiSlider-markLabel': {
-                fontSize: { xs: '0.75rem', sm: '0.95rem', md: '1.1rem' },
-                marginTop: { xs: 0.25, sm: 0.5, md: 0.8 },
-              },
-              '& .MuiSlider-valueLabel': {
-                fontSize: { xs: '0.75rem', sm: '0.95rem', md: '1.1rem' },
-                padding: { xs: '0.25rem 0.5rem', sm: '0.35rem 0.65rem', md: '0.45rem 0.85rem' },
-              },
-            }}
-          />
-        </Card>
+            <Typography
+              variant="h4"
+              align="center"
+              gutterBottom
+              sx={{
+                fontWeight: 700,
+                color: '#1a1a1a',
+                mb: { xs: 3, sm: 4 },
+                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
+                lineHeight: 1.4,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {q.text}
+            </Typography>
+            <Box sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
+              <Slider
+                marks={[
+                  { value: -1, label: '-1' },
+                  { value: 0, label: '0' },
+                  { value: 1, label: '1' },
+                ]}
+                track={false}
+                value={values[i].value}
+                onChange={(_, v) => handleChange(i, v as number)}
+                min={-1}
+                max={1}
+                step={0.01}
+                valueLabelDisplay="auto"
+                disabled={disabled}
+                sx={{
+                  height: 6,
+                  '& .MuiSlider-thumb': {
+                    width: 28,
+                    height: 28,
+                    backgroundColor: '#fff',
+                    border: '2px solid currentColor',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
+                      boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                    },
+                    '&::before': {
+                      display: 'none',
+                    },
+                  },
+                  '& .MuiSlider-track': {
+                    border: 'none',
+                    backgroundColor: '#000',
+                  },
+                  '& .MuiSlider-rail': {
+                    opacity: 1,
+                    backgroundColor: '#e0e0e0',
+                  },
+                  '& .MuiSlider-mark': {
+                    backgroundColor: '#bfbfbf',
+                    height: 8,
+                    width: 8,
+                    borderRadius: '50%',
+                    '&.MuiSlider-markActive': {
+                      opacity: 1,
+                      backgroundColor: 'currentColor',
+                    },
+                  },
+                  '& .MuiSlider-markLabel': {
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    color: 'text.secondary',
+                    mt: 1,
+                  },
+                  '& .MuiSlider-valueLabel': {
+                    lineHeight: 1.2,
+                    fontSize: 12,
+                    background: 'unset',
+                    padding: 0,
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50% 50% 50% 0',
+                    backgroundColor: '#000',
+                    transformOrigin: 'bottom left',
+                    transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
+                    '&::before': { display: 'none' },
+                    '&.MuiSlider-valueLabelOpen': {
+                      transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
+                    },
+                    '& > *': {
+                      transform: 'rotate(45deg)',
+                    },
+                  },
+                }}
+              />
+            </Box>
+          </Card>
+        </motion.div>
       ))}
       <Button
         type="submit"
@@ -384,22 +429,30 @@ const SliderForm = ({
         fullWidth
         disabled={disabled}
         sx={{
-          py: { xs: 1, sm: 1.5, md: 2.25 },
-          fontSize: { xs: '0.875rem', sm: '1.15rem', md: '1.35rem' },
-          fontWeight: 'bold',
-          borderRadius: { xs: 2, sm: 3 },
+          gridColumn: { xs: '1', md: '1 / -1' },
+          justifySelf: 'center',
+          py: 2,
+          fontSize: '1.1rem',
+          fontWeight: 700,
+          borderRadius: 100,
           background: '#000000',
           color: '#ffffff',
-          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)',
+          textTransform: 'none',
+          transition: 'all 0.3s ease',
           '&:hover': {
-            boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
-            background: '#000000',
+            boxShadow: '0 12px 25px rgba(0, 0, 0, 0.2)',
+            background: '#1a1a1a',
+            transform: 'translateY(-2px)',
+          },
+          '&:active': {
+            transform: 'translateY(0)',
           },
           '&.Mui-disabled': {
-            background: 'rgba(0, 0, 0, 0.3)',
-            color: '#ffffff',
+            background: '#e0e0e0',
+            color: '#9e9e9e',
           },
-          maxWidth: { md: '450px' },
+          maxWidth: '400px',
         }}
       >
         {disabled ? t('submitting') : t('next')}
@@ -447,6 +500,16 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       document.body.style.overflow = '';
     };
   }, []);
+
+  // Check for previous answers
+  useEffect(() => {
+    if (!project.allowMultipleAnswers) {
+      const hasAnswered = localStorage.getItem(`project_answered_${project.id}`);
+      if (hasAnswered) {
+        setError('alreadyAnswered');
+      }
+    }
+  }, [project.id, project.allowMultipleAnswers]);
 
   // 配列をシャッフルするヘルパー関数
   const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
@@ -626,14 +689,6 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     forceScrollToTop();
   }, [forceScrollToTop]);
 
-  // Error Handling
-  if (!imagesToShow.length)
-    return (
-      <Alert severity="error" sx={{ mt: 4 }}>
-        {t('noImagesRegistered')}
-      </Alert>
-    );
-
   // Event Handlers
   const handleImageLoad = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement>) => {
@@ -654,33 +709,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     [phase, startTimer]
   );
 
-  const handleAnswerSubmit = useCallback(
-    (vals: { questionId: string; value: number }[]) => {
-      const batch = vals.map((v) => ({
-        imageId: imagesToShow[currentIndex].id,
-        questionId: v.questionId,
-        value: v.value,
-      }));
-      setAnswers((prev) => [...prev, ...batch]);
-
-      if (currentIndex + 1 < imagesToShow.length) {
-        const nextIndex = currentIndex + 1;
-        // Preload the next image before transitioning
-        preloadNextImage(nextIndex);
-
-        // Stop current timer and reset
-        stopTimer();
-        setCurrentIndex(nextIndex);
-        setPhase(PHASE.SHOW_IMAGE);
-        scrollToTop();
-      } else {
-        submitAllScores([...answers, ...batch]);
-      }
-    },
-    [answers, currentIndex, imagesToShow, scrollToTop, preloadNextImage, stopTimer]
-  );
-
-  const submitAllScores = async (all: Answer[]) => {
+  const submitAllScores = useCallback(async (all: Answer[]) => {
     setSubmitting(true);
     try {
       const res = await fetch('/api/scores', {
@@ -689,13 +718,18 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         body: JSON.stringify({ sessionId, answers: all }),
       });
       if (!res.ok) throw new Error('Failed to submit scores');
+
+      if (!project.allowMultipleAnswers) {
+        localStorage.setItem(`project_answered_${project.id}`, 'true');
+      }
+
       router.push(`/projects/${project.id}/thanks`);
     } catch {
-      setError(t('errorSubmitting'));
+      setError('errorSubmitting');
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [sessionId, project.id, project.allowMultipleAnswers, router]);
 
   const calculateImageStyle = useCallback(() => {
     if (!currentImageSize || !containerRef.current) return {};
@@ -740,18 +774,204 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     };
   }, [currentImageSize]);
 
+  const handleAnswerSubmit = useCallback(
+    (vals: { questionId: string; value: number }[]) => {
+      const batch = vals.map((v) => ({
+        imageId: imagesToShow[currentIndex].id,
+        questionId: v.questionId,
+        value: v.value,
+      }));
+      setAnswers((prev) => [...prev, ...batch]);
+
+      if (currentIndex + 1 < imagesToShow.length) {
+        const nextIndex = currentIndex + 1;
+        // Preload the next image before transitioning
+        preloadNextImage(nextIndex);
+
+        // Stop current timer and reset
+        stopTimer();
+        setCurrentIndex(nextIndex);
+        setPhase(PHASE.SHOW_IMAGE);
+        scrollToTop();
+      } else {
+        submitAllScores([...answers, ...batch]);
+      }
+    },
+    [answers, currentIndex, imagesToShow, scrollToTop, preloadNextImage, stopTimer, submitAllScores]
+  );
+
+  // Error Handling
+  if (error) {
+    let errorMessage = error;
+    // Try to translate if it looks like a key
+    if (error === 'alreadyAnswered' || error === 'errorSubmitting') {
+      // Direct mapping for fallback
+      const fallbacks: Record<string, string> = {
+        alreadyAnswered: 'You have already answered this survey.',
+        errorSubmitting: 'Error submitting. Please try again.'
+      };
+
+      try {
+        const translated = t(error);
+        // Check if translation returned the key itself (common i18n behavior when missing)
+        if (translated === `evaluation.${error}` || translated === error) {
+          errorMessage = fallbacks[error];
+        } else {
+          errorMessage = translated;
+        }
+      } catch (e) {
+        console.error('Translation error:', e);
+        errorMessage = fallbacks[error];
+      }
+    }
+
+    return (
+      <Box
+        sx={{
+          backgroundColor: '#f8f9fa',
+          width: '100%',
+          minHeight: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: { xs: 3, sm: 4, md: 6 },
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            width: '100%',
+            maxWidth: { xs: '100%', sm: 600, md: 800 },
+            p: { xs: 4, sm: 6, md: 8 },
+            borderRadius: { xs: 3, sm: 4 },
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.05)',
+            border: '1px solid rgba(255,255,255,0.5)',
+            textAlign: 'center',
+          }}
+        >
+          <Typography
+            variant="h3"
+            gutterBottom
+            sx={{
+              fontWeight: 800,
+              color: '#1a1a1a',
+              mb: { xs: 3, sm: 4 },
+              fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+              letterSpacing: '-0.03em',
+            }}
+          >
+            {(() => {
+              if (error === 'alreadyAnswered') {
+                try {
+                  const translated = t('alreadyAnswered');
+                  return (translated === 'evaluation.alreadyAnswered' || translated === 'alreadyAnswered')
+                    ? 'Already Answered'
+                    : translated;
+                } catch {
+                  return 'Already Answered';
+                }
+              }
+              return t('error');
+            })()}
+          </Typography>
+
+          <Typography
+            variant="body1"
+            gutterBottom
+            sx={{
+              color: '#4a4a4a',
+              fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' },
+              lineHeight: 1.8,
+              mb: { xs: 4, sm: 6 },
+              maxWidth: '600px',
+              mx: 'auto',
+            }}
+          >
+            {errorMessage}
+          </Typography>
+
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: { xs: 2, sm: 3 },
+              flexWrap: 'wrap',
+            }}
+          >
+            <Button
+              variant="contained"
+              href={`/projects/${project.id}`}
+              sx={{
+                py: 2,
+                px: 5,
+                fontSize: '1rem',
+                fontWeight: 700,
+                borderRadius: 100,
+                background: '#000000',
+                color: '#ffffff',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
+                textTransform: 'none',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  boxShadow: '0 15px 40px rgba(0, 0, 0, 0.2)',
+                  background: '#1a1a1a',
+                  transform: 'translateY(-2px)',
+                },
+              }}
+            >
+              {t('thanks.backToProject')}
+            </Button>
+
+            <Button
+              variant="outlined"
+              href="/"
+              sx={{
+                py: 2,
+                px: 5,
+                fontSize: '1rem',
+                fontWeight: 700,
+                borderRadius: 100,
+                borderColor: '#e0e0e0',
+                color: '#1a1a1a',
+                textTransform: 'none',
+                borderWidth: '2px',
+                '&:hover': {
+                  borderColor: '#000000',
+                  backgroundColor: 'transparent',
+                  borderWidth: '2px',
+                },
+              }}
+            >
+              {t('thanks.home')}
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
+    );
+  }
+
+  if (!imagesToShow.length)
+    return (
+      <Alert severity="error" sx={{ mt: 4 }}>
+        {t('noImagesRegistered')}
+      </Alert>
+    );
+
   return (
     <Box
       ref={scrollmRef}
       sx={{
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f8f9fa',
         width: '100%',
         minHeight: '100vh',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        p: { xs: 1, sm: 2, md: 1.5 }, // PC版では余白を少なく
-        background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        p: { xs: 2, sm: 3, md: 4 },
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
         position: 'fixed',
         top: 0,
         left: 0,
@@ -759,57 +979,44 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
         bottom: 0,
         overflow: 'auto',
         pt: {
-          xs: 'calc(56px + 0.75rem)',
-          sm: 'calc(64px + 0.5rem)',
-          md: 'calc(64px + 0.5rem)', // PC版では上部余白を少なく
+          xs: 'calc(56px + 1rem)',
+          sm: 'calc(64px + 2rem)',
+          md: 'calc(64px + 2rem)',
         },
         pb: {
-          xs: '0.75rem',
-          sm: '1rem',
-          md: '0.5rem', // PC版では下部余白を少なく
-          lg: '0.5rem',
+          xs: '1rem',
+          sm: '2rem',
+          md: '2rem',
         },
       }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         style={{
           width: '100%',
           maxWidth: 1000,
-          paddingTop: '0',
           paddingBottom: '5vh',
           position: 'relative',
           zIndex: 1,
-          overflow: 'hidden',
         }}
       >
         <Paper
-          elevation={4}
+          elevation={0}
           sx={{
             width: '100%',
-            p: { xs: 1, sm: 2, md: 2 },
-            borderRadius: { xs: 2, sm: 3, md: 3 },
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
+            p: { xs: 2, sm: 4, md: 5 },
+            borderRadius: { xs: 3, sm: 4 },
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.05)',
+            border: '1px solid rgba(255,255,255,0.5)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'visible',
-            mt: { xs: 0, sm: 0 },
             position: 'relative',
-            // PC版では最小高さを調整して画面ギリギリに表示
-            minHeight: { xs: '80vh', md: '85vh', lg: '88vh' },
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: -10,
-              left: 0,
-              right: 0,
-              height: 10,
-              background: 'transparent',
-            },
+            minHeight: { xs: '80vh', md: '85vh' },
           }}
         >
           <Box sx={{ flexShrink: 0 }}>
@@ -818,15 +1025,16 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
               gutterBottom
               align="center"
               sx={{
-                fontWeight: 'bold',
-                color: '#000000',
-                mb: { xs: 1, sm: 2, md: 2.5 },
-                fontSize: { xs: '1.25rem', sm: '1.6rem', md: '1.85rem' },
+                fontWeight: 800,
+                color: '#1a1a1a',
+                mb: { xs: 2, sm: 3 },
+                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
+                letterSpacing: '-0.02em',
               }}
             >
               {t('evaluationOf', { current: currentIndex + 1, total: imagesToShow.length })}
             </Typography>
-            <Divider sx={{ mb: { xs: 1, sm: 2, md: 2.5 }, borderColor: 'rgba(0, 0, 0, 0.1)' }} />
+            <Divider sx={{ mb: { xs: 3, sm: 4 }, borderColor: 'rgba(0, 0, 0, 0.06)' }} />
           </Box>
 
           <Box
@@ -841,10 +1049,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
               {phase === PHASE.SHOW_IMAGE ? (
                 <motion.div
                   key="image"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   style={{
                     flex: 1,
                     display: 'flex',
@@ -854,7 +1062,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                 >
                   <Stack
                     alignItems="center"
-                    spacing={{ xs: 1.5, sm: 2, md: 1.5 }}
+                    spacing={{ xs: 2, sm: 3 }}
                     sx={{
                       flex: 1,
                       minHeight: 0,
@@ -862,12 +1070,13 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                   >
                     <Card
                       ref={containerRef}
+                      elevation={0}
                       sx={{
                         width: '100%',
                         maxWidth: { xs: '100%', sm: 850, md: 950 },
-                        borderRadius: { xs: 2, sm: 3 },
+                        borderRadius: { xs: 3, sm: 4 },
                         overflow: 'hidden',
-                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -876,12 +1085,12 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                         position: 'relative',
                         height: 'auto',
                         maxHeight: {
-                          xs: 'calc(90vh - 160px)',
-                          sm: 'calc(90vh - 180px)',
-                          md: 'calc(92vh - 190px)', // プログレスバーとその余白（約70px）を考慮
-                          lg: 'calc(94vh - 200px)', // 大画面でも同様に
+                          xs: 'calc(90vh - 200px)',
+                          sm: 'calc(90vh - 220px)',
+                          md: 'calc(92vh - 240px)',
                         },
                         margin: '0 auto',
+                        background: '#f8f9fa',
                       }}
                     >
                       {imagesToShow[currentIndex] && imagesToShow[currentIndex].url ? (
@@ -899,7 +1108,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                             alignItems: 'center',
                             width: '100%',
                             height: '200px',
-                            backgroundColor: '#f0f0f0',
+                            backgroundColor: '#f8f9fa',
                           }}
                         >
                           <Typography variant="body1" color="text.secondary">
@@ -921,7 +1130,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   style={{
                     width: '100%',
                     display: 'flex',
@@ -942,11 +1151,11 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
             {submitting && (
               <LinearProgress
                 sx={{
-                  height: { xs: 4, sm: 5, md: 6 },
-                  borderRadius: { xs: 1, sm: 2 },
-                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
                   '& .MuiLinearProgress-bar': {
-                    borderRadius: { xs: 1, sm: 2 },
+                    borderRadius: 2,
                     background: '#000000',
                   },
                 }}
@@ -956,11 +1165,9 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
               <Alert
                 severity="error"
                 sx={{
-                  mt: { xs: 2, sm: 3 },
-                  borderRadius: { xs: 1, sm: 2 },
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                  color: '#000000',
+                  mt: 3,
+                  borderRadius: 2,
+                  boxShadow: '0 4px 12px rgba(211, 47, 47, 0.1)',
                 }}
               >
                 {error}

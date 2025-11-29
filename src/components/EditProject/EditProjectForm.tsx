@@ -21,10 +21,13 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
   const [projectName, setProjectName] = useState<string>(name);
   const [projectDesc, setProjectDesc] = useState<string>(description);
   const [consentText, setConsentText] = useState<string>(consentInfo);
-  
+
   // 実施期間ステート
   const [projectStartDate, setProjectStartDate] = useState<string>(formatDateForInput(startDate));
   const [projectEndDate, setProjectEndDate] = useState<string>(formatDateForInput(endDate));
+  const [allowMultipleAnswers, setAllowMultipleAnswers] = useState<boolean>(
+    initialProject.allowMultipleAnswers ?? true
+  );
 
   // カスタムフックでの数値入力管理
   const imageCountInfo = useNumberField(imageCount);
@@ -177,6 +180,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       formData.append('existingImageIds', JSON.stringify(existingImages.map((img) => img.id)));
       formData.append('startDate', parseInputDate(projectStartDate) || '');
       formData.append('endDate', parseInputDate(projectEndDate) || '');
+      formData.append('allowMultipleAnswers', String(allowMultipleAnswers));
 
       const res = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
@@ -233,7 +237,8 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       imageCountInfo.value !== imageCount.toString() ||
       imageDurationInfo.value !== imageDuration.toString() ||
       projectStartDate !== formatDateForInput(startDate) ||
-      projectEndDate !== formatDateForInput(endDate);
+      projectEndDate !== formatDateForInput(endDate) ||
+      allowMultipleAnswers !== (initialProject.allowMultipleAnswers ?? true);
 
     // 質問リストの変更チェック
     const questionsChanged = () => {
@@ -292,6 +297,8 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
             setStartDate={setProjectStartDate}
             endDate={projectEndDate}
             setEndDate={setProjectEndDate}
+            allowMultipleAnswers={allowMultipleAnswers}
+            setAllowMultipleAnswers={setAllowMultipleAnswers}
           />
 
           {/* Questions Card */}

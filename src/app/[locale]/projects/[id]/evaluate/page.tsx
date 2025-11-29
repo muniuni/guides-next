@@ -34,7 +34,7 @@ export async function generateMetadata(context: PageParams): Promise<Metadata> {
 export default async function EvaluatePage(context: PageParams) {
   const params = await context.params;
   const t = await getTranslations('projects');
-  
+
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     include: {
@@ -66,7 +66,10 @@ export default async function EvaluatePage(context: PageParams) {
         </Box>
       }
     >
-      <EvaluateClient project={project} />
+      <EvaluateClient project={{
+        ...project,
+        allowMultipleAnswers: (project as any).allowMultipleAnswers ?? true
+      }} />
     </Suspense>
   );
 }

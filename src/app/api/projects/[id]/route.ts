@@ -59,6 +59,7 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
   const endDateStr = formData.get('endDate') as string;
   const startDate = startDateStr && startDateStr !== '' ? new Date(startDateStr) : null;
   const endDate = endDateStr && endDateStr !== '' ? new Date(endDateStr) : null;
+  const allowMultipleAnswers = formData.get('allowMultipleAnswers') === 'true';
 
   /* 1. プロジェクト基本情報更新 */
   await prisma.project.update({
@@ -71,6 +72,7 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
       imageDuration,
       startDate,
       endDate,
+      allowMultipleAnswers,
     },
   });
 

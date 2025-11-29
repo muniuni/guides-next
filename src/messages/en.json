@@ -131,7 +131,9 @@
       "dragDropImages": "Drag and drop images here, or click to select",
       "supportedFormats": "Supported formats: JPG, PNG, GIF",
       "maxFileSize": "Max file size: 10MB",
-      "keepEditing": "Keep Editing"
+      "keepEditing": "Keep Editing",
+      "otherSettings": "Other Settings",
+      "allowMultipleAnswers": "Allow multiple answers from the same person"
     }
   },
   "evaluation": {
@@ -154,6 +156,7 @@
     "imageNotAvailable": "Image not available",
     "noImagesRegistered": "No images registered.",
     "errorSubmitting": "Error submitting. Please try again.",
+    "alreadyAnswered": "You have already answered this survey.",
     "evaluationOf": "Evaluation ({current}/{total})",
     "consent": {
       "title": "Informed Consent",

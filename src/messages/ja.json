@@ -131,7 +131,9 @@
       "dragDropImages": "画像をドラッグ&ドロップするか、クリックして選択",
       "supportedFormats": "対応形式：JPG、PNG、GIF",
       "maxFileSize": "最大ファイルサイズ：10MB",
-      "keepEditing": "編集を継続"
+      "keepEditing": "編集を継続",
+      "otherSettings": "その他設定",
+      "allowMultipleAnswers": "同一人物からの複数回答を許可する"
     }
   },
   "evaluation": {
@@ -154,6 +156,7 @@
     "imageNotAvailable": "画像が利用できません",
     "noImagesRegistered": "画像が登録されていません。",
     "errorSubmitting": "送信エラーが発生しました。再度お試しください。",
+    "alreadyAnswered": "このアンケートには既に回答済みです。",
     "evaluationOf": "評価 ({current}/{total})",
     "consent": {
       "title": "インフォームドコンセント",

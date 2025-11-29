@@ -41,6 +41,8 @@ export function GeneralInformationCard({
   setStartDate,
   endDate,
   setEndDate,
+  allowMultipleAnswers,
+  setAllowMultipleAnswers,
 }: GeneralInformationCardProps) {
   const t = useTranslations('projects.edit');
   const tDuration = useTranslations('duration');
@@ -223,6 +225,22 @@ export function GeneralInformationCard({
                 />
               </Box>
             </Stack>
+          </Box>
+
+          {/* その他設定 */}
+          <Box>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              {t('otherSettings')}
+            </Typography>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={allowMultipleAnswers}
+                  onChange={(e) => setAllowMultipleAnswers(e.target.checked)}
+                />
+              }
+              label={t('allowMultipleAnswers')}
+            />
           </Box>
         </Stack>
       </CardContent>
