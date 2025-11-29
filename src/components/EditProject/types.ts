@@ -76,7 +76,7 @@ export interface GeneralInformationCardProps {
 export interface QuestionsCardProps {
   questionList: Question[];
   addQuestion: () => void;
-  updateQuestion: (index: number, text: string) => void;
+  updateQuestion: (index: number, updates: Partial<Question>) => void;
   removeQuestion: (index: number) => void;
   reorderQuestions: (oldIndex: number, newIndex: number) => void;
 }

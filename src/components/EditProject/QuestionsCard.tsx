@@ -33,9 +33,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 interface SortableQuestionItemProps {
-  question: { id: string | null; text: string };
+  question: { id: string | null; text: string; leftLabel?: string; rightLabel?: string };
   index: number;
-  updateQuestion: (index: number, text: string) => void;
+  updateQuestion: (index: number, updates: { text?: string; leftLabel?: string; rightLabel?: string }) => void;
   removeQuestion: (index: number) => void;
 }
 
@@ -47,7 +47,7 @@ function SortableQuestionItem({ question, index, updateQuestion, removeQuestion 
     transform,
     transition,
     isDragging,
-  } = useSortable({ 
+  } = useSortable({
     id: `question-${index}`,
     transition: {
       duration: 300,
@@ -66,53 +66,65 @@ function SortableQuestionItem({ question, index, updateQuestion, removeQuestion 
     <Stack
       ref={setNodeRef}
       style={style}
-      direction="row"
-      spacing={1}
-      alignItems="center"
+      direction="column"
+      spacing={2}
       sx={{
         backgroundColor: isDragging ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
         borderRadius: 1,
-        p: 0.5,
-        border: isDragging ? '2px solid rgba(25, 118, 210, 0.2)' : '2px solid transparent',
+        p: 2,
+        border: isDragging ? '2px solid rgba(25, 118, 210, 0.2)' : '1px solid rgba(0, 0, 0, 0.12)',
         boxShadow: isDragging ? '0 8px 24px rgba(0, 0, 0, 0.15)' : 'none',
         opacity: isDragging ? 0.9 : 1,
         transform: isDragging ? 'scale(1.02)' : 'scale(1)',
         transition: 'all 200ms cubic-bezier(0.25, 1, 0.5, 1)',
       }}
     >
-      <IconButton
-        {...attributes}
-        {...listeners}
-        size="small"
-        sx={{
-          minWidth: { xs: 40, sm: 32 },
-          height: { xs: 40, sm: 32 },
-          cursor: 'grab',
-          '&:active': {
-            cursor: 'grabbing',
-          },
-        }}
-      >
-        <DragIndicatorIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-      </IconButton>
-      <TextField
-        label={`質問 ${index + 1}`}
-        value={question.text}
-        onChange={(e) => updateQuestion(index, e.target.value)}
-        fullWidth
-        size="small"
-        sx={INPUT_HEIGHT_STYLES}
-      />
-      <IconButton
-        onClick={() => removeQuestion(index)}
-        size="small"
-        sx={{
-          minWidth: { xs: 48, sm: 40 },
-          height: { xs: 48, sm: 40 },
-        }}
-      >
-        <DeleteIcon fontSize="small" />
-      </IconButton>
+      <Stack direction="row" spacing={1} alignItems="center">
+        <IconButton
+          {...attributes}
+          {...listeners}
+          size="small"
+          sx={{
+            cursor: 'grab',
+            '&:active': { cursor: 'grabbing' },
+          }}
+        >
+          <DragIndicatorIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+        </IconButton>
+        <TextField
+          label={`質問 ${index + 1}`}
+          value={question.text}
+          onChange={(e) => updateQuestion(index, { text: e.target.value })}
+          fullWidth
+          size="small"
+          sx={INPUT_HEIGHT_STYLES}
+        />
+        <IconButton
+          onClick={() => removeQuestion(index)}
+          size="small"
+        >
+          <DeleteIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+
+      <Stack direction="row" spacing={2} pl={5}>
+        <TextField
+          label="左ラベル (例: 全くそう思わない)"
+          value={question.leftLabel || ''}
+          onChange={(e) => updateQuestion(index, { leftLabel: e.target.value })}
+          fullWidth
+          size="small"
+          placeholder="全くそう思わない"
+        />
+        <TextField
+          label="右ラベル (例: 非常にそう思う)"
+          value={question.rightLabel || ''}
+          onChange={(e) => updateQuestion(index, { rightLabel: e.target.value })}
+          fullWidth
+          size="small"
+          placeholder="非常にそう思う"
+        />
+      </Stack>
     </Stack>
   );
 }
@@ -125,7 +137,7 @@ export function QuestionsCard({
   reorderQuestions,
 }: QuestionsCardProps) {
   const t = useTranslations('projects.edit');
-  
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -145,7 +157,7 @@ export function QuestionsCard({
     if (over && active.id !== over.id) {
       const oldIndex = parseInt(active.id.toString().replace('question-', ''));
       const newIndex = parseInt(over.id.toString().replace('question-', ''));
-      
+
       // Smooth transition with a slight delay to ensure proper reordering
       setTimeout(() => {
         reorderQuestions(oldIndex, newIndex);

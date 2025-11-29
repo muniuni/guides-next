@@ -327,11 +327,19 @@ const SliderForm = ({
               {q.text}
             </Typography>
             <Box sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.44rem', fontWeight: 500 }}>
+                  {q.leftLabel || t('stronglyDisagree')}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.44rem', fontWeight: 500 }}>
+                  {q.rightLabel || t('stronglyAgree')}
+                </Typography>
+              </Box>
               <Slider
                 marks={[
-                  { value: -1, label: '-1' },
-                  { value: 0, label: '0' },
-                  { value: 1, label: '1' },
+                  { value: -1 },
+                  { value: 0 },
+                  { value: 1 },
                 ]}
                 track={false}
                 value={values[i].value}
@@ -375,10 +383,7 @@ const SliderForm = ({
                     },
                   },
                   '& .MuiSlider-markLabel': {
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    color: 'text.secondary',
-                    mt: 1,
+                    display: 'none',
                   },
                   '& .MuiSlider-valueLabel': {
                     lineHeight: 1.2,
@@ -533,7 +538,15 @@ const RadioForm = ({
             >
               {q.text}
             </Typography>
-            <Box sx={{ px: { xs: 0, sm: 2, md: 4 }, display: 'flex', justifyContent: 'center', position: 'relative' }}>
+            <Box sx={{ px: { xs: 0, sm: 2, md: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: { md: '650px' }, mb: 1 }}>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.44rem', fontWeight: 500 }}>
+                  {q.leftLabel || t('stronglyDisagree')}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.44rem', fontWeight: 500 }}>
+                  {q.rightLabel || t('stronglyAgree')}
+                </Typography>
+              </Box>
 
               <RadioGroup
                 row
@@ -560,11 +573,7 @@ const RadioForm = ({
                     },
                   },
                   '& .MuiFormControlLabel-label': {
-                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                    fontWeight: 500,
-                    color: 'text.secondary',
-                    transition: 'all 0.2s',
-                    mt: 1,
+                    display: 'none',
                   },
                 }}
               >

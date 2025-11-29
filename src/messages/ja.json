@@ -138,6 +138,8 @@
   },
   "evaluation": {
     "title": "評価",
+    "stronglyDisagree": "全くそう思わない",
+    "stronglyAgree": "非常にそう思う",
     "instructions": "提供された質問に基づいて各画像を評価してください",
     "viewingTime": "表示時間",
     "seconds": "秒",

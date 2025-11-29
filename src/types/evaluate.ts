@@ -5,6 +5,8 @@ export interface ImageItem extends Image {}
 export interface Question {
   id: string;
   text: string;
+  leftLabel?: string;
+  rightLabel?: string;
 }
 
 export interface ProjectProps {

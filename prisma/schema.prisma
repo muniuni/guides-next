@@ -79,6 +79,8 @@ model Question {
   projectId String
   project   Project @relation("ProjectQuestions", fields: [projectId], references: [id])
   scores    Score[]
+  leftLabel String  @default("全くそう思わない")
+  rightLabel String @default("非常にそう思う")
 }
 
 model Image {

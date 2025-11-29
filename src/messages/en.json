@@ -138,6 +138,8 @@
   },
   "evaluation": {
     "title": "Evaluation",
+    "stronglyDisagree": "Strongly Disagree",
+    "stronglyAgree": "Strongly Agree",
     "instructions": "Please rate each image based on the questions provided",
     "viewingTime": "Viewing Time",
     "seconds": "seconds",

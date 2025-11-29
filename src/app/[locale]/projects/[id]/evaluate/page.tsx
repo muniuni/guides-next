@@ -38,7 +38,7 @@ export default async function EvaluatePage(context: PageParams) {
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     include: {
-      questions: { select: { id: true, text: true } },
+      questions: { select: { id: true, text: true, leftLabel: true, rightLabel: true } },
       images: { select: { id: true, url: true } },
     },
   });

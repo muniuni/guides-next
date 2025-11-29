@@ -39,8 +39,13 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
   // 質問管理
   const [questionList, setQuestionList] = useState<Question[]>(
     questions.length > 0
-      ? questions.map((q) => ({ id: q.id, text: q.text }))
-      : [{ id: null, text: '' }]
+      ? questions.map((q) => ({
+          id: q.id,
+          text: q.text,
+          leftLabel: q.leftLabel === '全くそう思わない' ? '' : (q.leftLabel || ''),
+          rightLabel: q.rightLabel === '非常にそう思う' ? '' : (q.rightLabel || '')
+        }))
+      : [{ id: null, text: '', leftLabel: '', rightLabel: '' }]
   );
 
   // 画像管理
@@ -84,15 +89,20 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
 
   // 質問操作関数
   const addQuestion = () => {
-    setQuestionList((prev) => [...prev, { id: null, text: '' }]);
+    setQuestionList((prev) => [...prev, {
+      id: null,
+      text: '',
+      leftLabel: '',
+      rightLabel: ''
+    }]);
   };
 
   const removeQuestion = (index: number) => {
     setQuestionList((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateQuestion = (index: number, text: string) => {
-    setQuestionList((prev) => prev.map((q, i) => (i === index ? { ...q, text } : q)));
+  const updateQuestion = (index: number, updates: Partial<Question>) => {
+    setQuestionList((prev) => prev.map((q, i) => (i === index ? { ...q, ...updates } : q)));
   };
 
   const reorderQuestions = (oldIndex: number, newIndex: number) => {
@@ -169,8 +179,14 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
     setLoading(true);
 
     try {
-      // 空の質問をフィルタリング
-      const filteredQuestions = questionList.filter((q) => q.text.trim() !== '');
+      // 空の質問をフィルタリング（テキストもラベルも空の場合のみ除外）
+      // テキストが空でもラベルがある場合は保持し、テキストにデフォルト値を設定
+      const filteredQuestions = questionList
+        .filter((q) => q.text.trim() !== '' || (q.leftLabel && q.leftLabel.trim() !== '') || (q.rightLabel && q.rightLabel.trim() !== ''))
+        .map((q, index) => ({
+          ...q,
+          text: q.text.trim() === '' ? `質問 ${index + 1}` : q.text
+        }));
 
       const formData = new FormData();
       formData.append('name', projectName);
@@ -250,7 +266,11 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       if (questions.length !== questionList.length) return true;
       return questions.some((q, i) => {
         const currentQ = questionList[i];
-        return q.text !== currentQ.text;
+        return (
+          q.text !== currentQ.text ||
+          (q.leftLabel || '全くそう思わない') !== (currentQ.leftLabel || '全くそう思わない') ||
+          (q.rightLabel || '非常にそう思う') !== (currentQ.rightLabel || '非常にそう思う')
+        );
       });
     };
 

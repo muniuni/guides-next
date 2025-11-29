@@ -31,4 +31,6 @@ export interface Question {
   id: string | null;
   text: string;
   projectId?: string;
+  leftLabel?: string;
+  rightLabel?: string;
 }

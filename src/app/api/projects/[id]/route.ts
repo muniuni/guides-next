@@ -84,22 +84,53 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     if (q.id) {
       const updated = await prisma.question.update({
         where: { id: q.id },
-        data: { text: q.text },
+        data: {
+          text: q.text,
+          leftLabel: q.leftLabel,
+          rightLabel: q.rightLabel
+        },
       });
       keepQuestionIds.push(updated.id);
     } else {
       const created = await prisma.question.create({
-        data: { text: q.text, projectId },
+        data: {
+          text: q.text,
+          projectId,
+          leftLabel: q.leftLabel,
+          rightLabel: q.rightLabel
+        },
       });
       keepQuestionIds.push(created.id);
     }
   }
-  await prisma.question.deleteMany({
+
+
+  // 削除対象の質問IDを特定
+  const questionsToDelete = await prisma.question.findMany({
     where: {
       projectId,
       id: { notIn: keepQuestionIds.length ? keepQuestionIds : ['_'] },
     },
+    select: { id: true }
   });
+
+  if (questionsToDelete.length > 0) {
+    const questionIdsToDelete = questionsToDelete.map(q => q.id);
+
+    // 関連するスコアを削除
+    await prisma.score.deleteMany({
+      where: {
+        questionId: { in: questionIdsToDelete }
+      }
+    });
+
+    // 質問を削除
+    await prisma.question.deleteMany({
+      where: {
+        id: { in: questionIdsToDelete }
+      }
+    });
+  }
 
   /* 3. 既存画像の削除 */
   const currentImages = await prisma.image.findMany({ where: { projectId } });
