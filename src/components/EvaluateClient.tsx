@@ -247,6 +247,103 @@ const TimerProgress = ({
   );
 };
 
+// Shared QuestionCard Component
+const QuestionCard = ({
+  question,
+  index,
+  children,
+}: {
+  question: Question;
+  index: number;
+  children: React.ReactNode;
+}) => {
+  const t = useTranslations('evaluation');
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1, duration: 0.5 }}
+      style={{ width: '100%', height: '100%' }}
+    >
+      <Card
+        elevation={0}
+        sx={{
+          width: '100%',
+          height: '100%',
+          py: { xs: 2, sm: 4, md: 5 },
+          px: { xs: 1, sm: 4, md: 5 },
+          borderRadius: { xs: 3, sm: 4 },
+          background: '#ffffff',
+          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.04)',
+          border: '1px solid rgba(0,0,0,0.03)',
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: '0 15px 50px rgba(0, 0, 0, 0.06)',
+          },
+        }}
+      >
+        <Typography
+          variant="h4"
+          align="center"
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            color: '#1a1a1a',
+            mb: { xs: 3, sm: 4 },
+            fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
+            lineHeight: 1.4,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          {question.text}
+        </Typography>
+        <Box
+          sx={{
+            px: { xs: 0, sm: 2, md: 4 },
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            position: 'relative',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
+              maxWidth: { md: '650px' },
+              mb: { xs: 2, sm: 3 },
+            }}
+          >
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}
+            >
+              {question.leftLabel || t('stronglyDisagree')}
+            </Typography>
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}
+            >
+              {question.rightLabel || t('stronglyAgree')}
+            </Typography>
+          </Box>
+          <Box sx={{ width: '100%', maxWidth: { md: '650px' } }}>
+            {children}
+          </Box>
+        </Box>
+      </Card>
+    </motion.div>
+  );
+};
+
 // SliderForm Component
 const SliderForm = ({
   questions,
@@ -276,7 +373,7 @@ const SliderForm = ({
       sx={{
         width: '100%',
         display: 'grid',
-        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+        gridTemplateColumns: '1fr',
         gap: { xs: 3, sm: 4 },
         pb: { xs: 4, sm: 6 },
         maxWidth: { md: '1200px' },
@@ -284,131 +381,79 @@ const SliderForm = ({
       }}
     >
       {questions.map((q, i) => (
-        <motion.div
-          key={q.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1, duration: 0.5 }}
-          style={{ width: '100%', height: '100%' }}
-        >
-          <Card
-            elevation={0}
+        <QuestionCard key={q.id} question={q} index={i}>
+          <Slider
+            marks={[
+              { value: -1 },
+              { value: 0 },
+              { value: 1 },
+            ]}
+            track={false}
+            value={values[i].value}
+            onChange={(_, v) => handleChange(i, v as number)}
+            min={-1}
+            max={1}
+            step={0.01}
+            valueLabelDisplay="auto"
+            disabled={disabled}
             sx={{
-              width: '100%',
-              height: '100%',
-              p: { xs: 3, sm: 4, md: 5 },
-              borderRadius: { xs: 3, sm: 4 },
-              background: '#ffffff',
-              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.04)',
-              border: '1px solid rgba(0,0,0,0.03)',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 15px 50px rgba(0, 0, 0, 0.06)',
+              height: 6,
+              '& .MuiSlider-thumb': {
+                width: 36,
+                height: 36,
+                backgroundColor: '#fff',
+                border: '2px solid currentColor',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                },
+                '&::before': {
+                  display: 'none',
+                },
+              },
+              '& .MuiSlider-track': {
+                border: 'none',
+                backgroundColor: '#000',
+              },
+              '& .MuiSlider-rail': {
+                opacity: 1,
+                backgroundColor: '#e0e0e0',
+              },
+              '& .MuiSlider-mark': {
+                backgroundColor: '#bfbfbf',
+                height: 8,
+                width: 8,
+                borderRadius: '50%',
+                '&.MuiSlider-markActive': {
+                  opacity: 1,
+                  backgroundColor: 'currentColor',
+                },
+              },
+              '& .MuiSlider-markLabel': {
+                display: 'none',
+              },
+              '& .MuiSlider-valueLabel': {
+                lineHeight: 1.2,
+                fontSize: 12,
+                background: 'unset',
+                padding: 0,
+                width: 32,
+                height: 32,
+                borderRadius: '50% 50% 50% 0',
+                backgroundColor: '#000',
+                transformOrigin: 'bottom left',
+                transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
+                '&::before': { display: 'none' },
+                '&.MuiSlider-valueLabelOpen': {
+                  transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
+                },
+                '& > *': {
+                  transform: 'rotate(45deg)',
+                },
               },
             }}
-          >
-            <Typography
-              variant="h4"
-              align="center"
-              gutterBottom
-              sx={{
-                fontWeight: 700,
-                color: '#1a1a1a',
-                mb: { xs: 3, sm: 4 },
-                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
-                lineHeight: 1.4,
-                letterSpacing: '-0.02em',
-              }}
-            >
-              {q.text}
-            </Typography>
-            <Box sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}>
-                  {q.leftLabel || t('stronglyDisagree')}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}>
-                  {q.rightLabel || t('stronglyAgree')}
-                </Typography>
-              </Box>
-              <Slider
-                marks={[
-                  { value: -1 },
-                  { value: 0 },
-                  { value: 1 },
-                ]}
-                track={false}
-                value={values[i].value}
-                onChange={(_, v) => handleChange(i, v as number)}
-                min={-1}
-                max={1}
-                step={0.01}
-                valueLabelDisplay="auto"
-                disabled={disabled}
-                sx={{
-                  height: 6,
-                  '& .MuiSlider-thumb': {
-                    width: 28,
-                    height: 28,
-                    backgroundColor: '#fff',
-                    border: '2px solid currentColor',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
-                      boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
-                    },
-                    '&::before': {
-                      display: 'none',
-                    },
-                  },
-                  '& .MuiSlider-track': {
-                    border: 'none',
-                    backgroundColor: '#000',
-                  },
-                  '& .MuiSlider-rail': {
-                    opacity: 1,
-                    backgroundColor: '#e0e0e0',
-                  },
-                  '& .MuiSlider-mark': {
-                    backgroundColor: '#bfbfbf',
-                    height: 8,
-                    width: 8,
-                    borderRadius: '50%',
-                    '&.MuiSlider-markActive': {
-                      opacity: 1,
-                      backgroundColor: 'currentColor',
-                    },
-                  },
-                  '& .MuiSlider-markLabel': {
-                    display: 'none',
-                  },
-                  '& .MuiSlider-valueLabel': {
-                    lineHeight: 1.2,
-                    fontSize: 12,
-                    background: 'unset',
-                    padding: 0,
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50% 50% 50% 0',
-                    backgroundColor: '#000',
-                    transformOrigin: 'bottom left',
-                    transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
-                    '&::before': { display: 'none' },
-                    '&.MuiSlider-valueLabelOpen': {
-                      transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
-                    },
-                    '& > *': {
-                      transform: 'rotate(45deg)',
-                    },
-                  },
-                }}
-              />
-            </Box>
-          </Card>
-        </motion.div>
+          />
+        </QuestionCard>
       ))}
       <Button
         type="submit"
@@ -495,126 +540,72 @@ const RadioForm = ({
       }}
     >
       {questions.map((q, i) => (
-        <motion.div
-          key={q.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1, duration: 0.5 }}
-          style={{ width: '100%', height: '100%' }}
-        >
-          <Card
-            elevation={0}
+        <QuestionCard key={q.id} question={q} index={i}>
+          <RadioGroup
+            row
+            value={values[i].value}
+            onChange={(e) => handleChange(i, parseInt(e.target.value))}
             sx={{
               width: '100%',
-              height: '100%',
-              py: { xs: 2, sm: 4, md: 5 },
-              px: { xs: 1, sm: 4, md: 5 },
-              borderRadius: { xs: 3, sm: 4 },
-              background: '#ffffff',
-              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.04)',
-              border: '1px solid rgba(0,0,0,0.03)',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 15px 50px rgba(0, 0, 0, 0.06)',
+              maxWidth: { md: '650px' },
+              mx: 'auto',
+              justifyContent: 'space-between',
+              flexWrap: 'nowrap',
+              position: 'relative',
+              zIndex: 1,
+              '& .MuiFormControlLabel-root': {
+                margin: 0,
+                flexDirection: 'column-reverse',
+                gap: { xs: 0, sm: 1 },
+                minWidth: 0,
+                borderRadius: '8px',
+                padding: { xs: '4px 0', sm: '8px 12px' },
+                transition: 'background-color 0.2s',
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.03)',
+                },
+              },
+              '& .MuiFormControlLabel-label': {
+                display: 'none',
               },
             }}
           >
-            <Typography
-              variant="h4"
-              align="center"
-              gutterBottom
-              sx={{
-                fontWeight: 700,
-                color: '#1a1a1a',
-                mb: { xs: 3, sm: 4 },
-                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
-                lineHeight: 1.4,
-                letterSpacing: '-0.02em',
-              }}
-            >
-              {q.text}
-            </Typography>
-            <Box sx={{ px: { xs: 0, sm: 2, md: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: { md: '650px' }, mb: 1 }}>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}>
-                  {q.leftLabel || t('stronglyDisagree')}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.72rem', md: '1.44rem' }, fontWeight: 500 }}>
-                  {q.rightLabel || t('stronglyAgree')}
-                </Typography>
-              </Box>
-
-              <RadioGroup
-                row
-                value={values[i].value}
-                onChange={(e) => handleChange(i, parseInt(e.target.value))}
-                sx={{
-                  width: '100%',
-                  maxWidth: { md: '650px' },
-                  mx: 'auto',
-                  justifyContent: 'space-between',
-                  flexWrap: 'nowrap',
-                  position: 'relative',
-                  zIndex: 1,
-                  '& .MuiFormControlLabel-root': {
-                    margin: 0,
-                    flexDirection: 'column-reverse',
-                    gap: { xs: 0, sm: 1 },
-                    minWidth: 0,
-                    borderRadius: '8px',
-                    padding: { xs: '4px 0', sm: '8px 12px' },
-                    transition: 'background-color 0.2s',
-                    '&:hover': {
-                      backgroundColor: 'rgba(0,0,0,0.03)',
+            {radioOptions.map((option) => {
+              const isSelected = values[i].value === option.value;
+              return (
+                <FormControlLabel
+                  key={option.value}
+                  value={option.value}
+                  sx={{
+                    '& .MuiFormControlLabel-label': {
+                      fontWeight: isSelected ? 700 : 500,
+                      color: isSelected ? 'text.primary' : 'text.secondary',
+                      transform: isSelected ? 'scale(1.1)' : 'scale(1)',
                     },
-                  },
-                  '& .MuiFormControlLabel-label': {
-                    display: 'none',
-                  },
-                }}
-              >
-                {radioOptions.map((option) => {
-                  const isSelected = values[i].value === option.value;
-                  return (
-                    <FormControlLabel
-                      key={option.value}
-                      value={option.value}
+                  }}
+                  control={
+                    <Radio
                       sx={{
-                        '& .MuiFormControlLabel-label': {
-                          fontWeight: isSelected ? 700 : 500,
-                          color: isSelected ? 'text.primary' : 'text.secondary',
-                          transform: isSelected ? 'scale(1.1)' : 'scale(1)',
+                        padding: { xs: '2px', sm: '9px' },
+                        backgroundColor: '#ffffff', // White background to hide line behind
+                        '&:hover': {
+                          backgroundColor: '#f5f5f5',
+                        },
+                        '& .MuiSvgIcon-root': {
+                          fontSize: { xs: 38, sm: 54 },
+                        },
+                        '&.Mui-checked': {
+                          color: '#000000',
                         },
                       }}
-                      control={
-                        <Radio
-                          sx={{
-                            padding: { xs: '2px', sm: '9px' },
-                            backgroundColor: '#ffffff', // White background to hide line behind
-                            '&:hover': {
-                              backgroundColor: '#f5f5f5',
-                            },
-                            '& .MuiSvgIcon-root': {
-                              fontSize: { xs: 38, sm: 54 },
-                            },
-                            '&.Mui-checked': {
-                              color: '#000000',
-                            },
-                          }}
-                        />
-                      }
-                      label={option.label}
                     />
-                  );
-                })}
-              </RadioGroup>
-            </Box>
-          </Card>
-        </motion.div>
+                  }
+                  label={option.label}
+                />
+              );
+            })}
+          </RadioGroup>
+        </QuestionCard>
       ))}
       <Button
         type="submit"
