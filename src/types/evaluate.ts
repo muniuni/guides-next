@@ -14,6 +14,7 @@ export interface ProjectProps {
   questions: Question[];
   images: ImageItem[];
   allowMultipleAnswers?: boolean;
+  evaluationMethod?: string;
 }
 
 export interface EvaluateClientProps {

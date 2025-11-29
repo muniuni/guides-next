@@ -52,6 +52,7 @@ export async function GET(_req: Request, { params }: { params: Promise<Params> }
       'createdAt',
       'questionText',
       'imageUrl',
+      'evaluationMethod',
     ];
 
     const csvRows = [
@@ -66,6 +67,7 @@ export async function GET(_req: Request, { params }: { params: Promise<Params> }
           score.createdAt.toISOString(),
           `"${score.question?.text?.replace(/"/g, '""') || ''}"`, // Handle quotes in text
           `"${score.image?.url?.replace(/"/g, '""') || ''}"`,
+          score.evaluationMethod || 'slider',
         ].join(',')
       ),
     ];

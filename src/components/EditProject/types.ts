@@ -12,6 +12,7 @@ export interface Project {
   questions: Question[];
   images: ImageRecord[];
   allowMultipleAnswers: boolean;
+  evaluationMethod: string;
 }
 
 export interface EditProjectFormProps {
@@ -27,6 +28,7 @@ export interface EditProjectFormProps {
     startDate?: string | null;
     endDate?: string | null;
     allowMultipleAnswers?: boolean;
+    evaluationMethod?: string;
   };
 }
 
@@ -66,6 +68,8 @@ export interface GeneralInformationCardProps {
   setEndDate: (value: string) => void;
   allowMultipleAnswers: boolean;
   setAllowMultipleAnswers: (value: boolean) => void;
+  evaluationMethod: string;
+  setEvaluationMethod: (value: string) => void;
 }
 
 // 質問フォームプロップスの型定義

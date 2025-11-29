@@ -28,6 +28,9 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
   const [allowMultipleAnswers, setAllowMultipleAnswers] = useState<boolean>(
     initialProject.allowMultipleAnswers ?? true
   );
+  const [evaluationMethod, setEvaluationMethod] = useState<string>(
+    initialProject.evaluationMethod || 'slider'
+  );
 
   // カスタムフックでの数値入力管理
   const imageCountInfo = useNumberField(imageCount);
@@ -181,6 +184,7 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       formData.append('startDate', parseInputDate(projectStartDate) || '');
       formData.append('endDate', parseInputDate(projectEndDate) || '');
       formData.append('allowMultipleAnswers', String(allowMultipleAnswers));
+      formData.append('evaluationMethod', evaluationMethod);
 
       const res = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
@@ -238,7 +242,8 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
       imageDurationInfo.value !== imageDuration.toString() ||
       projectStartDate !== formatDateForInput(startDate) ||
       projectEndDate !== formatDateForInput(endDate) ||
-      allowMultipleAnswers !== (initialProject.allowMultipleAnswers ?? true);
+      allowMultipleAnswers !== (initialProject.allowMultipleAnswers ?? true) ||
+      evaluationMethod !== (initialProject.evaluationMethod || 'slider');
 
     // 質問リストの変更チェック
     const questionsChanged = () => {
@@ -299,6 +304,8 @@ export default function EditProjectForm({ initialProject }: EditProjectFormProps
             setEndDate={setProjectEndDate}
             allowMultipleAnswers={allowMultipleAnswers}
             setAllowMultipleAnswers={setAllowMultipleAnswers}
+            evaluationMethod={evaluationMethod}
+            setEvaluationMethod={setEvaluationMethod}
           />
 
           {/* Questions Card */}

@@ -12,6 +12,10 @@ import {
   Switch,
   FormControlLabel,
   Paper,
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormLabel,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { GeneralInformationCardProps } from './types';
@@ -43,6 +47,8 @@ export function GeneralInformationCard({
   setEndDate,
   allowMultipleAnswers,
   setAllowMultipleAnswers,
+  evaluationMethod,
+  setEvaluationMethod,
 }: GeneralInformationCardProps) {
   const t = useTranslations('projects.edit');
   const tDuration = useTranslations('duration');
@@ -241,6 +247,30 @@ export function GeneralInformationCard({
               }
               label={t('allowMultipleAnswers')}
             />
+
+            <FormControl component="fieldset" sx={{ mt: 2, display: 'block' }}>
+              <FormLabel component="legend" sx={{ mb: 1, fontSize: '1rem', color: 'text.primary' }}>
+                評価方法
+              </FormLabel>
+              <RadioGroup
+                row
+                value={evaluationMethod}
+                onChange={(e) => setEvaluationMethod(e.target.value)}
+              >
+                <FormControlLabel
+                  value="slider"
+                  control={<Radio />}
+                  label="スライダー評価"
+                  sx={{ mr: 4 }}
+                />
+                <FormControlLabel value="radio" control={<Radio />} label="7段階評価" />
+              </RadioGroup>
+              <FormHelperText>
+                {evaluationMethod === 'slider'
+                  ? 'スライダーを使用して、-1から1までの連続的な値を入力します。'
+                  : '7つのラジオボタンを使用して、-3から3までの段階的な値を入力します。'}
+              </FormHelperText>
+            </FormControl>
           </Box>
         </Stack>
       </CardContent>

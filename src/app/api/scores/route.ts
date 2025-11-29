@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
-  const { sessionId, answers } = await request.json();
+  const { sessionId, answers, evaluationMethod } = await request.json();
+  console.log('Received scores payload:', { sessionId, answersCount: answers?.length, evaluationMethod });
 
   if (typeof sessionId !== 'string' || !Array.isArray(answers)) {
     return NextResponse.json(
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
             imageId: a.imageId,
             questionId: a.questionId,
             value: a.value,
+            evaluationMethod: evaluationMethod || 'slider',
           },
         })
       )

@@ -13,6 +13,9 @@ import {
   Stack,
   Divider,
   Card,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
 } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
@@ -20,28 +23,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 
 // Types
-interface Question {
-  id: string;
-  text: string;
-}
-
-interface ImageItem {
-  id: string;
-  url: string;
-}
-
-interface ProjectProps {
-  id: string;
-  imageCount: number;
-  imageDuration: number;
-  questions: Question[];
-  images: ImageItem[];
-  allowMultipleAnswers?: boolean;
-}
-
-interface EvaluateClientProps {
-  project: ProjectProps;
-}
+import { EvaluateClientProps, Question } from '@/types/evaluate';
 
 interface Answer {
   imageId: string;
@@ -461,6 +443,208 @@ const SliderForm = ({
   );
 };
 
+// RadioForm Component
+const RadioForm = ({
+  questions,
+  onSubmit,
+  disabled = false,
+}: {
+  questions: Question[];
+  onSubmit: (vals: { questionId: string; value: number }[]) => void;
+  disabled?: boolean;
+}) => {
+  const t = useTranslations('evaluation');
+  const [values, setValues] = useState(questions.map((q) => ({ questionId: q.id, value: 0 })));
+
+  const handleChange = useCallback((index: number, val: number) => {
+    setValues((vs) => vs.map((v, i) => (i === index ? { ...v, value: val } : v)));
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(values);
+  };
+
+  const radioOptions = [
+    { value: -3, label: '-3' },
+    { value: -2, label: '-2' },
+    { value: -1, label: '-1' },
+    { value: 0, label: '0' },
+    { value: 1, label: '1' },
+    { value: 2, label: '2' },
+    { value: 3, label: '3' },
+  ];
+
+  return (
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        width: '100%',
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        gap: { xs: 3, sm: 4 },
+        pb: { xs: 4, sm: 6 },
+        maxWidth: { md: '1200px' },
+        mx: 'auto',
+      }}
+    >
+      {questions.map((q, i) => (
+        <motion.div
+          key={q.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1, duration: 0.5 }}
+          style={{ width: '100%', height: '100%' }}
+        >
+          <Card
+            elevation={0}
+            sx={{
+              width: '100%',
+              height: '100%',
+              py: { xs: 2, sm: 4, md: 5 },
+              px: { xs: 1, sm: 4, md: 5 },
+              borderRadius: { xs: 3, sm: 4 },
+              background: '#ffffff',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.04)',
+              border: '1px solid rgba(0,0,0,0.03)',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 15px 50px rgba(0, 0, 0, 0.06)',
+              },
+            }}
+          >
+            <Typography
+              variant="h4"
+              align="center"
+              gutterBottom
+              sx={{
+                fontWeight: 700,
+                color: '#1a1a1a',
+                mb: { xs: 3, sm: 4 },
+                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
+                lineHeight: 1.4,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {q.text}
+            </Typography>
+            <Box sx={{ px: { xs: 0, sm: 2, md: 4 }, display: 'flex', justifyContent: 'center', position: 'relative' }}>
+
+              <RadioGroup
+                row
+                value={values[i].value}
+                onChange={(e) => handleChange(i, parseInt(e.target.value))}
+                sx={{
+                  width: '100%',
+                  maxWidth: { md: '650px' },
+                  mx: 'auto',
+                  justifyContent: 'space-between',
+                  flexWrap: 'nowrap',
+                  position: 'relative',
+                  zIndex: 1,
+                  '& .MuiFormControlLabel-root': {
+                    margin: 0,
+                    flexDirection: 'column-reverse',
+                    gap: { xs: 0, sm: 1 },
+                    minWidth: 0,
+                    borderRadius: '8px',
+                    padding: { xs: '4px 0', sm: '8px 12px' },
+                    transition: 'background-color 0.2s',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0,0,0,0.03)',
+                    },
+                  },
+                  '& .MuiFormControlLabel-label': {
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    fontWeight: 500,
+                    color: 'text.secondary',
+                    transition: 'all 0.2s',
+                    mt: 1,
+                  },
+                }}
+              >
+                {radioOptions.map((option) => {
+                  const isSelected = values[i].value === option.value;
+                  return (
+                    <FormControlLabel
+                      key={option.value}
+                      value={option.value}
+                      sx={{
+                        '& .MuiFormControlLabel-label': {
+                          fontWeight: isSelected ? 700 : 500,
+                          color: isSelected ? 'text.primary' : 'text.secondary',
+                          transform: isSelected ? 'scale(1.1)' : 'scale(1)',
+                        },
+                      }}
+                      control={
+                        <Radio
+                          sx={{
+                            padding: { xs: '2px', sm: '9px' },
+                            backgroundColor: '#ffffff', // White background to hide line behind
+                            '&:hover': {
+                              backgroundColor: '#f5f5f5',
+                            },
+                            '& .MuiSvgIcon-root': {
+                              fontSize: { xs: 38, sm: 54 },
+                            },
+                            '&.Mui-checked': {
+                              color: '#000000',
+                            },
+                          }}
+                        />
+                      }
+                      label={option.label}
+                    />
+                  );
+                })}
+              </RadioGroup>
+            </Box>
+          </Card>
+        </motion.div>
+      ))}
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        disabled={disabled}
+        sx={{
+          gridColumn: { xs: '1', md: '1 / -1' },
+          justifySelf: 'center',
+          py: 2,
+          fontSize: '1.1rem',
+          fontWeight: 700,
+          borderRadius: 100,
+          background: '#000000',
+          color: '#ffffff',
+          boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)',
+          textTransform: 'none',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: '0 12px 25px rgba(0, 0, 0, 0.2)',
+            background: '#1a1a1a',
+            transform: 'translateY(-2px)',
+          },
+          '&:active': {
+            transform: 'translateY(0)',
+          },
+          '&.Mui-disabled': {
+            background: '#e0e0e0',
+            color: '#9e9e9e',
+          },
+          maxWidth: '400px',
+        }}
+      >
+        {disabled ? t('submitting') : t('next')}
+      </Button>
+    </Box>
+  );
+};
+
 export default function EvaluateClient({ project }: EvaluateClientProps) {
   const t = useTranslations('evaluation');
   const router = useRouter();
@@ -712,10 +896,15 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const submitAllScores = useCallback(async (all: Answer[]) => {
     setSubmitting(true);
     try {
+      console.log('Submitting scores with method:', project.evaluationMethod || 'slider');
       const res = await fetch('/api/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, answers: all }),
+        body: JSON.stringify({
+          sessionId,
+          answers: all,
+          evaluationMethod: project.evaluationMethod || 'slider',
+        }),
       });
       if (!res.ok) throw new Error('Failed to submit scores');
 
@@ -729,7 +918,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     } finally {
       setSubmitting(false);
     }
-  }, [sessionId, project.id, project.allowMultipleAnswers, router]);
+  }, [sessionId, project, router]);
 
   const calculateImageStyle = useCallback(() => {
     if (!currentImageSize || !containerRef.current) return {};
@@ -1137,11 +1326,19 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                     flexDirection: 'column',
                   }}
                 >
-                  <SliderForm
-                    questions={project.questions}
-                    onSubmit={handleAnswerSubmit}
-                    disabled={submitting}
-                  />
+                  {project.evaluationMethod === 'radio' ? (
+                    <RadioForm
+                      questions={project.questions}
+                      onSubmit={handleAnswerSubmit}
+                      disabled={submitting}
+                    />
+                  ) : (
+                    <SliderForm
+                      questions={project.questions}
+                      onSubmit={handleAnswerSubmit}
+                      disabled={submitting}
+                    />
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

@@ -65,6 +65,7 @@ model Project {
   startDate     DateTime?
   endDate       DateTime?
   allowMultipleAnswers Boolean @default(true)
+  evaluationMethod String @default("slider")
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   images        Image[]    @relation("ProjectImages")
@@ -94,6 +95,7 @@ model Score {
   sessionId  String
   questionId String
   imageId    String
+  evaluationMethod String @default("slider")
   createdAt  DateTime @default(now())
   image      Image    @relation(fields: [imageId], references: [id])
   question   Question @relation(fields: [questionId], references: [id])

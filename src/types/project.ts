@@ -18,6 +18,7 @@ export interface Project {
   startDate?: string | null;
   endDate?: string | null;
   allowMultipleAnswers?: boolean;
+  evaluationMethod?: string;
 }
 
 export interface Image {
