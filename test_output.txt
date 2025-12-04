@@ -1,0 +1,76 @@
+[1A[2K[2m[WebServer] [22m [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] [chromium] › tests/e2e/subject-flow.spec.ts:21:7 › Subject Facing Flow › Complete subject flow: Consent -> View Images -> Evaluate -> Finish
+[1A[2K[chromium] › tests/e2e/subject-flow.spec.ts:21:7 › Subject Facing Flow › Complete subject flow: Consent -> View Images -> Evaluate -> Finish
+Test Project ID: cmiqv1qg600019kq4b5h79y4s
+
+[1A[2K[2m[WebServer] [22m [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+
+[1A[2KClicking start button...
+
+[1A[2KClicked start button
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 1638ms
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 2715ms
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 4649ms
+
+[1A[2K[2m[WebServer] [22m [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+
+[1A[2KBROWSER LOG: %c%s%c  [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+
+[1A[2KBROWSER LOG: %c[Vercel Speed Insights]%c [vitals] color: rgb(120, 120, 120) color: inherit {speed: 4g, metrics: Array(4), scriptVersion: 0.1.3, sdkName: @vercel/speed-insights/next, sdkVersion: 1.2.0}
+
+[1A[2KBROWSER LOG: Skipping auto-scroll behavior due to `position: sticky` or `position: fixed` on element: JSHandle@node
+
+[1A[2KBROWSER LOG: Skipping auto-scroll behavior due to `position: sticky` or `position: fixed` on element: JSHandle@node
+
+[1A[2KBROWSER LOG: Skipping auto-scroll behavior due to `position: sticky` or `position: fixed` on element: JSHandle@node
+
+[1A[2KBROWSER LOG: Skipping auto-scroll behavior due to `position: sticky` or `position: fixed` on element: JSHandle@node
+
+[1A[2KBROWSER LOG: Skipping auto-scroll behavior due to `position: sticky` or `position: fixed` on element: JSHandle@node
+
+[1A[2KBROWSER LOG: Skipping auto-scroll behavior due to `position: sticky` or `position: fixed` on element: JSHandle@node
+
+[1A[2K  1) [chromium] › tests/e2e/subject-flow.spec.ts:21:7 › Subject Facing Flow › Complete subject flow: Consent -> View Images -> Evaluate -> Finish 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: '次へ' })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByRole('button', { name: '次へ' })[22m
+
+
+      81 |       // Verify "Next" button appears (it is part of the form)
+      82 |       const nextButton = page.getByRole('button', { name: '次へ' });
+    > 83 |       await expect(nextButton).toBeVisible({ timeout: 10000 }); // Wait for timer to finish
+         |                                ^
+      84 |
+      85 |       // We can optionally interact with sliders here.
+      86 |       // For now, we just submit default values (0).
+        at /Users/rom/devs/ids/guides-next/tests/e2e/subject-flow.spec.ts:83:32
+
+    Error Context: test-results/subject-flow-Subject-Facin-c98e0--Images---Evaluate---Finish-chromium/error-context.md
+
+
+[1A[2K  1 failed
+    [chromium] › tests/e2e/subject-flow.spec.ts:21:7 › Subject Facing Flow › Complete subject flow: Consent -> View Images -> Evaluate -> Finish 
+
+[36m  Serving HTML report at http://localhost:55400. Press Ctrl+C to quit.[39m

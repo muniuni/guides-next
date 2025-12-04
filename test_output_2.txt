@@ -1,0 +1,61 @@
+[1A[2K[2m[WebServer] [22m [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] [chromium] › tests/e2e/subject-flow.spec.ts:21:7 › Subject Facing Flow › Complete subject flow: Consent -> View Images -> Evaluate -> Finish
+[1A[2K[chromium] › tests/e2e/subject-flow.spec.ts:21:7 › Subject Facing Flow › Complete subject flow: Consent -> View Images -> Evaluate -> Finish
+Test Project ID: cmiqv645h00019k84eygdre3a
+
+[1A[2K[2m[WebServer] [22m [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+
+[1A[2KClicking start button...
+
+[1A[2KBROWSER LOG: %c[Vercel Speed Insights]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+
+[1A[2KClicked start button
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 1908ms
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 2601ms
+
+[1A[2KBROWSER LOG: [Fast Refresh] rebuilding
+
+[1A[2KBROWSER LOG: [Fast Refresh] done in 7479ms
+
+[1A[2K[2m[WebServer] [22m [33m[1m⚠[22m[39m metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+
+[1A[2K  1) [chromium] › tests/e2e/subject-flow.spec.ts:21:7 › Subject Facing Flow › Complete subject flow: Consent -> View Images -> Evaluate -> Finish 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/projects\/cmiqv645h00019k84eygdre3a\/evaluate/[39m
+    Received string:  [31m"http://localhost:3000/ja/projects/cmiqv645h00019k84eygdre3a"[39m
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 30000ms[22m
+    [2m    23 × unexpected value "http://localhost:3000/ja/projects/cmiqv645h00019k84eygdre3a"[22m
+
+
+      47 |
+      48 |     // Verify navigation to evaluate page
+    > 49 |     await expect(page).toHaveURL(new RegExp(`/projects/${projectId}/evaluate`), { timeout: 30000 });
+         |                        ^
+      50 |
+      51 |     // 3. Image Presentation & Evaluation Loop
+      52 |     // We created 2 images in the seed script
+        at /Users/rom/devs/ids/guides-next/tests/e2e/subject-flow.spec.ts:49:24
+
+    Error Context: test-results/subject-flow-Subject-Facin-c98e0--Images---Evaluate---Finish-chromium/error-context.md
+
+
+[1A[2K  1 failed
+    [chromium] › tests/e2e/subject-flow.spec.ts:21:7 › Subject Facing Flow › Complete subject flow: Consent -> View Images -> Evaluate -> Finish 
+
+[36m  Serving HTML report at http://localhost:55510. Press Ctrl+C to quit.[39m

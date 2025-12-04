@@ -156,26 +156,46 @@ const ImageViewer = ({
           </Box>
         </Box>
       )}
-      <Image
-        src={imageUrl}
-        alt={`Image ${index + 1}`}
-        width={parseInt(imageStyle.width as string) || 500}
-        height={parseInt(imageStyle.height as string) || 300}
-        style={{
-          objectFit: 'contain',
-          width: imageStyle.width || 'auto',
-          height: imageStyle.height || 'auto',
-          maxWidth: '100%',
-          maxHeight: '100%',
-          opacity: isImageLoaded ? 1 : 0,
-          transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-          filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))',
-        }}
-        priority
-        fetchPriority="high"
-        sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 850px"
-        onLoad={handleImageLoad}
-      />
+      {imageUrl.startsWith('data:') ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={imageUrl}
+          alt={`Image ${index + 1}`}
+          style={{
+            objectFit: 'contain',
+            width: '100%',
+            height: '100%',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            opacity: isImageLoaded ? 1 : 0,
+            transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))',
+            ...imageStyle,
+          }}
+          onLoad={handleImageLoad}
+        />
+      ) : (
+        <Image
+          src={imageUrl}
+          alt={`Image ${index + 1}`}
+          width={parseInt(imageStyle.width as string) || 500}
+          height={parseInt(imageStyle.height as string) || 300}
+          style={{
+            objectFit: 'contain',
+            width: imageStyle.width || 'auto',
+            height: imageStyle.height || 'auto',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            opacity: isImageLoaded ? 1 : 0,
+            transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))',
+          }}
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 850px"
+          onLoad={handleImageLoad}
+        />
+      )}
     </Box>
   );
 };
@@ -767,17 +787,15 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   useEffect(() => {
     if (!timerState.isRunning || timerState.startTime === null) return;
 
-    let rafId: number;
-    const tick = () => {
+    const intervalId = setInterval(() => {
+      const now = Date.now();
       setTimerState((prev) => ({
         ...prev,
-        currentTime: Date.now(),
+        currentTime: now,
       }));
-      rafId = requestAnimationFrame(tick);
-    };
+    }, 1000); // Log every second
 
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
+    return () => clearInterval(intervalId);
   }, [timerState.isRunning, timerState.startTime]);
 
   // Calculate elapsed time and time left
@@ -795,11 +813,17 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
     }
   }, [phase, timerState.isRunning, timeLeft, stopTimer]);
 
+  const prevIndex = useRef(currentIndex);
+
   // Reset states when currentIndex changes
   useEffect(() => {
-    setCurrentImageSize(null);
-    setIsCurrentImageLoaded(false);
-    resetTimer();
+    if (prevIndex.current !== currentIndex) {
+      prevIndex.current = currentIndex;
+      setCurrentImageSize(null);
+      setIsCurrentImageLoaded(false);
+      resetTimer();
+      setPhase(PHASE.SHOW_IMAGE);
+    }
   }, [currentIndex, resetTimer]);
 
   // Handle window resize - recalculate optimal image size when window dimensions change
@@ -876,8 +900,10 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   // Event Handlers
   const handleImageLoad = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement>) => {
-      const img = event.target as HTMLImageElement;
-
+      const img = event.currentTarget;
+      if (img.naturalWidth === 0) {
+        return; // Image failed to load
+      }
       // Set image dimensions
       setCurrentImageSize({
         width: img.naturalWidth,
@@ -896,7 +922,6 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
   const submitAllScores = useCallback(async (all: Answer[]) => {
     setSubmitting(true);
     try {
-      console.log('Submitting scores with method:', project.evaluationMethod || 'slider');
       const res = await fetch('/api/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -913,7 +938,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
       }
 
       router.push(`/projects/${project.id}/thanks`);
-    } catch {
+    } catch (error) {
       setError('errorSubmitting');
     } finally {
       setSubmitting(false);
@@ -1284,6 +1309,7 @@ export default function EvaluateClient({ project }: EvaluateClientProps) {
                     >
                       {imagesToShow[currentIndex] && imagesToShow[currentIndex].url ? (
                         <ImageViewer
+                          key={currentIndex}
                           imageUrl={imagesToShow[currentIndex].url}
                           index={currentIndex}
                           onImageLoad={handleImageLoad}
