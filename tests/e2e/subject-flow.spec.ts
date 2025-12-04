@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { execSync } from 'child_process';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 test.describe('Subject Facing Flow', () => {
   let sliderProjectId: string;
@@ -19,6 +22,24 @@ test.describe('Subject Facing Flow', () => {
     } catch (error) {
       console.error('Failed to seed test data:', error);
       throw error;
+    }
+  });
+
+  test.afterAll(async () => {
+    // Cleanup: Delete the created projects
+    try {
+      if (sliderProjectId) {
+        await prisma.project.delete({ where: { id: sliderProjectId } });
+        console.log(`Deleted Slider Project ID: ${sliderProjectId}`);
+      }
+      if (radioProjectId) {
+        await prisma.project.delete({ where: { id: radioProjectId } });
+        console.log(`Deleted Radio Project ID: ${radioProjectId}`);
+      }
+    } catch (error) {
+      console.error('Failed to cleanup test data:', error);
+    } finally {
+      await prisma.$disconnect();
     }
   });
 
