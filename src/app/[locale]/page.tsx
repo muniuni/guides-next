@@ -2,16 +2,33 @@ import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import ProjectsClient from './projects-client';
-import { getProjectsSlim } from '@/lib/db/projects';
+import { getMyProjects, getFavoriteProjects } from '@/lib/db/projects';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-export const revalidate = 30;
+import ProjectPlaceholder from '@/components/ProjectPlaceholder';
+
+export const revalidate = 0; // Disable static generation for user-specific data
 
 export default async function HomePage() {
   const t = await getTranslations('projects');
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return (
+      <Box sx={{ p: { xs: 1, sm: 3 }, maxWidth: 1200, margin: '0 auto' }}>
+        <ProjectPlaceholder variant="guest" />
+      </Box>
+    );
+  }
 
   // try-catchでデータフェッチエラーを処理する
   try {
-    const projects = await getProjectsSlim();
+    const [myProjects, favoriteProjects] = await Promise.all([
+      getMyProjects(userId),
+      getFavoriteProjects(userId),
+    ]);
 
     return (
       <Box sx={{ p: { xs: 1, sm: 3 }, maxWidth: 1200, margin: '0 auto' }}>
@@ -25,7 +42,10 @@ export default async function HomePage() {
             </Box>
           }
         >
-          <ProjectsClient initialProjects={projects} />
+          <ProjectsClient
+            initialMyProjects={myProjects}
+            initialFavoriteProjects={favoriteProjects}
+          />
         </Suspense>
       </Box>
     );

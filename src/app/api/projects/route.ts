@@ -1,19 +1,23 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { getMyProjects, getFavoriteProjects } from '@/lib/db/projects';
 
 export async function GET() {
-  const projects = await prisma.project.findMany({
-    include: {
-      user: {
-        select: { username: true, id: true },
-      },
-      images: true,
-      questions: true,
-    },
-  });
-  return NextResponse.json(projects);
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const [myProjects, favoriteProjects] = await Promise.all([
+    getMyProjects(userId),
+    getFavoriteProjects(userId),
+  ]);
+
+  return NextResponse.json({ myProjects, favoriteProjects });
 }
 
 export async function POST(req: Request) {

@@ -53,6 +53,9 @@
     "createMobile": "新規",
     "createNew": "新規作成",
     "myProjects": "マイプロジェクト",
+    "favorites": "お気に入り",
+    "addToFavorites": "お気に入りに追加",
+    "removeFromFavorites": "お気に入りから削除",
     "noProjects": "プロジェクトが見つかりません",
     "notFound": "プロジェクトが見つかりません",
     "createFirst": "最初のプロジェクトを作成しましょう",
@@ -145,6 +148,29 @@
       "rightLabel": "右ラベル (例: 非常にそう思う)",
       "leftLabelPlaceholder": "全くそう思わない",
       "rightLabelPlaceholder": "非常にそう思う"
+    }
+  },
+  "projectPlaceholder": {
+    "guest": {
+      "title": "n-GUIDESへようこそ",
+      "description": "n-GUIDESを使えば、簡単に感性評価調査を行うことができます。まずはログインまたは新規登録してください。",
+      "login": "ログイン",
+      "register": "新規登録"
+    },
+    "empty": {
+      "title": "プロジェクトがありません",
+      "description": "まだプロジェクトが作成されていません。新しいプロジェクトを作成して開始しましょう。",
+      "create": "プロジェクトを作成"
+    },
+    "noResults": {
+      "title": "見つかりませんでした",
+      "description": "検索条件に一致するプロジェクトはありませんでした。別のキーワードをお試しください。",
+      "clearSearch": "検索をクリア"
+    },
+    "noFavorites": {
+      "title": "お気に入りがありません",
+      "description": "お気に入りに登録されたプロジェクトはありません。プロジェクトの星マークをクリックしてお気に入りに追加できます。",
+      "viewAll": "すべてのプロジェクトを表示"
     }
   },
   "evaluation": {

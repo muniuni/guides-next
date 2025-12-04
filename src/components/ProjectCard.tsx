@@ -22,6 +22,8 @@ import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined
 import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
 import LinkIcon from '@mui/icons-material/Link';
 import CheckIcon from '@mui/icons-material/Check';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { truncate, formatDate, safeTimeAgo } from '@/lib/project-utils';
 import { getDurationStatus, formatDateForDisplay } from '@/lib/duration-utils';
 
@@ -29,12 +31,14 @@ import { Project } from '@/types/project';
 
 interface ProjectCardProps {
   project: Project;
+  isFavorited?: boolean;
+  onToggleFavorite?: (projectId: string) => void;
   onMenuOpen: (event: React.MouseEvent<HTMLElement>, projectId: string) => void;
 }
 
 const MAX_DESCRIPTION_LENGTH = 45;
 
-export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
+export default function ProjectCard({ project, isFavorited, onToggleFavorite, onMenuOpen }: ProjectCardProps) {
   const t = useTranslations('projects');
   const tDuration = useTranslations('duration');
   const { data: session } = useSession();
@@ -199,6 +203,40 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
             onMouseDown={(e) => e.preventDefault()}
           />
         )}
+        {onToggleFavorite && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              zIndex: 1,
+            }}
+          >
+            <Tooltip title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}>
+              <IconButton
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onToggleFavorite(project.id);
+                }}
+                size="small"
+                sx={{
+                  color: isFavorited ? '#FFD700' : 'rgba(255, 255, 255, 0.7)',
+                  '&:hover': {
+                    color: isFavorited ? '#FFC107' : 'white',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                  },
+                }}
+              >
+                {isFavorited ? (
+                  <StarIcon />
+                ) : (
+                  <StarBorderIcon />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
       </Box>
       <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <Box
@@ -220,6 +258,7 @@ export default function ProjectCard({ project, onMenuOpen }: ProjectCardProps) {
               whiteSpace: 'nowrap',
             }}
           >
+
             {isOwner && (
               <Link href={`/projects/${project.id}/edit`} passHref prefetch>
                 <Tooltip title={t('editProject')}>

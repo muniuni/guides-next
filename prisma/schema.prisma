@@ -52,6 +52,7 @@ model User {
   accounts  Account[]
   projects  Project[] @relation("UserProjects")
   sessions  Session[]
+  favorites Project[] @relation("UserFavorites")
 }
 
 model Project {
@@ -71,6 +72,7 @@ model Project {
   images        Image[]    @relation("ProjectImages")
   user          User       @relation("UserProjects", fields: [userId], references: [id])
   questions     Question[] @relation("ProjectQuestions")
+  favoritedBy   User[]     @relation("UserFavorites")
 }
 
 model Question {

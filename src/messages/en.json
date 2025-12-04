@@ -53,6 +53,9 @@
     "createMobile": "New",
     "createNew": "New Project",
     "myProjects": "My Projects",
+    "favorites": "Favorites",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
     "noProjects": "No projects found",
     "notFound": "Project not found",
     "createFirst": "Create your first project",
@@ -145,6 +148,29 @@
       "rightLabel": "Right Label (e.g. Strongly Agree)",
       "leftLabelPlaceholder": "Strongly Disagree",
       "rightLabelPlaceholder": "Strongly Agree"
+    }
+  },
+  "projectPlaceholder": {
+    "guest": {
+      "title": "Welcome to n-GUIDES",
+      "description": "Create and manage projects to conduct Kansei evaluations. Please login or register to get started.",
+      "login": "Login",
+      "register": "Register"
+    },
+    "empty": {
+      "title": "No Projects Found",
+      "description": "You haven't created any projects yet. Create a new project to get started.",
+      "create": "Create Project"
+    },
+    "noResults": {
+      "title": "No Results Found",
+      "description": "No projects matched your search criteria. Please try a different keyword.",
+      "clearSearch": "Clear Search"
+    },
+    "noFavorites": {
+      "title": "No Favorites Yet",
+      "description": "You haven't favorited any projects yet. Click the star icon on a project to add it to your favorites.",
+      "viewAll": "View All Projects"
     }
   },
   "evaluation": {
